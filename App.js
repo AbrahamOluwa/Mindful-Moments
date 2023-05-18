@@ -31,6 +31,7 @@ export default function App() {
     'SoraLight': require('./assets/fonts/Sora/Sora-Light.ttf'),
     'SoraMedium': require('./assets/fonts/Sora/Sora-Medium.ttf'),
     'SoraRegular': require('./assets/fonts/Sora/Sora-Regular.ttf'),
+    'PassionOneRegular': require('./assets/fonts/Passion_One/PassionOne-Regular.ttf'),
   });
 
   const onLayoutRootView = useCallback(async () => {

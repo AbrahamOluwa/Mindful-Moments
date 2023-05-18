@@ -21,7 +21,7 @@ export default function Home() {
               textAlign: "center",
             }}
             // bg={["red.400", "blue.400"]}
-            bg="#b2868b"
+            bg="#E9967A"
           >
             <Text style={{ fontFamily: "SoraRegular", color: "white" }}>
               This is a Box

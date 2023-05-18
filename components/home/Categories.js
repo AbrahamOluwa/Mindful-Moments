@@ -17,7 +17,7 @@ import Quotes from "../../screens/Quotes";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 const FirstRoute = () => (
-  <Center flex={1} my="4">
+  <Center flex={1} my="7">
     <Quotes />
   </Center>
 );
@@ -62,15 +62,15 @@ export default function Categories() {
     },
     {
       key: "second",
-      title: "Tab 2",
+      title: "Articles",
     },
     {
       key: "third",
-      title: "Tab 3",
+      title: "Images",
     },
     {
       key: "fourth",
-      title: "Tab 4",
+      title: "Videos",
     },
   ]);
 
