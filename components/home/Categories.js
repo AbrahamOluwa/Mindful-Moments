@@ -12,9 +12,9 @@ import {
 import React, { useState } from "react";
 import { TabView, SceneMap } from "react-native-tab-view";
 import { Box, Center, useColorModeValue } from "native-base";
-import Constants from "expo-constants";
 import Quotes from "../../screens/Quotes";
 import { SafeAreaView } from "react-native-safe-area-context";
+import Articles from "../../screens/Articles.js";
 
 const FirstRoute = () => (
   <Center flex={1} my="7">
@@ -24,7 +24,7 @@ const FirstRoute = () => (
 
 const SecondRoute = () => (
   <Center flex={1} my="4">
-    This is Tab 2
+    <Articles />
   </Center>
 );
 
@@ -138,6 +138,7 @@ export default function Categories() {
         style={{
           marginTop: StatusBar.currentHeight
         }}
+        swipeEnabled={false}
       />
 
     

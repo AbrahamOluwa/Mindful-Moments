@@ -90,11 +90,12 @@ export default function Quotes() {
     // </View>
 
     <View>
-      <ScrollView>
+      <ScrollView showsVerticalScrollIndicator={false}>
         {quotes.map((quote, index) => {
           return (
             <Box key={index} alignItems="center" style={{ marginBottom: 18 }}>
               <Box
+                width="100%"
                 maxW="80"
                 rounded="lg"
                 overflow="hidden"

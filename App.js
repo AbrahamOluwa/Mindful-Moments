@@ -12,6 +12,8 @@ import * as SplashScreen from 'expo-splash-screen';
 import Meditations from "./screens/Meditations";
 import Goals from "./screens/Goals";
 import BottomTabs from "./components/navigation/BottomTabs";
+import { registerRootComponent } from 'expo';
+
 
 const newColorTheme = {
   brand: {
@@ -31,6 +33,7 @@ export default function App() {
     'SoraLight': require('./assets/fonts/Sora/Sora-Light.ttf'),
     'SoraMedium': require('./assets/fonts/Sora/Sora-Medium.ttf'),
     'SoraRegular': require('./assets/fonts/Sora/Sora-Regular.ttf'),
+    'SoraSemiBold': require('./assets/fonts/Sora/Sora-SemiBold.ttf'),
     'PassionOneRegular': require('./assets/fonts/Passion_One/PassionOne-Regular.ttf'),
   });
 
@@ -54,7 +57,7 @@ export default function App() {
 
       <NavigationContainer onLayout={onLayoutRootView}>
         <Stack.Navigator screenOptions={{ headerShown: false }}>
-          <Stack.Screen name="Home" component={BottomTabs} />
+          <Stack.Screen name="HomeScreen" component={BottomTabs} />
           {/* <Stack.Screen name="Meditation" component={Meditations} />
           <Stack.Screen name="Goals" component={Goals} /> */}
         </Stack.Navigator>
@@ -62,6 +65,7 @@ export default function App() {
     </NativeBaseProvider>
   );
 }
+registerRootComponent(App);
 
 const styles = StyleSheet.create({
   container: {
