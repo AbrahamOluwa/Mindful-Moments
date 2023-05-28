@@ -3,16 +3,16 @@ import { StyleSheet, Text, View } from "react-native";
 import { NativeBaseProvider, extendTheme } from "native-base";
 import Home from "./screens/Home";
 import { useCallback } from "react";
-import Cat from "./components/home/Cat";
-import Categories from "./components/home/Categories";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { useFonts } from 'expo-font';
 import * as SplashScreen from 'expo-splash-screen';
 import Meditations from "./screens/Meditations";
 import Goals from "./screens/Goals";
+import Topics from "./screens/Topics";
 import BottomTabs from "./components/navigation/BottomTabs";
 import { registerRootComponent } from 'expo';
+import Articles from "./screens/Articles.js";
 
 
 const newColorTheme = {
@@ -58,6 +58,8 @@ export default function App() {
       <NavigationContainer onLayout={onLayoutRootView}>
         <Stack.Navigator screenOptions={{ headerShown: false }}>
           <Stack.Screen name="HomeScreen" component={BottomTabs} />
+          <Stack.Screen name="ArticlesScreen" component={Articles} />
+          <Stack.Screen name="TopicsScreen" component={Topics} />
           {/* <Stack.Screen name="Meditation" component={Meditations} />
           <Stack.Screen name="Goals" component={Goals} /> */}
         </Stack.Navigator>

@@ -16,44 +16,81 @@ import Quotes from "../../screens/Quotes";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Articles from "../../screens/Articles.js";
 
-const FirstRoute = () => (
-  <Center flex={1} my="7">
-    <Quotes />
-  </Center>
-);
+// const FirstRoute = () => (
+//   <Center flex={1} my="7">
+//     <Quotes />
+//   </Center>
+// );
 
-const SecondRoute = () => (
-  <Center flex={1} my="4">
-    <Articles />
-  </Center>
-);
+// const SecondRoute = () => (
+//   <Center flex={1} my="4">
+//     <Articles />
+//   </Center>
+// );
 
-const ThirdRoute = () => (
-  <Center flex={1} my="4">
-    This is Tab 3
-  </Center>
-);
+// const ThirdRoute = () => (
+//   <Center flex={1} my="4">
+//     This is Tab 3
+//   </Center>
+// );
 
-const FourthRoute = () => (
-  <Center flex={1} my="4">
-    This is Tab 4{" "}
-  </Center>
-);
+// const FourthRoute = () => (
+//   <Center flex={1} my="4">
+//     This is Tab 4{" "}
+//   </Center>
+// );
 
-const initialLayout = {
-  width: Dimensions.get("window").width,
-};
+// const initialLayout = {
+//   width: Dimensions.get("window").width,
+// };
 
-const renderScene = SceneMap({
-  first: FirstRoute,
-  second: SecondRoute,
-  third: ThirdRoute,
-  fourth: FourthRoute,
-});
+// const renderScene = SceneMap({
+//   first: FirstRoute,
+//   second: SecondRoute,
+//   third: ThirdRoute,
+//   fourth: FourthRoute,
+// });
 
 
 
-export default function Categories() {
+export default function Categories(props) {
+
+  const FirstRoute = () => (
+    <Center flex={1} my="7">
+       <props.quotes />
+    </Center>
+  );
+  
+  const SecondRoute = () => (
+    <Center flex={1} my="4">
+        <props.articles />
+    </Center>
+  );
+  
+  const ThirdRoute = () => (
+    <Center flex={1} my="4">
+      This is Tab 3
+    </Center>
+  );
+  
+  const FourthRoute = () => (
+    <Center flex={1} my="4">
+      This is Tab 4{" "}
+    </Center>
+  );
+  
+  const initialLayout = {
+    width: Dimensions.get("window").width,
+  };
+  
+  const renderScene = SceneMap({
+    first: FirstRoute,
+    second: SecondRoute,
+    third: ThirdRoute,
+    fourth: FourthRoute,
+  });
+
+
   const [index, setIndex] = useState(0);
   const [routes] = useState([
     {

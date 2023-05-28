@@ -2,38 +2,57 @@ import { View, Text, ScrollView, TouchableOpacity } from "react-native";
 import React from "react";
 import { Box } from "native-base";
 
-const items = [
-  {
-    text: "Mindfulness",
-  },
-  {
-    text: "Personal Growth",
-  },
-  {
-    text: "Emotional Well-being",
-  },
-  {
-    text: "Spirituality",
-  },
-  {
-    text: "Gratitude",
-  },
-  {
-    text: "Relationships",
-  },
-  {
-    text: "Health and Wellness",
-  },
-  {
-    text: "Inspiration and Motivation",
-  },
-];
+// const categories = [
+//   {
+//     category: "Mindfulness",
+//     topics: [
+//       {
+//         title: 'Introduction to Mindfulness',
+//         description: 'Explaining what mindfulness is',
+//         image: '.....',
+//       },
+//       {
+//         title: 'Mindful Breathing',
+//         description: 'Exploring different breathing techniques',
+//         image: '.....',
+//       },
+//     ]
+//   },
+//   {
+//     category: "Personal Growth",
+//     topics: [
+//       {
+//         title: 'Building Self-Confidence',
+//         description: 'Boost self-confidence',
+//         image: '...'
+//       }
+//     ]
+//   },
+//   {
+//     category: "Emotional Well-being",
+//   },
+//   {
+//     category: "Spirituality",
+//   },
+//   {
+//     category: "Gratitude",
+//   },
+//   {
+//     category: "Relationships",
+//   },
+//   {
+//     category: "Health and Wellness",
+//   },
+//   {
+//     category: "Inspiration and Motivation",
+//   },
+// ];
 
-export default function ArticlesCategories() {
+export default function ArticlesCategories({ navigation, ...props }) {
   return (
-    <View style={{ flex:1, marginTop: 20}}>
+    <View style={{ flex: 1, marginTop: 20 }}>
       <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-        {items.map((item, index) => {
+        {props.categories.map((item, index) => {
           return (
             <Box
               key={index}
@@ -53,7 +72,13 @@ export default function ArticlesCategories() {
                 bg={["red.400", "blue.400"]}
                 // bg="#E9967A"
               >
-                <TouchableOpacity>
+                <TouchableOpacity
+                  onPress={() => {
+                    const selectedCategory = props.categories[index];
+                    navigation.navigate('TopicsScreen', {selectedCategory})
+                  }
+                  }
+                >
                   <Text
                     style={{
                       fontFamily: "SoraRegular",
@@ -61,7 +86,7 @@ export default function ArticlesCategories() {
                       fontSize: 13,
                     }}
                   >
-                    {item.text}
+                    {item.category}
                   </Text>
                 </TouchableOpacity>
               </Box>
@@ -69,8 +94,19 @@ export default function ArticlesCategories() {
           );
         })}
       </ScrollView>
-
-      
     </View>
   );
 }
+
+
+// ouchableOpacity
+//                   onPress={() =>
+//                     navigation.navigate("TopicsScreen", {
+//                       name: restaurant.name,
+//                       image: restaurant.image_url,
+//                       price: restaurant.price,
+//                       reviews: restaurant.review_count,
+//                       rating: restaurant.rating,
+//                       categories: restaurant.categories,
+//                     })
+//                   }
