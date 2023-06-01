@@ -34,7 +34,7 @@ export default function Home() {
             bg="#E9967A"
           >
             <Text style={{ fontFamily: "SoraRegular", color: "white" }}>
-              This is a Box
+              You are a Child of God, a priceless part of His Kingdom, which He created as part of Him. Nothing else exists and ONLY this is real.
             </Text>
           </Box>
         </Box>

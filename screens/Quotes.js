@@ -82,6 +82,18 @@ export default function Quotes() {
         "The highest spiritual practice is to live constantly aware of your oneness with God and all of creation.",
       author: "Neale Donald Walsch",
     },
+    {
+      id: 10,
+      quote:
+        "You are a Child of God, a priceless part of His Kingdom, which He created as part of Him. Nothing else exists and ONLY this is real.",
+      author: "A Course In Miracles",
+    },
+    {
+      id: 10,
+      quote:
+        "The awakening of the soul is the realization that you are a spiritual being having a human experience.",
+      author: "Pierre Teilhard de Chardin",
+    },
   ];
 
   return (
