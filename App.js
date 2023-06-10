@@ -15,6 +15,10 @@ import { registerRootComponent } from 'expo';
 import Articles from "./screens/Articles.js";
 import SelectedTopic from "./screens/SelectedTopic.js";
 import SelectedSubtopic from "./screens/SelectedSubtopic.js";
+import MeditationPlayer from "./screens/MeditationPlayer.js";
+import { AppRegistry } from 'react-native';
+import { name as appName } from './app.json';
+// import TrackPlayer from 'react-native-track-player';
 
 
 const newColorTheme = {
@@ -66,14 +70,16 @@ export default function App() {
           <Stack.Screen name="SelectedTopicScreen" component={SelectedTopic} />
           <Stack.Screen name="SelectedSubtopicScreen" component={SelectedSubtopic} />
           <Stack.Screen name="MeditationsScreen" component={Meditations} />
-          {/* <Stack.Screen name="Meditation" component={Meditations} />
-          <Stack.Screen name="Goals" component={Goals} /> */}
+          <Stack.Screen name="MeditationPlayerScreen" component={MeditationPlayer} />
         </Stack.Navigator>
       </NavigationContainer>
     </NativeBaseProvider>
   );
 }
 registerRootComponent(App);
+// AppRegistry.registerComponent(appName, () => App);
+// TrackPlayer.registerPlaybackService(() => require('./utilsAndServices/TrackPlayerService'));
+
 
 const styles = StyleSheet.create({
   container: {

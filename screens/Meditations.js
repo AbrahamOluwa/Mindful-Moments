@@ -12,7 +12,7 @@ import Categories from "../components/home/Categories";
 import { HStack, VStack, Stack } from "native-base";
 import { MaterialIcons } from "@expo/vector-icons";
 import { AntDesign } from "@expo/vector-icons";
-import { useNavigation } from "@react-navigation/native"
+import { useNavigation } from "@react-navigation/native";
 
 const meditations = [
   {
@@ -33,12 +33,12 @@ const meditations = [
     category: "Sleep and Rest",
   },
 ];
-const nameOfParentScreen = 'Meditations';
+const nameOfParentScreen = "Meditations";
 export default function Meditations() {
   // const [categories, setCategories] = useState(articles);
   const navigation = useNavigation();
   return (
-    <SafeAreaView style={{flex: 1, backgroundColor: '#fff' }}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: "#fff" }}>
       <ScrollView>
         <ImageBackground
           source={require("../assets/images/meditation_2.jpg")}
@@ -79,10 +79,18 @@ export default function Meditations() {
           </HStack>
         </View>
 
-        <Categories categories={meditations} navigation={navigation} nameOfParentScreen={nameOfParentScreen} />
+        <Categories
+          categories={meditations}
+          navigation={navigation}
+          nameOfParentScreen={nameOfParentScreen}
+        />
 
         <View style={{ marginTop: 30 }}>
-          <Card />
+          <TouchableOpacity onPress= {() => {
+             navigation.navigate('MeditationPlayerScreen')
+          }}>
+            <Card />
+          </TouchableOpacity>
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -123,14 +131,22 @@ const Card = () => {
           </Stack>
 
           <HStack space={2}>
-            <Stack style={{width: "70%"}}>
-              <Text style={{fontFamily: "SoraSemiBold", color: 'white'}}>Breather</Text>
-              <Text style={{fontFamily: "SoraRegular", fontSize: 13,  color: 'white'}}>
+            <Stack style={{ width: "70%" }}>
+              <Text style={{ fontFamily: "SoraSemiBold", color: "white" }}>
+                Breather
+              </Text>
+              <Text
+                style={{
+                  fontFamily: "SoraRegular",
+                  fontSize: 13,
+                  color: "white",
+                }}
+              >
                 A 5 minutes intro to meditate. Relax and inhale to Start.
               </Text>
             </Stack>
 
-            <Stack style={{width: "30%", marginTop: -20}}>
+            <Stack style={{ width: "30%", marginTop: -20 }}>
               <Image
                 source={require("../assets/images/meditation.png")}
                 style={{

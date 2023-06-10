@@ -79,7 +79,7 @@ export default function Categories({ navigation, ...props }) {
                       navigation.navigate('TopicsScreen', {selectedCategory})
                     } else if(props.nameOfParentScreen === "Meditations") {
                       console.log('pressed');
-                      //navigation.navigate('GoalsScreen')
+                      navigation.navigate('MeditationPlayerScreen')
                     }
                     
                   }
