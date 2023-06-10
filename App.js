@@ -14,6 +14,7 @@ import BottomTabs from "./components/navigation/BottomTabs";
 import { registerRootComponent } from 'expo';
 import Articles from "./screens/Articles.js";
 import SelectedTopic from "./screens/SelectedTopic.js";
+import SelectedSubtopic from "./screens/SelectedSubtopic.js";
 
 
 const newColorTheme = {
@@ -63,6 +64,8 @@ export default function App() {
           <Stack.Screen name="TopicsScreen" component={Topics} />
           <Stack.Screen name="GoalsScreen" component={Goals} />
           <Stack.Screen name="SelectedTopicScreen" component={SelectedTopic} />
+          <Stack.Screen name="SelectedSubtopicScreen" component={SelectedSubtopic} />
+          <Stack.Screen name="MeditationsScreen" component={Meditations} />
           {/* <Stack.Screen name="Meditation" component={Meditations} />
           <Stack.Screen name="Goals" component={Goals} /> */}
         </Stack.Navigator>

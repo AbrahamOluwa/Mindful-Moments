@@ -9,7 +9,7 @@ import {
   Stack,
   Heading,
 } from "native-base";
-import ArticlesCategories from "../components/home/ArticlesCategories";
+import Categories from "../components/home/Categories";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native"
 
@@ -96,6 +96,8 @@ const articles = [
   },
 ];
 
+const nameOfParentScreen = 'Articles';
+
 const hotTopicsItems = [
   {
     title: "Building Self-Confidence",
@@ -129,9 +131,10 @@ export default function Articles() {
           Search By Categories
         </Text>
 
-        <ArticlesCategories
+        <Categories
           categories={categories}
           navigation={navigation}
+          nameOfParentScreen={nameOfParentScreen}
         />
 
         <View style={{ flex: 1, marginTop: 20 }}>

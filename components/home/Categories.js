@@ -1,184 +1,118 @@
-import {
-  View,
-  Text,
-  ScrollView,
-  StyleSheet,
-  Dimensions,
-  StatusBar,
-  TouchableOpacity,
-  Animated,
-  Pressable,
-} from "react-native";
-import React, { useState } from "react";
-import { TabView, SceneMap } from "react-native-tab-view";
-import { Box, Center, useColorModeValue } from "native-base";
-import Quotes from "../../screens/Quotes";
-import { SafeAreaView } from "react-native-safe-area-context";
-import Articles from "../../screens/Articles.js";
+import { View, Text, ScrollView, TouchableOpacity } from "react-native";
+import React from "react";
+import { Box } from "native-base";
 
-// const FirstRoute = () => (
-//   <Center flex={1} my="7">
-//     <Quotes />
-//   </Center>
-// );
+// const categories = [
+//   {
+//     category: "Mindfulness",
+//     topics: [
+//       {
+//         title: 'Introduction to Mindfulness',
+//         description: 'Explaining what mindfulness is',
+//         image: '.....',
+//       },
+//       {
+//         title: 'Mindful Breathing',
+//         description: 'Exploring different breathing techniques',
+//         image: '.....',
+//       },
+//     ]
+//   },
+//   {
+//     category: "Personal Growth",
+//     topics: [
+//       {
+//         title: 'Building Self-Confidence',
+//         description: 'Boost self-confidence',
+//         image: '...'
+//       }
+//     ]
+//   },
+//   {
+//     category: "Emotional Well-being",
+//   },
+//   {
+//     category: "Spirituality",
+//   },
+//   {
+//     category: "Gratitude",
+//   },
+//   {
+//     category: "Relationships",
+//   },
+//   {
+//     category: "Health and Wellness",
+//   },
+//   {
+//     category: "Inspiration and Motivation",
+//   },
+// ];
 
-// const SecondRoute = () => (
-//   <Center flex={1} my="4">
-//     <Articles />
-//   </Center>
-// );
-
-// const ThirdRoute = () => (
-//   <Center flex={1} my="4">
-//     This is Tab 3
-//   </Center>
-// );
-
-// const FourthRoute = () => (
-//   <Center flex={1} my="4">
-//     This is Tab 4{" "}
-//   </Center>
-// );
-
-// const initialLayout = {
-//   width: Dimensions.get("window").width,
-// };
-
-// const renderScene = SceneMap({
-//   first: FirstRoute,
-//   second: SecondRoute,
-//   third: ThirdRoute,
-//   fourth: FourthRoute,
-// });
-
-
-
-export default function Categories(props) {
-
-  const FirstRoute = () => (
-    <Center flex={1} my="7">
-       <props.quotes />
-    </Center>
-  );
-  
-  const SecondRoute = () => (
-    <Center flex={1} my="4">
-        <props.articles />
-    </Center>
-  );
-  
-  const ThirdRoute = () => (
-    <Center flex={1} my="4">
-      This is Tab 3
-    </Center>
-  );
-  
-  const FourthRoute = () => (
-    <Center flex={1} my="4">
-      This is Tab 4{" "}
-    </Center>
-  );
-  
-  const initialLayout = {
-    width: Dimensions.get("window").width,
-  };
-  
-  const renderScene = SceneMap({
-    first: FirstRoute,
-    second: SecondRoute,
-    third: ThirdRoute,
-    fourth: FourthRoute,
-  });
-
-
-  const [index, setIndex] = useState(0);
-  const [routes] = useState([
-    {
-      key: "first",
-      title: "Quotes",
-    },
-    {
-      key: "second",
-      title: "Articles",
-    },
-    {
-      key: "third",
-      title: "Images",
-    },
-    {
-      key: "fourth",
-      title: "Videos",
-    },
-  ]);
-
-  const renderTabBar = (props) => {
-    const inputRange = props.navigationState.routes.map((x, i) => i);
-    return (
-      <Box flexDirection="row">
-        {props.navigationState.routes.map((route, i) => {
-          const opacity = props.position.interpolate({
-            inputRange,
-            outputRange: inputRange.map((inputIndex) =>
-              inputIndex === i ? 1 : 0.5
-            ),
-          });
-          const color =
-            index === i
-              ? useColorModeValue("#000", "#e5e5e5")
-              : useColorModeValue("#1f2937", "#a1a1aa");
-          const borderColor =
-            index === i
-              ? "#6883bc"
-              : useColorModeValue("coolGray.200", "gray.400");
+export default function Categories({ navigation, ...props }) {
+  return (
+    <View style={{ flex: 1, marginTop: 20 }}>
+      <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+        {props.categories.map((item, index) => {
           return (
             <Box
-              borderBottomWidth="3"
-              key={i}
-              borderColor={borderColor}
-              flex={1}
+              key={index}
               alignItems="center"
-              p="3"
-              cursor="pointer"
+              style={{ marginHorizontal: 7 }}
             >
-              <Pressable
-                onPress={() => {
-                  // console.log(i);
-                  setIndex(i);
+              <Box
+                rounded="sm"
+                p="2"
+                _text={{
+                  fontSize: "md",
+                  fontWeight: "medium",
+                  color: "warmGray.50",
+                  letterSpacing: "lg",
+                  textAlign: "center",
                 }}
+                bg={["red.400", "blue.400"]}
+                // bg="#E9967A"
               >
-                <Animated.Text
-                  style={{
-                    color,
-                    fontFamily: 'SoraMedium'
-                  }}
+                <TouchableOpacity
+                  onPress={() => {
+                    if(props.nameOfParentScreen === "Articles") {
+                      const selectedCategory = props.categories[index];
+                      navigation.navigate('TopicsScreen', {selectedCategory})
+                    } else if(props.nameOfParentScreen === "Meditations") {
+                      console.log('pressed');
+                      //navigation.navigate('GoalsScreen')
+                    }
+                    
+                  }
+                  }
                 >
-                  {route.title}
-                </Animated.Text>
-              </Pressable>
+                  <Text
+                    style={{
+                      fontFamily: "SoraRegular",
+                      color: "white",
+                      fontSize: 13,
+                    }}
+                  >
+                    {item.category}
+                  </Text>
+                </TouchableOpacity>
+              </Box>
             </Box>
           );
         })}
-      </Box>
-    );
-  };
-
-  return (
-      <TabView
-        navigationState={{
-          index,
-          routes,
-        }}
-        renderScene={renderScene}
-        renderTabBar={renderTabBar}
-        onIndexChange={setIndex}
-        initialLayout={initialLayout}
-        style={{
-          marginTop: StatusBar.currentHeight
-        }}
-        swipeEnabled={false}
-      />
-
-    
- 
+      </ScrollView>
+    </View>
   );
 }
+
+
+// ouchableOpacity
+//                   onPress={() =>
+//                     navigation.navigate("TopicsScreen", {
+//                       name: restaurant.name,
+//                       image: restaurant.image_url,
+//                       price: restaurant.price,
+//                       reviews: restaurant.review_count,
+//                       rating: restaurant.rating,
+//                       categories: restaurant.categories,
+//                     })
+//                   }

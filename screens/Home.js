@@ -8,7 +8,7 @@ import {
 } from "react-native";
 import React, { useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
-import Categories from "../components/home/Categories";
+import Tabs from "../components/home/Tabs";
 import { Box, Center, useColorModeValue } from "native-base";
 import { TabView, SceneMap } from "react-native-tab-view";
 import Quotes from "./Quotes.js";
@@ -40,7 +40,7 @@ export default function Home() {
         </Box>
       </SafeAreaView>
 
-      <Categories quotes={Quotes} articles={Articles} />
+      <Tabs quotes={Quotes} articles={Articles} />
 
 
     </>
