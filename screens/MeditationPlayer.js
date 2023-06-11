@@ -103,7 +103,7 @@ export default function MeditationPlayer() {
     <SafeAreaView style={{flex:1, backgroundColor: '#fff'}}>
       <View style={styles.container}>
         {/* <Text style={styles.title}>{meditation.title}</Text> */}
-        <Text style={styles.title}>Meditation</Text>
+        <Text style={styles.title}>Breather</Text>
 
         <Image
           source={require("../assets/images/meditation.png")}
@@ -118,7 +118,7 @@ export default function MeditationPlayer() {
           onValueChange={(value) => setSliderValue(value)}
           onSlidingComplete={seekTo}
           minimumTrackTintColor="#333"
-          maximumTrackTintColor="#EEE"
+          maximumTrackTintColor="#FF69B4"
           thumbTintColor="#333"
         />
         <View style={styles.timeContainer}>
@@ -154,8 +154,8 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 20,
-    fontWeight: "bold",
     marginBottom: 16,
+    fontFamily: "SoraSemiBold"
   },
   progressBar: {
     width: "100%",

@@ -18,6 +18,7 @@ import SelectedSubtopic from "./screens/SelectedSubtopic.js";
 import MeditationPlayer from "./screens/MeditationPlayer.js";
 import { AppRegistry } from 'react-native';
 import { name as appName } from './app.json';
+import Journal from "./screens/Journal.js";
 // import TrackPlayer from 'react-native-track-player';
 
 
@@ -71,6 +72,7 @@ export default function App() {
           <Stack.Screen name="SelectedSubtopicScreen" component={SelectedSubtopic} />
           <Stack.Screen name="MeditationsScreen" component={Meditations} />
           <Stack.Screen name="MeditationPlayerScreen" component={MeditationPlayer} />
+          <Stack.Screen name="JournalScreen" component={Journal} />
         </Stack.Navigator>
       </NavigationContainer>
     </NativeBaseProvider>
