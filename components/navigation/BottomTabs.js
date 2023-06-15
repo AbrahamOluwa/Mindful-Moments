@@ -32,7 +32,7 @@ export default function BottomTabs() {
 
           return <Ionicons name={iconName} size={size} color={color} />;
         },
-        tabBarActiveTintColor: "#1868ae",  //e75874
+        tabBarActiveTintColor: "#EF798A",  //e75874
         tabBarInactiveTintColor: "gray",
         tabBarLabelStyle: { fontSize: 11.5, fontFamily: "SoraRegular" },
       })}

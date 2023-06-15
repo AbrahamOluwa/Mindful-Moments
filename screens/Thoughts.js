@@ -78,7 +78,7 @@ export default function Thoughts({navigation}) {
 const styles = StyleSheet.create({
   sectionButton: {
     // backgroundColor: "#E5E5E5",
-    backgroundColor: "#039fbe",
+    backgroundColor: "#EF798A",
     borderRadius: 12,
     padding: 15,
     marginBottom: 10,

@@ -46,7 +46,7 @@ export default function Goals({ navigation }) {
       <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
         <Button
           leftIcon={<Icon as={FontAwesome} name="plus" size="sm" />}
-          style={{ backgroundColor: "#e25822", borderRadius: 22 }}
+          style={{ backgroundColor: "#EF798A", borderRadius: 22 }}
         >
           <TouchableOpacity
             onPress={() => {

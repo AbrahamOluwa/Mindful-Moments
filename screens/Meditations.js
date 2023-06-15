@@ -102,7 +102,7 @@ const Card = () => {
     <View style={{ alignItems: "center", justifyContent: "center" }}>
       <View
         style={{
-          backgroundColor: "#1868ae",
+          backgroundColor: "#EFB9CB",
           borderRadius: 8,
           paddingVertical: 12,
           paddingHorizontal: 16,
@@ -132,14 +132,14 @@ const Card = () => {
 
           <HStack space={2}>
             <Stack style={{ width: "70%" }}>
-              <Text style={{ fontFamily: "SoraSemiBold", color: "white" }}>
+              <Text style={{ fontFamily: "SoraSemiBold", color: "black" }}>
                 Breather
               </Text>
               <Text
                 style={{
                   fontFamily: "SoraRegular",
                   fontSize: 13,
-                  color: "white",
+                  color: "black",
                 }}
               >
                 A 5 minutes intro to meditate. Relax and inhale to Start.

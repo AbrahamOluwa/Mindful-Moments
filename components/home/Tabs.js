@@ -128,8 +128,10 @@ export default function Tabs(props) {
               : useColorModeValue("#1f2937", "#a1a1aa");
           const borderColor =
             index === i
-              ? "#6883bc"
+              ? "black"
               : useColorModeValue("coolGray.200", "gray.400");
+
+              // "#6883bc"
           return (
             <Box
               borderBottomWidth="3"
@@ -173,7 +175,9 @@ export default function Tabs(props) {
         onIndexChange={setIndex}
         initialLayout={initialLayout}
         style={{
-          marginTop: StatusBar.currentHeight
+          flex: 1,
+          marginTop: StatusBar.currentHeight,
+          backgroundColor: '#fff',
         }}
         swipeEnabled={false}
       />

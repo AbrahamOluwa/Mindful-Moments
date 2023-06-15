@@ -17,7 +17,7 @@ import Articles from "./Articles.js";
 export default function Home() {
   return (
     <>
-      <SafeAreaView style={{ marginTop: 22 }}>
+      <SafeAreaView style={{ marginTop: 22, backgroundColor: '#fff' }}>
         <Box alignItems="center">
           <Box
             width="90%"
@@ -31,7 +31,8 @@ export default function Home() {
               textAlign: "center",
             }}
             // bg={["red.400", "blue.400"]}
-            bg="#E9967A"
+            bg="#EF798A"
+            // bg="#E9967A"
           >
             <Text style={{ fontFamily: "SoraRegular", color: "white" }}>
               You are a Child of God, a priceless part of His Kingdom, which He created as part of Him. Nothing else exists and ONLY this is real.

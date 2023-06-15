@@ -69,7 +69,8 @@ export default function Categories({ navigation, ...props }) {
                   letterSpacing: "lg",
                   textAlign: "center",
                 }}
-                bg={["red.400", "blue.400"]}
+                bg="#613F75"
+                // bg={["red.400", "blue.400"]}
                 // bg="#E9967A"
               >
                 <TouchableOpacity
