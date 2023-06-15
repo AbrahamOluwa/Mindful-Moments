@@ -19,6 +19,11 @@ import MeditationPlayer from "./screens/MeditationPlayer.js";
 import { AppRegistry } from 'react-native';
 import { name as appName } from './app.json';
 import Journal from "./screens/Journal.js";
+import WriteJournalEntry from "./screens/WriteJournalEntry.js";
+import AllJournalEntries from "./screens/AllJournalEntries.js";
+import Gratitude from "./screens/Gratitude.js";
+import RecordGratitudeMoment from "./screens/RecordGratitudeMoment.js";
+import AllGratitudeMoments from "./screens/AllGratitudeMoments.js";
 // import TrackPlayer from 'react-native-track-player';
 
 
@@ -73,6 +78,11 @@ export default function App() {
           <Stack.Screen name="MeditationsScreen" component={Meditations} />
           <Stack.Screen name="MeditationPlayerScreen" component={MeditationPlayer} />
           <Stack.Screen name="JournalScreen" component={Journal} />
+          <Stack.Screen name="WriteJournalEntryScreen" component={WriteJournalEntry} />
+          <Stack.Screen name="AllJournalEntriesScreen" component={AllJournalEntries} />
+          <Stack.Screen name="GratitudeScreen" component={Gratitude} />
+          <Stack.Screen name="RecordGratitudeMomentScreen" component={RecordGratitudeMoment} />
+          <Stack.Screen name="AllGratitudeMomentsScreen" component={AllGratitudeMoments} />
         </Stack.Navigator>
       </NavigationContainer>
     </NativeBaseProvider>

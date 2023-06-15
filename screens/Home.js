@@ -17,7 +17,7 @@ import Articles from "./Articles.js";
 export default function Home() {
   return (
     <>
-      <SafeAreaView style={{ marginTop: 22, backgroundColor: '#fff' }}>
+      <SafeAreaView style={{ marginTop: 22 }}>
         <Box alignItems="center">
           <Box
             width="90%"

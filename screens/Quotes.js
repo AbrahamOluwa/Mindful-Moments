@@ -101,7 +101,7 @@ export default function Quotes() {
     //   <Text style={{ fontFamily: "SoraRegular" }}>Quotes in this app</Text>
     // </View>
 
-    <View style={{backgroundColor: '#fff'}}>
+    <View style={{}}>
       <ScrollView showsVerticalScrollIndicator={false}>
         {quotes.map((quote, index) => {
           return (

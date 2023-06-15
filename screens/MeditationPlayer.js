@@ -100,7 +100,7 @@ export default function MeditationPlayer() {
 
 
   return (
-    <SafeAreaView style={{flex:1, backgroundColor: '#fff'}}>
+    <SafeAreaView style={{}}>
       <View style={styles.container}>
         {/* <Text style={styles.title}>{meditation.title}</Text> */}
         <Text style={styles.title}>Breather</Text>

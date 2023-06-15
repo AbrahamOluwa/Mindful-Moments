@@ -60,10 +60,10 @@ export default function SelectedTopic({ navigation }) {
 
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: "#fff" }}>
+    <SafeAreaView style={{ flex: 1 }}>
       <ScrollView>
         <ImageBackground
-          source={require("../assets/images/g3.jpg")}
+          source={require("../assets/images/g3.png")}
           style={{
             //width: "100%",
             height: 200,

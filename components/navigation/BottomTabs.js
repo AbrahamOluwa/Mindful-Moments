@@ -23,7 +23,7 @@ export default function BottomTabs() {
           } else if (route.name === "Meditate") {
             iconName = focused ? "compass" : "compass-outline";
           } else if (route.name === "Thoughts") {
-            iconName = focused ? "radio-outline" : "radio-sharp";
+            iconName = focused ? "radio-outline" : "radio-outline";
           } else if (route.name === "Goals") {
             iconName = focused ? "magnet" : "magnet-outline";
           } else if (route.name === "Settings") {

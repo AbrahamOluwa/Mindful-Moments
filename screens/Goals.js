@@ -17,13 +17,13 @@ export default function Goals({ navigation }) {
   const { width } = Dimensions.get("screen");
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: "white" }}>
+    <SafeAreaView style={{ }}>
       <View style={{ marginTop: 10, marginLeft: 10 }}>
         <Text style={{ fontFamily: "SoraSemiBold", fontSize: 28 }}>Goals</Text>
       </View>
 
       <Image
-        source={require("../assets/images/g3.jpg")}
+        source={require("../assets/images/g3.png")}
         style={{
           width: width,
           height: 400,
@@ -43,7 +43,7 @@ export default function Goals({ navigation }) {
         <Text style={styles.description}>Tap to Start Planning</Text>
       </View>
 
-      <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
+      <View style={{alignItems: "center", justifyContent: "center", marginTop: 50 }}>
         <Button
           leftIcon={<Icon as={FontAwesome} name="plus" size="sm" />}
           style={{ backgroundColor: "#EF798A", borderRadius: 22 }}
@@ -86,7 +86,7 @@ export default function Goals({ navigation }) {
 const styles = StyleSheet.create({
   description: {
     fontFamily: "SoraSemiBold",
-    color: "lightgray",
+    color: "gray",
     fontSize: 15,
   },
 });

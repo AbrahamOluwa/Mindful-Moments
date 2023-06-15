@@ -19,17 +19,8 @@ export default function Journal({ navigation }) {
   const { width } = Dimensions.get("screen");
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: "#fff" }}>
+    <SafeAreaView style={{ flex: 1 }}>
       <View>
-        {/* <Image
-          source={require("../assets/images/writinginjournal_2.png")}
-          style={{
-            width: width,
-            height: 400,
-          }}
-          resizeMode="contain"
-        /> */}
-
         <ImageBackground
           source={require("../assets/images/writinginjournal_2.png")}
           style={{
@@ -54,11 +45,6 @@ export default function Journal({ navigation }) {
           </HStack>
         </ImageBackground>
 
-        {/* <View style={{ marginTop: 10, marginLeft: 10 }}>
-          <Text style={{ fontFamily: "SoraSemiBold", fontSize: 28 }}>
-            Goals
-          </Text>
-        </View> */}
         <View
           style={{
             marginTop: -10,
@@ -67,19 +53,18 @@ export default function Journal({ navigation }) {
             fontFamily: "SoraSemiBold",
           }}
         >
+          <Text style={styles.header}>Journal Entries</Text>
           <Text style={styles.description}>Oops... No journals yet!</Text>
           <Text style={styles.description}>Tap to Start Writing</Text>
         </View>
 
-        <View style={{ alignItems: "center", justifyContent: "center" }}>
+        <View style={{ alignItems: "center", justifyContent: "center", marginTop: 50 }}>
           <Button
             leftIcon={<Icon as={FontAwesome} name="plus" size="sm" />}
             style={{ backgroundColor: "#EF798A", borderRadius: 22 }}
           >
             <TouchableOpacity
-              onPress={() => {
-                console.log("pressed");
-              }}
+              onPress={() => navigation.navigate("WriteJournalEntryScreen")}
             >
               <Text
                 style={{
@@ -110,72 +95,16 @@ export default function Journal({ navigation }) {
   );
 }
 
-const JournalItems = () => {
-  return (
-    <View
-      style={{
-        marginLeft: 10,
-        // justifyContent: "center",
-        // alignItems: "center",
-        marginTop: 30,
-      }}
-    >
-      <View
-        style={{
-          backgroundColor: "#FBF2FD",
-          borderRadius: 8,
-          width: "32%",
-          padding: 7,
-          justifyContent: "flex-start",
-          marginLeft: 12,
-        }}
-      >
-        <HStack>
-          <Stack>
-            <AntDesign name="calendar" size={18} color="black" />
-          </Stack>
-
-          <Stack>
-            <Text style={{ fontFamily: "SoraRegular", fontSize: 12 }}>
-              14 Jun 2023
-            </Text>
-          </Stack>
-        </HStack>
-      </View>
-      <View
-        style={{
-          justifyContent: "center",
-          alignItems: "center",
-        }}
-      >
-        <View
-          style={{
-            backgroundColor: "#EECFD4",
-            borderRadius: 8,
-            paddingVertical: 12,
-            paddingHorizontal: 16,
-            marginRight: 12,
-            width: "90%",
-            marginTop: 10,
-          }}
-        >
-          <Text style={{ fontFamily: "SoraSemiBold", fontSize: 16 }}>
-            The best part of my day
-          </Text>
-          <Text style={{ fontFamily: "SoraRegular", fontSize: 12 }}>
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam
-            dignissim eleifend eros at finibus. Morbi.
-          </Text>
-        </View>
-      </View>
-    </View>
-  );
-};
-
 const styles = StyleSheet.create({
+  header: {
+    fontFamily: "SoraSemiBold",
+    fontSize: 28,
+    marginBottom: 15,
+  },
+
   description: {
     fontFamily: "SoraSemiBold",
-    color: "lightgray",
+    color: "gray",
     fontSize: 15,
   },
 });

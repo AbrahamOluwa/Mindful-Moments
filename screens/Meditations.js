@@ -38,10 +38,10 @@ export default function Meditations() {
   // const [categories, setCategories] = useState(articles);
   const navigation = useNavigation();
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: "#fff" }}>
+    <SafeAreaView style={{ flex: 1 }}>
       <ScrollView>
         <ImageBackground
-          source={require("../assets/images/meditation_2.jpg")}
+          source={require("../assets/images/meditation_2.png")}
           style={{
             height: 60,
           }}
@@ -85,7 +85,17 @@ export default function Meditations() {
           nameOfParentScreen={nameOfParentScreen}
         />
 
-        <View style={{ marginTop: 30 }}>
+        <View style={{ marginTop: 10 }}>
+          <TouchableOpacity onPress= {() => {
+             navigation.navigate('MeditationPlayerScreen')
+          }}>
+            <Card />
+          </TouchableOpacity>
+          <TouchableOpacity onPress= {() => {
+             navigation.navigate('MeditationPlayerScreen')
+          }}>
+            <Card />
+          </TouchableOpacity>
           <TouchableOpacity onPress= {() => {
              navigation.navigate('MeditationPlayerScreen')
           }}>
@@ -99,7 +109,7 @@ export default function Meditations() {
 
 const Card = () => {
   return (
-    <View style={{ alignItems: "center", justifyContent: "center" }}>
+    <View style={{ alignItems: "center", justifyContent: "center", paddingVertical: 10 }}>
       <View
         style={{
           backgroundColor: "#EFB9CB",

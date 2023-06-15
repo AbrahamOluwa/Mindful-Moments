@@ -21,10 +21,11 @@ export default function Thoughts({navigation}) {
   const handleGratitudeMomentsPress = () => {
     // Handle navigation to Gratitude Moments screen
     // You can use navigation library or component to handle screen navigation
+    navigation.navigate("GratitudeScreen")
   };
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: "#fff" }}>
+    <SafeAreaView style={{ }}>
       <View style={{ marginTop: 10, marginLeft: 10 }}>
         <Text style={{ fontFamily: "SoraSemiBold", fontSize: 28 }}>
           Thoughts

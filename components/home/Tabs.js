@@ -177,7 +177,7 @@ export default function Tabs(props) {
         style={{
           flex: 1,
           marginTop: StatusBar.currentHeight,
-          backgroundColor: '#fff',
+          //backgroundColor: '#fff',
         }}
         swipeEnabled={false}
       />

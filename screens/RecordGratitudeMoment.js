@@ -1,13 +1,5 @@
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  TextInput,
-  StyleSheet,
-  ScrollView,
-  Button,
-} from "react-native";
-import React, { useState, useRef } from "react";
+import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
+import React,  { useState, useRef } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { RichEditor, RichToolbar } from "react-native-pell-rich-editor";
 import AntDesign from "@expo/vector-icons/AntDesign";
@@ -16,40 +8,42 @@ import {
   Stack,
 } from "native-base";
 
-export default function WriteJournalEntry({ navigation }) {
+export default function RecordGratitudeMoment({navigation}) {
   const [title, setTitle] = useState("");
-  const [note, setNote] = useState("");
+  const [moment, setMoment] = useState("");
   const titleEditorRef = useRef();
-  const noteEditorRef = useRef();
+  const momentEditorRef = useRef();
 
   const handleTitleChange = (text) => {
     setTitle(text);
   };
 
-  const handleNoteChange = (text) => {
-    setNote(text);
+  const handleMomentChange = (text) => {
+    setMoment(text);
   };
 
   const handleInsertImage = () => {
     editorRef.current.insertImage("https://example.com/image.jpg");
   };
 
-  const saveJournalEntry = () => {
+  const saveGratitidueMoment = () => {
     // Save the journal entry using the title and note values
     // You can perform any required operations here, such as storing in a database
     console.log("Title:", title);
-    console.log("Note:", note);
+    console.log("Moment:", moment);
 
     // Clear the text input fields
     setTitle("");
-    setNote("");
+    setMoment("");
 
-    navigation.navigate("AllJournalEntriesScreen");
+    navigation.navigate("AllGratitudeMomentsScreen");
   };
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
       <View style={styles.container}>
+        {/* Header */}
+
         <HStack space={15}>
           <Stack>
             <TouchableOpacity onPress={() => navigation.navigate("HomeScreen")}>
@@ -63,47 +57,40 @@ export default function WriteJournalEntry({ navigation }) {
           </Stack>
 
           <Stack>
-            <Text style={styles.header}>Journal Entries</Text>
+            <Text style={styles.header}>Gratitude Moments</Text>
           </Stack>
         </HStack>
-        {/* <Text style={styles.header}>Journal Entries</Text> */}
-
-        {/* <TextInput
-          style={styles.input}
-          multiline
-          placeholder="Write your journal entry here..."
-          value={journalEntry}
-          onChangeText={setJournalEntry}
-        /> */}
+        {/* <Text style={styles.header}>Gratitude Moments</Text> */}
 
         <View style={{ flex: 1 }}>
           <RichEditor
             ref={titleEditorRef}
             style={{
-              //flex: 1,
               borderWidth: 1,
               borderColor: "gray",
               marginBottom: 10,
               minHeight: 40,
             }}
+            containerStyle={{ backgroundColor: 'transparent' }}
             onChange={handleTitleChange}
             initialContentHTML={title}
             placeholder="Title..."
           />
           <RichEditor
-            ref={noteEditorRef}
+            ref={momentEditorRef}
             style={{
               flex: 1,
               borderWidth: 1,
               borderColor: "gray",
               marginBottom: 10,
             }}
-            onChange={handleNoteChange}
-            initialContentHTML={note}
-            placeholder="Notes..."
+            containerStyle={{ backgroundColor: 'transparent' }}
+            onChange={handleMomentChange}
+            initialContentHTML={moment}
+            placeholder="Moments..."
           />
           <RichToolbar
-            getEditor={() => noteEditorRef.current}
+            getEditor={() => momentEditorRef.current}
             selectedIconTint="purple"
             iconTint="gray"
             onPressAddImage={handleInsertImage}
@@ -111,16 +98,25 @@ export default function WriteJournalEntry({ navigation }) {
 
           <TouchableOpacity
             style={styles.saveButton}
-            onPress={saveJournalEntry}
+            onPress={saveGratitidueMoment}
           >
             <Text style={styles.saveButtonText}>Save Entry</Text>
           </TouchableOpacity>
         </View>
+      </View>
 
-        {/* <TouchableOpacity style={styles.saveButton} onPress={handleSaveEntry}>
+      {/* <TextInput
+          style={styles.input}
+          multiline
+          placeholder="Write your journal entry here..."
+          value={journalEntry}
+          onChangeText={setJournalEntry}
+        />
+
+       
+        <TouchableOpacity style={styles.saveButton} onPress={handleSaveEntry}>
           <Text style={styles.saveButtonText}>Save Entry</Text>
         </TouchableOpacity> */}
-      </View>
     </SafeAreaView>
   );
 }
