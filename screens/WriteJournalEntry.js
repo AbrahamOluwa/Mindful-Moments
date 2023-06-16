@@ -89,6 +89,7 @@ export default function WriteJournalEntry({ navigation }) {
             onChange={handleTitleChange}
             initialContentHTML={title}
             placeholder="Title..."
+            androidHardwareAccelerationDisabled={true}
           />
           <RichEditor
             ref={noteEditorRef}
@@ -101,6 +102,7 @@ export default function WriteJournalEntry({ navigation }) {
             onChange={handleNoteChange}
             initialContentHTML={note}
             placeholder="Notes..."
+            androidHardwareAccelerationDisabled={true}
           />
           <RichToolbar
             getEditor={() => noteEditorRef.current}
@@ -151,9 +153,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   saveButtonText: {
+    fontFamily: "SoraMedium",
     color: "#FFFFFF",
     fontSize: 16,
-    fontWeight: "bold",
-    fontFamily: "SoraMedium",
   },
 });

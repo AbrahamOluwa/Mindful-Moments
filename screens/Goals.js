@@ -50,7 +50,7 @@ export default function Goals({ navigation }) {
         >
           <TouchableOpacity
             onPress={() => {
-              console.log("pressed");
+              navigation.navigate("SetGoalsScreen");
             }}
           >
             <Text

@@ -75,6 +75,7 @@ export default function RecordGratitudeMoment({navigation}) {
             onChange={handleTitleChange}
             initialContentHTML={title}
             placeholder="Title..."
+            androidHardwareAccelerationDisabled={true}
           />
           <RichEditor
             ref={momentEditorRef}
@@ -88,6 +89,7 @@ export default function RecordGratitudeMoment({navigation}) {
             onChange={handleMomentChange}
             initialContentHTML={moment}
             placeholder="Moments..."
+            androidHardwareAccelerationDisabled={true}
           />
           <RichToolbar
             getEditor={() => momentEditorRef.current}
@@ -100,7 +102,7 @@ export default function RecordGratitudeMoment({navigation}) {
             style={styles.saveButton}
             onPress={saveGratitidueMoment}
           >
-            <Text style={styles.saveButtonText}>Save Entry</Text>
+            <Text style={styles.saveButtonText}>Save Moment</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -147,9 +149,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   saveButtonText: {
+    fontFamily: "SoraMedium",
     color: "#FFFFFF",
     fontSize: 16,
-    fontWeight: "bold",
-    fontFamily: "SoraMedium",
   },
 });
