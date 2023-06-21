@@ -26,6 +26,7 @@ import RecordGratitudeMoment from "./screens/RecordGratitudeMoment.js";
 import AllGratitudeMoments from "./screens/AllGratitudeMoments.js";
 import SetGoals from "./screens/SetGoals.js";
 import GoalsList from "./screens/GoalsList.js";
+import UserAuthentication from "./screens/UserAuthentication.js";
 // import TrackPlayer from 'react-native-track-player';
 
 
@@ -87,6 +88,7 @@ export default function App() {
           <Stack.Screen name="AllGratitudeMomentsScreen" component={AllGratitudeMoments} />
           <Stack.Screen name="SetGoalsScreen" component={SetGoals} />
           <Stack.Screen name="GoalsListScreen" component={GoalsList} />
+          <Stack.Screen name="UserAuthenticationScreen" component={UserAuthentication} />
         </Stack.Navigator>
       </NavigationContainer>
     </NativeBaseProvider>

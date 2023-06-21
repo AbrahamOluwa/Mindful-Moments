@@ -7,6 +7,7 @@ import Meditations from "../../screens/Meditations";
 import Goals from "../../screens/Goals";
 import Thoughts from "../../screens/Thoughts";
 import Settings from "../../screens/Settings";
+import TestProfile from "../../screens/TestProfile.js";
 
 export default function BottomTabs() {
   const Tab = createBottomTabNavigator();
@@ -42,6 +43,7 @@ export default function BottomTabs() {
       <Tab.Screen name="Thoughts" component={Thoughts} />
       <Tab.Screen name="Goals" component={Goals} />
       <Tab.Screen name="Settings" component={Settings} />
+      {/* <Tab.Screen name="Settings" component={TestProfile} /> */}
     </Tab.Navigator>
   );
 
