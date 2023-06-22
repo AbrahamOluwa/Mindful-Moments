@@ -6,15 +6,51 @@ import {
   Animated,
   Pressable,
 } from "react-native";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Tabs from "../components/home/Tabs";
 import { Box, Center, useColorModeValue } from "native-base";
 import { TabView, SceneMap } from "react-native-tab-view";
 import Quotes from "./Quotes.js";
 import Articles from "./Articles.js";
+import { auth, db } from "../firebaseConfig";
+import { signInAnonymously } from "firebase/auth";
+import { doc, collection, setDoc, getDoc, serverTimestamp } from "firebase/firestore";
 
 export default function Home() {
+  useEffect(() => {
+    signInAnonymously(auth)
+      .then((userCredential) => {
+        // Access the user object
+        const user = userCredential.user;
+        console.log("Anonymous User ID:", user.uid);
+        saveNonRegisteredUser(user.uid);
+      })
+      .catch((error) => {
+        // Handle sign-in error
+        console.log("Anonymous sign-in error:", error);
+      });
+  }, []);
+
+  const saveNonRegisteredUser = async (userId) => {
+    const userRef = doc(collection(db, "nonRegisteredUsers"), userId);
+
+    const userSnapshot = await getDoc(userRef);
+
+    if (!userSnapshot.exists()) {
+      const userData = {
+        userId: userId,
+        createdAt: serverTimestamp(),
+        // Other user data
+      };
+
+      await setDoc(userRef, userData);
+      console.log("User saved successfully!");
+    } else {
+      console.log("User already exists!");
+    }
+  };
+
   return (
     <>
       <SafeAreaView style={{ marginTop: 22 }}>
@@ -35,15 +71,14 @@ export default function Home() {
             // bg="#E9967A"
           >
             <Text style={{ fontFamily: "SoraRegular", color: "white" }}>
-              You are a Child of God, a priceless part of His Kingdom, which He created as part of Him. Nothing else exists and ONLY this is real.
+              You are a Child of God, a priceless part of His Kingdom, which He
+              created as part of Him. Nothing else exists and ONLY this is real.
             </Text>
           </Box>
         </Box>
       </SafeAreaView>
 
       <Tabs quotes={Quotes} articles={Articles} />
-
-
     </>
   );
 }

@@ -27,6 +27,7 @@ import AllGratitudeMoments from "./screens/AllGratitudeMoments.js";
 import SetGoals from "./screens/SetGoals.js";
 import GoalsList from "./screens/GoalsList.js";
 import UserAuthentication from "./screens/UserAuthentication.js";
+
 // import TrackPlayer from 'react-native-track-player';
 
 
@@ -40,6 +41,10 @@ const newColorTheme = {
 const theme = extendTheme({ colors: newColorTheme });
 
 const Stack = createNativeStackNavigator();
+
+
+//firebase.initializeApp(firebaseConfig);
+
 
 export default function App() {
 

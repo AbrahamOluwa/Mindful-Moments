@@ -7,16 +7,59 @@ import {
   ScrollView,
   Button,
 } from "react-native";
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { RichEditor, RichToolbar } from "react-native-pell-rich-editor";
 import AntDesign from "@expo/vector-icons/AntDesign";
+import { HStack, Stack } from "native-base";
+import { auth, db } from "../firebaseConfig";
+import { onAuthStateChanged, currentUser, getAuth } from "firebase/auth";
 import {
-  HStack,
-  Stack,
-} from "native-base";
+  doc,
+  collection,
+  setDoc,
+  getDoc,
+  addDoc,
+  serverTimestamp,
+} from "firebase/firestore";
 
 export default function WriteJournalEntry({ navigation }) {
+  const [uid, setUid] = useState('');
+  const checkAnonymousSignIn = () => {
+    return currentUser && currentUser.isAnonymous;
+  };
+
+  const getUserId = () => {
+    return currentUser && currentUser.uid;
+  };
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setUid(user.uid);
+      if (user) {
+        const isAnonymous = checkAnonymousSignIn();
+        if (isAnonymous) {
+          const userId = getUserId();
+          // Do something with the user ID for the non-registered user
+          console.log("Anonymous User ID:", userId);
+        } else {
+          // User is signed in with a registered account
+          // You can access the user ID using currentUser.uid
+          const userId = getUserId();
+          // Do something with the registered user ID
+          console.log("Registered User ID:", userId);
+        }
+      } else {
+        // User is signed out
+      }
+    });
+
+    // Clean up the listener when component unmounts
+    return () => unsubscribe();
+  }, []);
+
+  // ...
+
   const [title, setTitle] = useState("");
   const [note, setNote] = useState("");
   const titleEditorRef = useRef();
@@ -34,11 +77,44 @@ export default function WriteJournalEntry({ navigation }) {
     editorRef.current.insertImage("https://example.com/image.jpg");
   };
 
-  const saveJournalEntry = () => {
-    // Save the journal entry using the title and note values
-    // You can perform any required operations here, such as storing in a database
-    console.log("Title:", title);
-    console.log("Note:", note);
+  const saveJournalEntry = async () => {
+    // const user = auth.currentUser;
+
+    // if (user) {
+    //   const isAnonymous = checkAnonymousSignIn();
+    //   const userId = getUserId();
+
+    //   if (isAnonymous) {
+    //     // Save data for non-registered user
+    //     console.log('annon')
+    //     //saveJournalEntryForNonRegisteredUser(userId, journalEntryData);
+    //   } else {
+    //     // Save data for registered user
+    //     //saveJournalEntryForRegisteredUser(userId, journalEntryData);
+
+    //     console.log('not annon')
+    //   }
+    // }
+
+    try {
+      const journalData = {
+        title: title,
+        content: note,
+        createdAt: serverTimestamp(),
+      };
+
+
+     // const userId = getUserId();
+      const collectionRef = collection(db, "nonRegisteredUsers", uid, "journal_entries");
+
+      await addDoc(collectionRef, journalData);
+      console.log("Journal entry saved successfully!");
+
+
+
+    } catch (error) {
+      console.error('Error saving journal entry:', error);
+    }
 
     // Clear the text input fields
     setTitle("");
@@ -57,7 +133,7 @@ export default function WriteJournalEntry({ navigation }) {
                 name="arrowleft"
                 size={30}
                 color="black"
-                style={{ marginTop:  5}}
+                style={{ marginTop: 5 }}
               />
             </TouchableOpacity>
           </Stack>

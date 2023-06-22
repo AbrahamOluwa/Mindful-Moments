@@ -1,5 +1,5 @@
 import { View, Text, Image, ScrollView } from "react-native";
-import React from "react";
+import React, { useEffect, useState, useRef } from "react";
 import {
   Box,
   Center,
@@ -9,19 +9,41 @@ import {
   Stack,
   AspectRatio,
 } from "native-base";
+import { app, db } from "../firebaseConfig";
+
+import { collection, getDocs } from "firebase/firestore";
 
 export default function Quotes() {
+  const [quotesData, setQuotesData] = useState([]);
+
+  const getAllQuotes = async () => {
+    try {
+      const querySnapshot = await getDocs(collection(db, "quotes"));
+      const quotes = [];
+      querySnapshot.forEach((doc) => {
+        quotes.push(doc.data());
+      });
+      setQuotesData(quotes);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+
+
+  useEffect(() => {
+    getAllQuotes();
+  }, [quotesData]);
+
   const quotes = [
     {
       id: 1,
-      quote:
-        "Your calm mind is the ultimate weapon against your challenges.",
+      quote: "Your calm mind is the ultimate weapon against your challenges.",
       author: "Bryant McGill",
     },
     {
       id: 1,
-      quote:
-        "Be present in all things and thankful for all things.",
+      quote: "Be present in all things and thankful for all things.",
       author: "Maya Angelou",
     },
     {
@@ -97,13 +119,10 @@ export default function Quotes() {
   ];
 
   return (
-    // <View>
-    //   <Text style={{ fontFamily: "SoraRegular" }}>Quotes in this app</Text>
-    // </View>
 
     <View style={{}}>
       <ScrollView showsVerticalScrollIndicator={false}>
-        {quotes.map((quote, index) => {
+        {quotesData.map((quote, index) => {
           return (
             <Box key={index} alignItems="center" style={{ marginBottom: 18 }}>
               <Box
@@ -144,7 +163,7 @@ export default function Quotes() {
                         fontFamily: "SoraMedium",
                         fontSize: 17,
                         marginTop: -35,
-                        color: '#392F5A'
+                        color: "#392F5A",
                         // color: '#D87093'
                       }}
                     >
@@ -170,7 +189,7 @@ export default function Quotes() {
                         fontWeight="400"
                         style={{
                           fontFamily: "SoraMedium",
-                          fontSize: 14
+                          fontSize: 14,
                         }}
                       >
                         - {quote.author}
