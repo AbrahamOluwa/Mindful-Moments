@@ -22,41 +22,33 @@ import {
   addDoc,
   serverTimestamp,
 } from "firebase/firestore";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function WriteJournalEntry({ navigation }) {
-  const [uid, setUid] = useState('');
-  const checkAnonymousSignIn = () => {
-    return currentUser && currentUser.isAnonymous;
-  };
+  // useEffect(() => {
+  //   const unsubscribe = onAuthStateChanged(auth, (user) => {
+  //     setUid(user.uid);
+  //     if (user) {
+  //       const isAnonymous = checkAnonymousSignIn();
+  //       if (isAnonymous) {
+  //         const userId = getUserId();
+  //         // Do something with the user ID for the non-registered user
+  //         console.log("Anonymous User ID:", userId);
+  //       } else {
+  //         // User is signed in with a registered account
+  //         // You can access the user ID using currentUser.uid
+  //         const userId = getUserId();
+  //         // Do something with the registered user ID
+  //         console.log("Registered User ID:", userId);
+  //       }
+  //     } else {
+  //       // User is signed out
+  //     }
+  //   });
 
-  const getUserId = () => {
-    return currentUser && currentUser.uid;
-  };
-
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setUid(user.uid);
-      if (user) {
-        const isAnonymous = checkAnonymousSignIn();
-        if (isAnonymous) {
-          const userId = getUserId();
-          // Do something with the user ID for the non-registered user
-          console.log("Anonymous User ID:", userId);
-        } else {
-          // User is signed in with a registered account
-          // You can access the user ID using currentUser.uid
-          const userId = getUserId();
-          // Do something with the registered user ID
-          console.log("Registered User ID:", userId);
-        }
-      } else {
-        // User is signed out
-      }
-    });
-
-    // Clean up the listener when component unmounts
-    return () => unsubscribe();
-  }, []);
+  //   // Clean up the listener when component unmounts
+  //   return () => unsubscribe();
+  // }, []);
 
   // ...
 
@@ -77,50 +69,118 @@ export default function WriteJournalEntry({ navigation }) {
     editorRef.current.insertImage("https://example.com/image.jpg");
   };
 
+  // const saveJournalEntry = async () => {
+  //   // const user = auth.currentUser;
+
+  //   // if (user) {
+  //   //   const isAnonymous = checkAnonymousSignIn();
+  //   //   const userId = getUserId();
+
+  //   //   if (isAnonymous) {
+  //   //     // Save data for non-registered user
+  //   //     console.log('annon')
+  //   //     //saveJournalEntryForNonRegisteredUser(userId, journalEntryData);
+  //   //   } else {
+  //   //     // Save data for registered user
+  //   //     //saveJournalEntryForRegisteredUser(userId, journalEntryData);
+
+  //   //     console.log('not annon')
+  //   //   }
+  //   // }
+
+  //   try {
+  //     const journalData = {
+  //       title: title,
+  //       content: note,
+  //       createdAt: serverTimestamp(),
+  //     };
+
+  //    // const userId = getUserId();
+  //     const collectionRef = collection(db, "nonRegisteredUsers", uid, "journal_entries");
+
+  //     await addDoc(collectionRef, journalData);
+  //     console.log("Journal entry saved successfully!");
+
+  //   } catch (error) {
+  //     console.error('Error saving journal entry:', error);
+  //   }
+
+  //   // Clear the text input fields
+  //   setTitle("");
+  //   setNote("");
+
+  //   navigation.navigate("AllJournalEntriesScreen");
+  // };
+
   const saveJournalEntry = async () => {
-    // const user = auth.currentUser;
-
-    // if (user) {
-    //   const isAnonymous = checkAnonymousSignIn();
-    //   const userId = getUserId();
-
-    //   if (isAnonymous) {
-    //     // Save data for non-registered user
-    //     console.log('annon')
-    //     //saveJournalEntryForNonRegisteredUser(userId, journalEntryData);
-    //   } else {
-    //     // Save data for registered user
-    //     //saveJournalEntryForRegisteredUser(userId, journalEntryData);
-
-    //     console.log('not annon')
-    //   }
-    // }
-
     try {
-      const journalData = {
-        title: title,
-        content: note,
-        createdAt: serverTimestamp(),
-      };
+      // Step 1: Get the user ID
+      const userId = await getUserId();
 
+      // Step 2: Save the journal entry
+      try {
+        const journalData = {
+          title: title,
+          content: note,
+          createdAt: serverTimestamp(),
+        };
 
-     // const userId = getUserId();
-      const collectionRef = collection(db, "nonRegisteredUsers", uid, "journal_entries");
+        // const userId = getUserId();
+        const collectionRef = collection(
+          db,
+          "nonRegisteredUsers",
+          userId,
+          "journal_entries"
+        );
 
-      await addDoc(collectionRef, journalData);
-      console.log("Journal entry saved successfully!");
+        await addDoc(collectionRef, journalData);
+        console.log("Journal entry saved successfully!", collectionRef.id);
 
+        // Clear the text input fields
+        setTitle("");
+        setNote("");
 
-
+        navigation.navigate("AllJournalEntriesScreen");
+      } catch (error) {
+        console.error("Error saving journal entry:", error);
+      }
     } catch (error) {
-      console.error('Error saving journal entry:', error);
+      console.error("Error saving journal entry:", error);
+    }
+  };
+
+  const getUserId = async () => {
+    try {
+      const storedUserId = await AsyncStorage.getItem("nonRegisteredUserId");
+
+      if (storedUserId) {
+        // User is a non-registered user
+        console.log(
+          "Retrieved non-registered userId from AsyncStorage:",
+          storedUserId
+        );
+        return storedUserId;
+      } else {
+        // User is a registered user
+
+        onAuthStateChanged(auth, (user) => {
+          if (user) {
+            const userId = user.uid;
+            console.log("Registered User ID:", userId);
+            return userId;
+          } else {
+            // User is signed out
+
+            console.log("User is signed out");
+            // ...
+          }
+        });
+      }
+    } catch (error) {
+      console.error("Error retrieving user ID:", error);
     }
 
-    // Clear the text input fields
-    setTitle("");
-    setNote("");
-
-    navigation.navigate("AllJournalEntriesScreen");
+    return null;
   };
 
   return (

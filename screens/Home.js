@@ -14,23 +14,24 @@ import { TabView, SceneMap } from "react-native-tab-view";
 import Quotes from "./Quotes.js";
 import Articles from "./Articles.js";
 import { auth, db } from "../firebaseConfig";
-import { signInAnonymously } from "firebase/auth";
+import { signInAnonymously, onAuthStateChanged, getAuth } from "firebase/auth";
 import { doc, collection, setDoc, getDoc, serverTimestamp } from "firebase/firestore";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function Home() {
-  useEffect(() => {
-    signInAnonymously(auth)
-      .then((userCredential) => {
-        // Access the user object
-        const user = userCredential.user;
-        console.log("Anonymous User ID:", user.uid);
-        saveNonRegisteredUser(user.uid);
-      })
-      .catch((error) => {
-        // Handle sign-in error
-        console.log("Anonymous sign-in error:", error);
-      });
-  }, []);
+  // useEffect(() => {
+  //   signInAnonymously(auth)
+  //     .then((userCredential) => {
+  //       // Access the user object
+  //       const user = userCredential.user;
+  //       console.log("Anonymous User ID:", user.uid);
+  //       saveNonRegisteredUser(user.uid);
+  //     })
+  //     .catch((error) => {
+  //       // Handle sign-in error
+  //       console.log("Anonymous sign-in error:", error);
+  //     });
+  // }, []);
 
   const saveNonRegisteredUser = async (userId) => {
     const userRef = doc(collection(db, "nonRegisteredUsers"), userId);
@@ -50,6 +51,66 @@ export default function Home() {
       console.log("User already exists!");
     }
   };
+
+  const saveUserId = async (userId) => {
+    try {
+      await AsyncStorage.setItem('nonRegisteredUserId', userId);
+    } catch (error) {
+      console.error('Error saving non-registered user ID:', error);
+    }
+  };
+
+  const getUserId = async () => {
+    const auth = getAuth();
+    const user = auth.currentUser;
+  
+   
+      const storedUserId = await AsyncStorage.getItem('nonRegisteredUserId');
+  
+      if (storedUserId) {
+        // User has previously used the app and has a stored userId
+        console.log('Retrieved non-registered userId from AsyncStorage:', storedUserId);
+        return storedUserId;
+      } else {
+        // User is anonymous and doesn't have a stored userId
+        signInAnonymously(auth)
+          .then((userCredential) => {
+            const user = userCredential.user;
+            const userId = user.uid;
+            console.log('Anonymous User ID:', userId);
+            saveNonRegisteredUser(userId);
+            saveUserId(userId);
+            return userId;
+          })
+          .catch((error) => {
+            console.log("Anonymous sign-in error:", error);
+          });
+      }
+    
+  
+    // if (user && !user.isAnonymous) {
+    //   // User is signed in with a registered account
+    //   const userId = user.uid;
+    //   console.log('Registered User ID:', userId);
+    //   return userId;
+    // }
+  
+    // User is signed out
+    // console.log('User is signed out');
+    // return null;
+  };
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      getUserId(); // Call the getUserId function to get and store the userId
+    });
+
+    return () => {
+      unsubscribe(); // Clean up the subscription on unmount
+    };
+  }, []);
+
+  
 
   return (
     <>

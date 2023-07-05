@@ -1,0 +1,26 @@
+// Move the non-registered user to a registered user
+const moveUserToRegistered = async (nonRegisteredUserId, email, password) => {
+  try {
+    // Step 1: Create a new user account
+    const { userCredential } = await createUserWithEmailAndPassword(auth, email, password);
+
+    // Step 2: Get the registered user's ID
+    const registeredUserId = userCredential.user.uid;
+
+    // Step 3: Retrieve the non-registered user's data
+    const nonRegisteredUserRef = doc(collection(db, "nonRegisteredUsers"), nonRegisteredUserId);
+    const nonRegisteredUserSnapshot = await getDoc(nonRegisteredUserRef);
+    const nonRegisteredUserData = nonRegisteredUserSnapshot.data();
+
+    // Step 4: Create a new document for the registered user
+    const registeredUserRef = doc(collection(db, "registeredUsers"), registeredUserId);
+    await setDoc(registeredUserRef, nonRegisteredUserData);
+
+    // Step 5: Delete the non-registered user's document
+    await deleteDoc(nonRegisteredUserRef);
+
+    console.log("User successfully moved to registered account!");
+  } catch (error) {
+    console.error("Error moving user to registered account:", error);
+  }
+};
