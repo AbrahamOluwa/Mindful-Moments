@@ -5,13 +5,20 @@ import {
   TextInput,
   StyleSheet,
   ScrollView,
-  Button,
 } from "react-native";
 import React, { useState, useRef, useEffect } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { RichEditor, RichToolbar } from "react-native-pell-rich-editor";
 import AntDesign from "@expo/vector-icons/AntDesign";
-import { HStack, Stack } from "native-base";
+import {
+  HStack,
+  Stack,
+  Button,
+  Modal,
+  Center,
+  useToast,
+  Box,
+} from "native-base";
 import { auth, db } from "../firebaseConfig";
 import { onAuthStateChanged, currentUser, getAuth } from "firebase/auth";
 import {
@@ -54,8 +61,11 @@ export default function WriteJournalEntry({ navigation }) {
 
   const [title, setTitle] = useState("");
   const [note, setNote] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const titleEditorRef = useRef();
   const noteEditorRef = useRef();
+  const [showModal, setShowModal] = useState(false);
+  const toast = useToast();
 
   const handleTitleChange = (text) => {
     setTitle(text);
@@ -113,9 +123,11 @@ export default function WriteJournalEntry({ navigation }) {
   // };
 
   const saveJournalEntry = async () => {
+    setIsSubmitting(true);
     try {
       // Step 1: Get the user ID
       const userId = await getUserId();
+      
 
       // Step 2: Save the journal entry
       try {
@@ -136,16 +148,60 @@ export default function WriteJournalEntry({ navigation }) {
         await addDoc(collectionRef, journalData);
         console.log("Journal entry saved successfully!", collectionRef.id);
 
+        setIsSubmitting(false);
+
         // Clear the text input fields
         setTitle("");
         setNote("");
 
-        navigation.navigate("AllJournalEntriesScreen");
+        // Show a success toast
+        toast.show({
+          render: () => {
+            return (
+              <Box bg="emerald.500" px="4" py="3" rounded="sm" mb={5}>
+                <Text style={{ fontFamily: "SoraMedium", color: "#fff" }}>
+                  Journal entry saved successfully!
+                </Text>
+              </Box>
+            );
+          },
+        });
+
+        setTimeout(() => {
+          navigation.navigate("AllJournalEntriesScreen");
+        }, 2000);
       } catch (error) {
+        setIsSubmitting(false);
         console.error("Error saving journal entry:", error);
+
+        // Show an error toast
+        toast.show({
+          render: () => {
+            return (
+              <Box bg="red" px="4" py="3" rounded="sm" mb={5}>
+                <Text style={{ fontFamily: "SoraMedium", color: "#fff" }}>
+                  Error saving journal entry!
+                </Text>
+              </Box>
+            );
+          },
+        });
       }
     } catch (error) {
+      setIsSubmitting(false);
       console.error("Error saving journal entry:", error);
+      // Show an error toast
+      toast.show({
+        render: () => {
+          return (
+            <Box bg="red" px="4" py="3" rounded="sm" mb={5}>
+              <Text style={{ fontFamily: "SoraMedium", color: "#fff" }}>
+                Error saving journal entry!
+              </Text>
+            </Box>
+          );
+        },
+      });
     }
   };
 
@@ -203,7 +259,6 @@ export default function WriteJournalEntry({ navigation }) {
           </Stack>
         </HStack>
         {/* <Text style={styles.header}>Journal Entries</Text> */}
-
         {/* <TextInput
           style={styles.input}
           multiline
@@ -211,7 +266,6 @@ export default function WriteJournalEntry({ navigation }) {
           value={journalEntry}
           onChangeText={setJournalEntry}
         /> */}
-
         <View style={{ flex: 1 }}>
           <RichEditor
             ref={titleEditorRef}
@@ -247,14 +301,35 @@ export default function WriteJournalEntry({ navigation }) {
             onPressAddImage={handleInsertImage}
           />
 
-          <TouchableOpacity
-            style={styles.saveButton}
-            onPress={saveJournalEntry}
-          >
-            <Text style={styles.saveButtonText}>Save Entry</Text>
-          </TouchableOpacity>
-        </View>
+          {!isSubmitting && (
+            <TouchableOpacity
+              style={styles.saveButton}
+              onPress={saveJournalEntry}
+            >
+              <Text style={styles.saveButtonText}>Save Entry</Text>
+            </TouchableOpacity>
+          )}
 
+          {isSubmitting && (
+            <Button
+              isLoading
+              _loading={{
+                bg: "#EF798A",
+                _text: {
+                  color: "coolGray.700",
+                  fontFamily: "SoraMedium",
+                  fontSize: 15,
+                },
+              }}
+              _spinner={{
+                color: "white",
+              }}
+              isLoadingText="Saving Entry"
+            >
+              Button
+            </Button>
+          )}
+        </View>
         {/* <TouchableOpacity style={styles.saveButton} onPress={handleSaveEntry}>
           <Text style={styles.saveButtonText}>Save Entry</Text>
         </TouchableOpacity> */}
