@@ -24,7 +24,7 @@ const formatDate = (timestamp) => {
   });
 };
 
-const MAX_CONTENT_LENGTH = 140; // Maximum number of characters to display
+const MAX_CONTENT_LENGTH = 100; // Maximum number of characters to display
 
 // Truncate the journal content and add ellipsis if needed
 const truncateContent = (content) => {
@@ -87,6 +87,10 @@ export default function AllJournalEntries({ navigation }) {
     console.log("journals", journalEntries);
   }, []);
 
+  const navigateToEditJournalEntry = (entryId, title, content) => {
+    navigation.navigate("EditJournalEntryScreen", { entryId, title, content });
+  };
+
   return (
     <SafeAreaView style={{ flex: 1 }}>
       <ScrollView>
@@ -124,7 +128,7 @@ export default function AllJournalEntries({ navigation }) {
               // <Text key={entry.id}>{removeHtmlTags(entry.content)}</Text>
               <TouchableOpacity
                 key={entry.id}
-                onPress={() => navigation.navigate("EditJournalEntryScreen")}
+                onPress={() => navigateToEditJournalEntry(entry.id, entry.title, entry.content)}
               >
                 <JournalCard
                   title={entry.title}

@@ -5,6 +5,7 @@ import {
   TextInput,
   StyleSheet,
   ScrollView,
+  KeyboardAvoidingView,
 } from "react-native";
 import React, { useState, useRef, useEffect } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -127,7 +128,6 @@ export default function WriteJournalEntry({ navigation }) {
     try {
       // Step 1: Get the user ID
       const userId = await getUserId();
-      
 
       // Step 2: Save the journal entry
       try {
@@ -241,99 +241,101 @@ export default function WriteJournalEntry({ navigation }) {
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
-      <View style={styles.container}>
-        <HStack space={15}>
-          <Stack>
-            <TouchableOpacity onPress={() => navigation.navigate("HomeScreen")}>
-              <AntDesign
-                name="arrowleft"
-                size={30}
-                color="black"
-                style={{ marginTop: 5 }}
-              />
-            </TouchableOpacity>
-          </Stack>
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+      >
+        <View style={styles.container}>
+          <HStack space={15}>
+            <Stack>
+              <TouchableOpacity
+                onPress={() => navigation.navigate("HomeScreen")}
+              >
+                <AntDesign
+                  name="arrowleft"
+                  size={30}
+                  color="black"
+                  style={{ marginTop: 5 }}
+                />
+              </TouchableOpacity>
+            </Stack>
 
-          <Stack>
-            <Text style={styles.header}>Journal Entries</Text>
-          </Stack>
-        </HStack>
-        {/* <Text style={styles.header}>Journal Entries</Text> */}
-        {/* <TextInput
-          style={styles.input}
-          multiline
-          placeholder="Write your journal entry here..."
-          value={journalEntry}
-          onChangeText={setJournalEntry}
-        /> */}
-        <View style={{ flex: 1 }}>
-          <RichEditor
-            ref={titleEditorRef}
-            style={{
-              //flex: 1,
-              borderWidth: 1,
-              borderColor: "gray",
-              marginBottom: 10,
-              minHeight: 40,
-            }}
-            onChange={handleTitleChange}
-            initialContentHTML={title}
-            placeholder="Title..."
-            androidHardwareAccelerationDisabled={true}
-          />
-          <RichEditor
-            ref={noteEditorRef}
-            style={{
-              flex: 1,
-              borderWidth: 1,
-              borderColor: "gray",
-              marginBottom: 10,
-            }}
-            onChange={handleNoteChange}
-            initialContentHTML={note}
-            placeholder="Notes..."
-            androidHardwareAccelerationDisabled={true}
-          />
-          <RichToolbar
-            getEditor={() => noteEditorRef.current}
-            selectedIconTint="purple"
-            iconTint="gray"
-            onPressAddImage={handleInsertImage}
-          />
+            <Stack>
+              <Text style={styles.header}>Journal Entries</Text>
+            </Stack>
+          </HStack>
 
-          {!isSubmitting && (
-            <TouchableOpacity
-              style={styles.saveButton}
-              onPress={saveJournalEntry}
-            >
-              <Text style={styles.saveButtonText}>Save Entry</Text>
-            </TouchableOpacity>
-          )}
-
-          {isSubmitting && (
-            <Button
-              isLoading
-              _loading={{
-                bg: "#EF798A",
-                _text: {
-                  color: "coolGray.700",
-                  fontFamily: "SoraMedium",
-                  fontSize: 15,
-                },
+          <View style={{ flex: 1 }}>
+            <RichEditor
+              ref={titleEditorRef}
+              style={{
+                //flex: 1,
+                borderWidth: 1,
+                borderColor: "gray",
+                marginBottom: 10,
+                minHeight: 40,
               }}
-              _spinner={{
-                color: "white",
+              onChange={handleTitleChange}
+              initialContentHTML={title}
+              placeholder="Title..."
+              androidHardwareAccelerationDisabled={true}
+            />
+
+            <RichEditor
+              ref={noteEditorRef}
+              style={{
+                flex: 1,
+                borderWidth: 1,
+                borderColor: "gray",
+                marginBottom: 1,
               }}
-              isLoadingText="Saving Entry"
-            >
-              Button
-            </Button>
-          )}
-        </View>
-        {/* <TouchableOpacity style={styles.saveButton} onPress={handleSaveEntry}>
+              onChange={handleNoteChange}
+              initialContentHTML={note}
+              placeholder="Notes..."
+              androidHardwareAccelerationDisabled={true}
+            />
+
+            <RichToolbar
+              getEditor={() => noteEditorRef.current}
+              selectedIconTint="purple"
+              iconTint="gray"
+              onPressAddImage={handleInsertImage}
+            />
+
+            {!isSubmitting && (
+              <TouchableOpacity
+                style={styles.saveButton}
+                onPress={saveJournalEntry}
+              >
+                <Text style={styles.saveButtonText}>Save Entry</Text>
+              </TouchableOpacity>
+            )}
+
+            {isSubmitting && (
+              <Button
+                isLoading
+                _loading={{
+                  bg: "#EF798A",
+                  _text: {
+                    color: "coolGray.700",
+                    fontFamily: "SoraMedium",
+                    fontSize: 15,
+                  },
+                }}
+                _spinner={{
+                  color: "white",
+                }}
+                isLoadingText="Saving Entry"
+              >
+                Button
+              </Button>
+            )}
+          </View>
+          {/* <TouchableOpacity style={styles.saveButton} onPress={handleSaveEntry}>
           <Text style={styles.saveButtonText}>Save Entry</Text>
         </TouchableOpacity> */}
-      </View>
+        </View>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }
