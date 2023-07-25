@@ -80,49 +80,6 @@ export default function WriteJournalEntry({ navigation }) {
     editorRef.current.insertImage("https://example.com/image.jpg");
   };
 
-  // const saveJournalEntry = async () => {
-  //   // const user = auth.currentUser;
-
-  //   // if (user) {
-  //   //   const isAnonymous = checkAnonymousSignIn();
-  //   //   const userId = getUserId();
-
-  //   //   if (isAnonymous) {
-  //   //     // Save data for non-registered user
-  //   //     console.log('annon')
-  //   //     //saveJournalEntryForNonRegisteredUser(userId, journalEntryData);
-  //   //   } else {
-  //   //     // Save data for registered user
-  //   //     //saveJournalEntryForRegisteredUser(userId, journalEntryData);
-
-  //   //     console.log('not annon')
-  //   //   }
-  //   // }
-
-  //   try {
-  //     const journalData = {
-  //       title: title,
-  //       content: note,
-  //       createdAt: serverTimestamp(),
-  //     };
-
-  //    // const userId = getUserId();
-  //     const collectionRef = collection(db, "nonRegisteredUsers", uid, "journal_entries");
-
-  //     await addDoc(collectionRef, journalData);
-  //     console.log("Journal entry saved successfully!");
-
-  //   } catch (error) {
-  //     console.error('Error saving journal entry:', error);
-  //   }
-
-  //   // Clear the text input fields
-  //   setTitle("");
-  //   setNote("");
-
-  //   navigation.navigate("AllJournalEntriesScreen");
-  // };
-
   const saveJournalEntry = async () => {
     setIsSubmitting(true);
     try {

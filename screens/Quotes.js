@@ -1,4 +1,4 @@
-import { View, Text, Image, ScrollView } from "react-native";
+import { View, Text, Image, ScrollView, ActivityIndicator } from "react-native";
 import React, { useEffect, useState, useRef } from "react";
 import {
   Box,
@@ -15,6 +15,7 @@ import { collection, getDocs } from "firebase/firestore";
 
 export default function Quotes() {
   const [quotesData, setQuotesData] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   const getAllQuotes = async () => {
     try {
@@ -24,12 +25,12 @@ export default function Quotes() {
         quotes.push(doc.data());
       });
       setQuotesData(quotes);
+      setLoading(false); // Set loading to false after fetching quotes
     } catch (error) {
       console.error(error);
+      setLoading(false); // Set loading to false after fetching quotes
     }
   };
-
-
 
   useEffect(() => {
     getAllQuotes();
@@ -119,89 +120,95 @@ export default function Quotes() {
   ];
 
   return (
-
     <View style={{}}>
-      <ScrollView showsVerticalScrollIndicator={false}>
-        {quotesData.map((quote, index) => {
-          return (
-            <Box key={index} alignItems="center" style={{ marginBottom: 18 }}>
-              <Box
-                width="100%"
-                maxW="80"
-                rounded="lg"
-                overflow="hidden"
-                borderColor="coolGray.200"
-                borderWidth="1"
-                _dark={{
-                  borderColor: "coolGray.600",
-                  backgroundColor: "gray.700",
-                }}
-                _web={{
-                  shadow: 2,
-                  borderWidth: 0,
-                }}
-                _light={{
-                  backgroundColor: "gray.50",
-                }}
-              >
-                <Stack p="3" space={3}>
-                  <Stack space={2}>
-                    <Heading size="4xl" ml="-1">
-                      <Text style={{ fontFamily: "PassionOneRegular" }}>"</Text>
-                    </Heading>
-                    <Text
-                      _light={{
-                        color: "violet.500",
-                      }}
-                      _dark={{
-                        color: "violet.400",
-                      }}
-                      fontWeight="500"
-                      ml="-0.5"
-                      mt="-1"
-                      style={{
-                        fontFamily: "SoraMedium",
-                        fontSize: 17,
-                        marginTop: -35,
-                        color: "#392F5A",
-                        // color: '#D87093'
-                      }}
-                    >
-                      {quote.quote}
-                    </Text>
-                  </Stack>
-                  {/* <Text fontWeight="400">
+      {loading ? (
+        // Show the loader component while loading is true
+        <ActivityIndicator size="large" color="purple" />
+      ) : (
+        <ScrollView showsVerticalScrollIndicator={false}>
+          {quotesData.map((quote, index) => {
+            return (
+              <Box key={index} alignItems="center" style={{ marginBottom: 18 }}>
+                <Box
+                  width="100%"
+                  maxW="80"
+                  rounded="lg"
+                  overflow="hidden"
+                  borderColor="coolGray.200"
+                  borderWidth="1"
+                  _dark={{
+                    borderColor: "coolGray.600",
+                    backgroundColor: "gray.700",
+                  }}
+                  _web={{
+                    shadow: 2,
+                    borderWidth: 0,
+                  }}
+                  _light={{
+                    backgroundColor: "gray.50",
+                  }}
+                >
+                  <Stack p="3" space={3}>
+                    <Stack space={2}>
+                      <Heading size="4xl" ml="-1">
+                        <Text style={{ fontFamily: "PassionOneRegular" }}>
+                          "
+                        </Text>
+                      </Heading>
+                      <Text
+                        _light={{
+                          color: "violet.500",
+                        }}
+                        _dark={{
+                          color: "violet.400",
+                        }}
+                        fontWeight="500"
+                        ml="-0.5"
+                        mt="-1"
+                        style={{
+                          fontFamily: "SoraMedium",
+                          fontSize: 17,
+                          marginTop: -35,
+                          color: "#392F5A",
+                          // color: '#D87093'
+                        }}
+                      >
+                        {quote.quote}
+                      </Text>
+                    </Stack>
+                    {/* <Text fontWeight="400">
                     Bengaluru (also called Bangalore) is the center of India's
                     high-tech industry. The city is also known for its parks and
                     nightlife.
                   </Text> */}
-                  <HStack
-                    alignItems="center"
-                    space={4}
-                    justifyContent="space-between"
-                  >
-                    <HStack alignItems="center">
-                      <Text
-                        color="coolGray.600"
-                        _dark={{
-                          color: "warmGray.200",
-                        }}
-                        fontWeight="400"
-                        style={{
-                          fontFamily: "SoraMedium",
-                          fontSize: 14,
-                        }}
-                      >
-                        - {quote.author}
-                      </Text>
+                    <HStack
+                      alignItems="center"
+                      space={4}
+                      justifyContent="space-between"
+                    >
+                      <HStack alignItems="center">
+                        <Text
+                          color="coolGray.600"
+                          _dark={{
+                            color: "warmGray.200",
+                          }}
+                          fontWeight="400"
+                          style={{
+                            fontFamily: "SoraMedium",
+                            fontSize: 14,
+                          }}
+                        >
+                          - {quote.author}
+                        </Text>
+                      </HStack>
                     </HStack>
-                  </HStack>
-                </Stack>
+                  </Stack>
+                </Box>
               </Box>
-            </Box>
-          );
-        })}
-      </ScrollView>
+            );
+          })}
+        </ScrollView>
+      )}
     </View>
   );
 }

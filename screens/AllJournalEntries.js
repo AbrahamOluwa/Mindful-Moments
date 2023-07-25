@@ -1,4 +1,10 @@
-import { View, Text, ScrollView, TouchableOpacity } from "react-native";
+import {
+  View,
+  Text,
+  ScrollView,
+  TouchableOpacity,
+  ActivityIndicator,
+} from "react-native";
 import React, { useEffect, useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { HStack, Stack } from "native-base";
@@ -7,8 +13,6 @@ import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { auth, db } from "../firebaseConfig";
 import { collection, getDocs, query, orderBy } from "firebase/firestore";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { HTMLView } from "react-native-render-html";
-//import RenderHTML from 'react-native-render-html';
 import ThoughtCard from "../components/thoughts/ThoughtCard.js";
 
 const removeHtmlTags = (htmlString) => {
@@ -38,6 +42,7 @@ const truncateContent = (content) => {
 export default function AllJournalEntries({ navigation }) {
   const [journalEntries, setJournalEntries] = useState([]);
   const auth = getAuth();
+  const [isFetching, setIsFetching] = useState(true);
 
   const getUserId = async () => {
     const storedUserId = await AsyncStorage.getItem("nonRegisteredUserId");
@@ -77,8 +82,10 @@ export default function AllJournalEntries({ navigation }) {
         entries.push({ id: doc.id, ...doc.data() });
       });
       setJournalEntries(entries);
+      setIsFetching(false);
     } catch (error) {
       console.error("Error fetching journal entries:", error);
+      setIsFetching(false);
     }
   };
 
@@ -93,53 +100,66 @@ export default function AllJournalEntries({ navigation }) {
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
-      <ScrollView>
-        <View style={{ marginTop: 15 }}>
-          <HStack space={60} p={2}>
-            <Stack>
-              <TouchableOpacity
-                onPress={() => navigation.navigate("HomeScreen")}
-              >
-                <AntDesign
-                  name="arrowleft"
-                  size={30}
-                  color="black"
-                  style={{ marginTop: 5 }}
-                />
-              </TouchableOpacity>
-            </Stack>
-
-            <Stack style={{ alignItems: "center", justifyContent: "center" }}>
-              <Text
-                style={{
-                  fontFamily: "SoraSemiBold",
-                  fontSize: 24,
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
-              >
-                All Journals
-              </Text>
-            </Stack>
-          </HStack>
-
-          <View>
-            {journalEntries.map((entry) => (
-              // <Text key={entry.id}>{removeHtmlTags(entry.content)}</Text>
-              <TouchableOpacity
-                key={entry.id}
-                onPress={() => navigateToEditJournalEntry(entry.id, entry.title, entry.content)}
-              >
-                <JournalCard
-                  title={entry.title}
-                  content={entry.content}
-                  createdAt={entry.createdAt}
-                />
-              </TouchableOpacity>
-            ))}
-          </View>
+      {isFetching ? (
+        // Show the loader component while loading is true
+        <View style={{ flex:1, justifyContent: "center", alignItems: "center" }}>
+          <ActivityIndicator size="large" color="#EF798A" />
         </View>
-      </ScrollView>
+      ) : (
+        <ScrollView>
+          <View style={{ marginTop: 15 }}>
+            <HStack space={60} p={2}>
+              <Stack>
+                <TouchableOpacity
+                  onPress={() => navigation.navigate("HomeScreen")}
+                >
+                  <AntDesign
+                    name="arrowleft"
+                    size={30}
+                    color="black"
+                    style={{ marginTop: 5 }}
+                  />
+                </TouchableOpacity>
+              </Stack>
+
+              <Stack style={{ alignItems: "center", justifyContent: "center" }}>
+                <Text
+                  style={{
+                    fontFamily: "SoraSemiBold",
+                    fontSize: 24,
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  All Journals
+                </Text>
+              </Stack>
+            </HStack>
+
+            <View>
+              {journalEntries.map((entry) => (
+                // <Text key={entry.id}>{removeHtmlTags(entry.content)}</Text>
+                <TouchableOpacity
+                  key={entry.id}
+                  onPress={() =>
+                    navigateToEditJournalEntry(
+                      entry.id,
+                      entry.title,
+                      entry.content
+                    )
+                  }
+                >
+                  <JournalCard
+                    title={entry.title}
+                    content={entry.content}
+                    createdAt={entry.createdAt}
+                  />
+                </TouchableOpacity>
+              ))}
+            </View>
+          </View>
+        </ScrollView>
+      )}
     </SafeAreaView>
   );
 }
