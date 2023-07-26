@@ -83,10 +83,25 @@ export default function WriteJournalEntry({ navigation }) {
   const saveJournalEntry = async () => {
     setIsSubmitting(true);
     try {
-      // Step 1: Get the user ID
+
       const userId = await getUserId();
 
-      // Step 2: Save the journal entry
+      if(!title || !note ) {
+        setIsSubmitting(false);
+        toast.show({
+          render: () => {
+            return (
+              <Box bg="#ff0e0e" px="4" py="3" rounded="sm" mb={5}>
+                <Text style={{ fontFamily: "SoraMedium", color: "#fff" }}>
+                  Please fill in both Title and Notes before continuing.
+                </Text>
+              </Box>
+            );
+          },
+        });
+        return;
+      }
+
       try {
         const journalData = {
           title: title,
@@ -135,7 +150,7 @@ export default function WriteJournalEntry({ navigation }) {
         toast.show({
           render: () => {
             return (
-              <Box bg="red" px="4" py="3" rounded="sm" mb={5}>
+              <Box bg="#ff0e0e" px="4" py="3" rounded="sm" mb={5}>
                 <Text style={{ fontFamily: "SoraMedium", color: "#fff" }}>
                   Error saving journal entry! Try again!
                 </Text>
@@ -151,7 +166,7 @@ export default function WriteJournalEntry({ navigation }) {
       toast.show({
         render: () => {
           return (
-            <Box bg="red" px="4" py="3" rounded="sm" mb={5}>
+            <Box bg="#ff0e0e" px="4" py="3" rounded="sm" mb={5}>
               <Text style={{ fontFamily: "SoraMedium", color: "#fff" }}>
               Error saving journal entry! Try again!
               </Text>

@@ -58,6 +58,22 @@ export default function RecordGratitudeMoment({ navigation }) {
     
       const userId = await getUserId();
 
+      if(!title || !moment ) {
+        setIsSubmitting(false);
+        toast.show({
+          render: () => {
+            return (
+              <Box bg="#ff0e0e" px="4" py="3" rounded="sm" mb={5}>
+                <Text style={{ fontFamily: "SoraMedium", color: "#fff" }}>
+                  Please fill in both Title and Moments before continuing.
+                </Text>
+              </Box>
+            );
+          },
+        });
+        return;
+      }
+
       try {
         const gratitudeData = {
           title: title,
@@ -86,7 +102,7 @@ export default function RecordGratitudeMoment({ navigation }) {
             return (
               <Box bg="emerald.500" px="4" py="3" rounded="sm" mb={5}>
                 <Text style={{ fontFamily: "SoraMedium", color: "#fff" }}>
-                  Journal entry saved successfully!
+                  Gratitude moment saved successfully!
                 </Text>
               </Box>
             );
@@ -104,7 +120,7 @@ export default function RecordGratitudeMoment({ navigation }) {
         toast.show({
           render: () => {
             return (
-              <Box bg="red" px="4" py="3" rounded="sm" mb={5}>
+              <Box bg="#ff0e0e" px="4" py="3" rounded="sm" mb={5}>
                 <Text style={{ fontFamily: "SoraMedium", color: "#fff" }}>
                   Error saving gratitude moment! Try again!
                 </Text>
@@ -120,7 +136,7 @@ export default function RecordGratitudeMoment({ navigation }) {
       toast.show({
         render: () => {
           return (
-            <Box bg="red" px="4" py="3" rounded="sm" mb={5}>
+            <Box bg="#ff0e0e" px="4" py="3" rounded="sm" mb={5}>
               <Text style={{ fontFamily: "SoraMedium", color: "#fff" }}>
                 Error saving gratitude moment! Try again!
               </Text>

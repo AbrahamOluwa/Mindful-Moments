@@ -4,21 +4,28 @@ import {
   ScrollView,
   TouchableOpacity,
   ActivityIndicator,
-  TextInput,
 } from "react-native";
 import React, { useEffect, useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { HStack, Stack, Icon, Center, VStack, Input } from "native-base";
+import {
+  HStack,
+  Stack,
+  Icon,
+  Center,
+  VStack,
+  Input,
+  Fab,
+  Box,
+} from "native-base";
 import { AntDesign } from "@expo/vector-icons";
 import { MaterialIcons } from "@expo/vector-icons";
-import { Ionicons } from "@expo/vector-icons";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { auth, db } from "../firebaseConfig";
 import { collection, getDocs, query, orderBy } from "firebase/firestore";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const removeHtmlTags = (htmlString) => {
-  return htmlString.replace(/<\/?div>/g, "").replace(/&nbsp;/g, "");
+  return htmlString.replace(/<\/?div>/g, "").replace(/&nbsp;/g, "").replace(/<br>/g, "")
 };
 
 const formatDate = (timestamp) => {
@@ -41,7 +48,7 @@ const truncateContent = (content) => {
   }
 };
 
-export default function AllGratitudeMoments({navigation}) {
+export default function AllGratitudeMoments({ navigation }) {
   const [gratitudeMoments, setGratitudeMoments] = useState([]);
   const auth = getAuth();
   const [isFetching, setIsFetching] = useState(true);
@@ -94,7 +101,7 @@ export default function AllGratitudeMoments({navigation}) {
   };
 
   const filterMoments = (searchText) => {
-    const filteredMoments= gratitudeMoments.filter((moment) => {
+    const filteredMoments = gratitudeMoments.filter((moment) => {
       // Assuming you have a "title" field in your journal entry
       return moment.title.toLowerCase().includes(searchText.toLowerCase());
     });
@@ -106,47 +113,9 @@ export default function AllGratitudeMoments({navigation}) {
     filterMoments(searchText);
   }, [searchText]);
 
-
-  // return (
-  //   <SafeAreaView style={{ flex: 1 }}>
-  //     <ScrollView>
-  //       <View style={{ marginTop: 15 }}>
-
-  //         <HStack space={3} p={2}>
-  //           <Stack>
-  //             <TouchableOpacity
-  //               onPress={() => navigation.navigate("HomeScreen")}
-  //             >
-  //               <AntDesign
-  //                 name="arrowleft"
-  //                 size={30}
-  //                 color="black"
-  //                 style={{ marginTop: 5 }}
-  //               />
-  //             </TouchableOpacity>
-  //           </Stack>
-
-  //           <Stack style={{ alignItems: "center", justifyContent: "center" }}>
-  //             <Text
-  //               style={{
-  //                 fontFamily: "SoraSemiBold",
-  //                 fontSize: 24,
-  //                 alignItems: "center",
-  //                 justifyContent: "center",
-  //               }}
-  //             >
-  //               All Gratitude Moments
-  //             </Text>
-  //           </Stack>
-  //         </HStack>
-
-  //         <ThoughtCard />
-  //         <ThoughtCard />
-  //         <ThoughtCard />
-  //       </View>
-  //     </ScrollView>
-  //   </SafeAreaView>
-  // );
+  const navigateToEditGratitudeMoment = (entryId, title, moment) => {
+    navigation.navigate("EditGratitudeMomentScreen", { entryId, title, moment });
+  };
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
@@ -188,8 +157,6 @@ export default function AllGratitudeMoments({navigation}) {
               </Stack>
             </HStack>
 
-           
-
             <Center flex={1} px="6" mt="2">
               <VStack w="100%" space={5} alignSelf="center">
                 <Input
@@ -200,7 +167,7 @@ export default function AllGratitudeMoments({navigation}) {
                   py="3"
                   px="1"
                   fontSize="14"
-                   value={searchText}
+                  value={searchText}
                   onChangeText={setSearchText}
                   InputLeftElement={
                     <Icon
@@ -218,16 +185,16 @@ export default function AllGratitudeMoments({navigation}) {
             <View>
               {searchText === ""
                 ? // If there's no search text, show all journals
-                gratitudeMoments.map((entry) => (
+                  gratitudeMoments.map((entry) => (
                     <TouchableOpacity
                       key={entry.id}
-                      // onPress={() =>
-                      //   navigateToEditJournalEntry(
-                      //     entry.id,
-                      //     entry.title,
-                      //     entry.moment
-                      //   )
-                      // }
+                      onPress={() =>
+                        navigateToEditGratitudeMoment(
+                          entry.id,
+                          entry.title,
+                          entry.moment
+                        )
+                      }
                     >
                       <MomentCard
                         title={entry.title}
@@ -237,16 +204,16 @@ export default function AllGratitudeMoments({navigation}) {
                     </TouchableOpacity>
                   ))
                 : // If there's search text, show the filtered journals
-                filteredMoments.map((entry) => (
+                  filteredMoments.map((entry) => (
                     <TouchableOpacity
                       key={entry.id}
-                      // onPress={() =>
-                      //   navigateToEditJournalEntry(
-                      //     entry.id,
-                      //     entry.title,
-                      //     entry.moment
-                      //   )
-                      // }
+                      onPress={() =>
+                        navigateToEditGratitudeMoment(
+                          entry.id,
+                          entry.title,
+                          entry.moment
+                        )
+                      }
                     >
                       <MomentCard
                         title={entry.title}
@@ -255,15 +222,23 @@ export default function AllGratitudeMoments({navigation}) {
                       />
                     </TouchableOpacity>
                   ))}
-           
             </View>
           </View>
         </ScrollView>
       )}
+
+      <Center>
+        <Fab
+          renderInPortal={false}
+          shadow={2}
+          size="sm"
+          style={{ backgroundColor: "#613F75" }}
+          icon={<Icon color="white" as={AntDesign} name="plus" size="lg" />}
+        />
+      </Center>
     </SafeAreaView>
   );
 }
-
 
 const MomentCard = (props) => {
   return (

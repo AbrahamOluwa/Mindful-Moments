@@ -18,24 +18,24 @@ import { doc, updateDoc, serverTimestamp } from "firebase/firestore";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import AntDesign from "@expo/vector-icons/AntDesign";
 
-export default function EditJournalEntry({ navigation }) {
+export default function EditGratitudeMoment({ navigation }) {
   const route = useRoute();
-  const { entryId, title, content } = route.params;
+  const { entryId, title, moment } = route.params;
   const [selectedEntryId, setSelectedEntryId] = useState(entryId);
-  const [journalEntryTitle, setJournalEntryTitle] = useState(title);
-  const [journalEntryContent, setJournalEntryContent] = useState(content);
+  const [gratitudeMomentTitle, setGratitudeMomentTitle] = useState(title);
+  const [gratitudeMomentContent, setGratitudeMomentContent] = useState(moment);
   const titleEditorRef = useRef();
-  const noteEditorRef = useRef();
+  const momentEditorRef = useRef();
   const toast = useToast();
   const [loading, setLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleTitleChange = (text) => {
-    setJournalEntryTitle(text);
+    setGratitudeMomentTitle(text);
   };
 
-  const handleNoteChange = (text) => {
-    setJournalEntryContent(text);
+  const handleMomentChange = (text) => {
+    setGratitudeMomentContent(text);
   };
 
   const handleInsertImage = () => {
@@ -44,13 +44,13 @@ export default function EditJournalEntry({ navigation }) {
 
   useEffect(() => {
     // Set the initial content of the rich text editor
-    setJournalEntryTitle(title);
-    setJournalEntryContent(content);
+    setGratitudeMomentTitle(title);
+    setGratitudeMomentContent(moment);
     setSelectedEntryId(entryId);
     setTimeout(() => {
       setLoading(false);
     }, 2000);
-  }, [content]);
+  }, [moment]);
 
   const getUserId = async () => {
     try {
@@ -91,8 +91,8 @@ export default function EditJournalEntry({ navigation }) {
 
     setIsSubmitting(true);
 
-    const updatedTitle = journalEntryTitle;
-    const updatedContent = journalEntryContent;
+    const updatedTitle = gratitudeMomentTitle;
+    const updatedContent = gratitudeMomentContent;
 
     if (!updatedTitle || !updatedContent) {
       console.log("Please fill in both title and content before updating.");
@@ -111,23 +111,27 @@ export default function EditJournalEntry({ navigation }) {
       return;
     }
 
-    const isUpdated = await updateJournalEntry(
+    const isUpdated = await updateGratitudeEntry(
       selectedEntryId,
       updatedTitle,
       updatedContent
     );
     if (isUpdated) {
-      setIsSubmitting(false);
       // Show a success message (e.g., using a toast or alert)
-      console.log("Journal entry updated successfully!");
-    } else {
       setIsSubmitting(false);
+      console.log("Gratitude moment updated successfully!");
+    } else {
       // Show an error message (e.g., using a toast or alert)
-      console.log("Failed to update journal entry. Please try again.");
+      setIsSubmitting(false);
+      console.log("Failed to update gratitude moment. Please try again.");
     }
   };
 
-  const updateJournalEntry = async (entryId, updatedTitle, updatedContent) => {
+  const updateGratitudeEntry = async (
+    entryId,
+    updatedTitle,
+    updatedContent
+  ) => {
     try {
       const userId = await getUserId();
 
@@ -135,43 +139,43 @@ export default function EditJournalEntry({ navigation }) {
         db,
         "nonRegisteredUsers",
         userId,
-        "journal_entries",
+        "gratitude_moments",
         entryId
       );
 
       // Update the journal entry fields
       await updateDoc(entryRef, {
         title: updatedTitle,
-        content: updatedContent,
-        updatedAt: serverTimestamp(), // Optional: Update the updatedAt field with the current timestamp
+        moment: updatedContent,
+        updatedAt: serverTimestamp(),
       });
 
-      console.log("Journal entry updated successfully!");
+      console.log("Gratitude moment updated successfully!");
       // Show a success toast
       toast.show({
         render: () => {
           return (
             <Box bg="emerald.500" px="4" py="3" rounded="sm" mb={5}>
               <Text style={{ fontFamily: "SoraMedium", color: "#fff" }}>
-                Journal entry updated successfully!
+                Gratitude moment updated successfully!
               </Text>
             </Box>
           );
         },
       });
       setTimeout(() => {
-        navigation.navigate("AllJournalEntriesScreen");
-      }, 2000);
+        navigation.navigate("AllGratitudeMomentsScreen");
+      }, 1000);
       return true; // Return true to indicate successful update
     } catch (error) {
-      console.error("Error updating journal entry:", error);
+      console.error("Error updating gratitude moment:", error);
       // Show an error toast
       toast.show({
         render: () => {
           return (
             <Box bg="#ff0e0e" px="4" py="3" rounded="sm" mb={5}>
               <Text style={{ fontFamily: "SoraMedium", color: "#fff" }}>
-                Error updating journal entry! Try again!
+                Error updating gratitude moment! Try again!
               </Text>
             </Box>
           );
@@ -191,7 +195,7 @@ export default function EditJournalEntry({ navigation }) {
           <HStack space={15}>
             <Stack>
               <TouchableOpacity
-                onPress={() => navigation.navigate("AllJournalEntriesScreen")}
+                onPress={() => navigation.navigate("AllGratitudeMomentsScreen")}
               >
                 <AntDesign
                   name="arrowleft"
@@ -203,7 +207,7 @@ export default function EditJournalEntry({ navigation }) {
             </Stack>
 
             <Stack>
-              <Text style={styles.header}>Journal Entries</Text>
+              <Text style={styles.header}>Gratitude Entries</Text>
             </Stack>
           </HStack>
           {loading ? (
@@ -229,12 +233,12 @@ export default function EditJournalEntry({ navigation }) {
                   minHeight: 40,
                 }}
                 onChange={handleTitleChange}
-                initialContentHTML={journalEntryTitle}
+                initialContentHTML={gratitudeMomentTitle}
                 androidHardwareAccelerationDisabled={true}
               />
               <ScrollView>
                 <RichEditor
-                  ref={noteEditorRef}
+                  ref={momentEditorRef}
                   style={{
                     flex: 1,
                     borderWidth: 1,
@@ -242,13 +246,13 @@ export default function EditJournalEntry({ navigation }) {
                     marginBottom: 1,
                     height: 300,
                   }}
-                  onChange={handleNoteChange}
-                  initialContentHTML={journalEntryContent}
+                  onChange={handleMomentChange}
+                  initialContentHTML={gratitudeMomentContent}
                   androidHardwareAccelerationDisabled={true}
                 />
               </ScrollView>
               <RichToolbar
-                getEditor={() => noteEditorRef.current}
+                getEditor={() => momentEditorRef.current}
                 selectedIconTint="purple"
                 iconTint="gray"
                 onPressAddImage={handleInsertImage}
@@ -294,7 +298,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 15,
-    //backgroundColor: "#FFFFFF",
   },
   header: {
     fontSize: 24,

@@ -8,7 +8,16 @@ import {
 } from "react-native";
 import React, { useEffect, useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { HStack, Stack, Icon, Center, VStack, Input } from "native-base";
+import {
+  HStack,
+  Stack,
+  Icon,
+  Center,
+  VStack,
+  Input,
+  Box,
+  Fab,
+} from "native-base";
 import { AntDesign } from "@expo/vector-icons";
 import { MaterialIcons } from "@expo/vector-icons";
 import { Ionicons } from "@expo/vector-icons";
@@ -106,11 +115,16 @@ export default function AllJournalEntries({ navigation }) {
     fetchJournalEntries();
     filterJournals(searchText);
 
-    console.log("journals", journalEntries);
+    // console.log("journals", journalEntries);
   }, [searchText]);
 
   const navigateToEditJournalEntry = (entryId, title, content) => {
     navigation.navigate("EditJournalEntryScreen", { entryId, title, content });
+  };
+
+  const handleFabPress = () => {
+    navigation.navigate("WriteJournalEntryScreen");
+    console.log('Fab pressed!');
   };
 
   return (
@@ -153,33 +167,6 @@ export default function AllJournalEntries({ navigation }) {
               </Stack>
             </HStack>
 
-            {/* <View style={{ alignItems: "center", padding: 10 }}>
-              <View
-                style={{
-                  flexDirection: "row",
-                  alignItems: "center",
-                  borderWidth: 1,
-                  borderColor: "gray",
-                  borderRadius: 5,
-                  paddingHorizontal: 10,
-                }}
-              >
-                <Icon
-                  as={Ionicons}
-                  name="search"
-                  size={16}
-                  color="gray"
-                  style={{ marginRight: 5 }}
-                />
-                <TextInput
-                  style={{ flex: 1 }}
-                  // value={searchText}
-                  // onChangeText={setSearchText}
-                  placeholder="Search journals..."
-                />
-              </View>
-            </View> */}
-
             <Center flex={1} px="6" mt="2">
               <VStack w="100%" space={5} alignSelf="center">
                 <Input
@@ -190,7 +177,7 @@ export default function AllJournalEntries({ navigation }) {
                   py="3"
                   px="1"
                   fontSize="14"
-                   value={searchText}
+                  value={searchText}
                   onChangeText={setSearchText}
                   InputLeftElement={
                     <Icon
@@ -269,6 +256,16 @@ export default function AllJournalEntries({ navigation }) {
           </View>
         </ScrollView>
       )}
+      <Center>
+        <Fab
+          renderInPortal={false}
+          shadow={2}
+          size="sm"
+          style={{ backgroundColor: "#613F75" }}
+          icon={<Icon color="white" as={AntDesign} name="plus" size="lg" />}
+          onPress={handleFabPress}
+        />
+      </Center>
     </SafeAreaView>
   );
 }
