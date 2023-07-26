@@ -65,7 +65,8 @@ export default function Gratitude({navigation}) {
           style={{ backgroundColor: "#EF798A", borderRadius: 22 }}
         >
           <TouchableOpacity
-            onPress={() => navigation.navigate("RecordGratitudeMomentScreen")}
+            // onPress={() => navigation.navigate("RecordGratitudeMomentScreen")}
+            onPress={() => navigation.navigate("AllGratitudeMomentsScreen")}
           >
             <Text
               style={{

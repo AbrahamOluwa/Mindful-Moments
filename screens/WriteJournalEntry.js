@@ -137,7 +137,7 @@ export default function WriteJournalEntry({ navigation }) {
             return (
               <Box bg="red" px="4" py="3" rounded="sm" mb={5}>
                 <Text style={{ fontFamily: "SoraMedium", color: "#fff" }}>
-                  Error saving journal entry!
+                  Error saving journal entry! Try again!
                 </Text>
               </Box>
             );
@@ -153,7 +153,7 @@ export default function WriteJournalEntry({ navigation }) {
           return (
             <Box bg="red" px="4" py="3" rounded="sm" mb={5}>
               <Text style={{ fontFamily: "SoraMedium", color: "#fff" }}>
-                Error saving journal entry!
+              Error saving journal entry! Try again!
               </Text>
             </Box>
           );

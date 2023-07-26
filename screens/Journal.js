@@ -64,8 +64,8 @@ export default function Journal({ navigation }) {
             style={{ backgroundColor: "#EF798A", borderRadius: 22 }}
           >
             <TouchableOpacity
-              // onPress={() => navigation.navigate("WriteJournalEntryScreen")}
-              onPress={() => navigation.navigate("AllJournalEntriesScreen")}
+              onPress={() => navigation.navigate("WriteJournalEntryScreen")}
+              //onPress={() => navigation.navigate("AllJournalEntriesScreen")}
             >
               <Text
                 style={{

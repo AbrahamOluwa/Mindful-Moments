@@ -85,6 +85,31 @@ export default function EditJournalEntry({ navigation }) {
     return null;
   };
 
+  const handleUpdateEntry = async () => {
+    Keyboard.dismiss(); // Dismiss the keyboard
+
+    const updatedTitle = journalEntryTitle;
+    const updatedContent = journalEntryContent;
+
+    if (!updatedTitle || !updatedContent) {
+      console.log("Please fill in both title and content before updating.");
+      return;
+    }
+
+    const isUpdated = await updateJournalEntry(
+      selectedEntryId,
+      updatedTitle,
+      updatedContent
+    );
+    if (isUpdated) {
+      // Show a success message (e.g., using a toast or alert)
+      console.log("Journal entry updated successfully!");
+    } else {
+      // Show an error message (e.g., using a toast or alert)
+      console.log("Failed to update journal entry. Please try again.");
+    }
+  };
+
   const updateJournalEntry = async (entryId, updatedTitle, updatedContent) => {
     try {
       const userId = await getUserId();
@@ -123,34 +148,23 @@ export default function EditJournalEntry({ navigation }) {
       return true; // Return true to indicate successful update
     } catch (error) {
       console.error("Error updating journal entry:", error);
+      // Show an error toast
+      toast.show({
+        render: () => {
+          return (
+            <Box bg="red" px="4" py="3" rounded="sm" mb={5}>
+              <Text style={{ fontFamily: "SoraMedium", color: "#fff" }}>
+                Error saving journal entry! Try again!
+              </Text>
+            </Box>
+          );
+        },
+      });
       return false; // Return false to indicate update failure
     }
   };
 
-  const handleUpdateEntry = async () => {
-    Keyboard.dismiss(); // Dismiss the keyboard
-
-    const updatedTitle = journalEntryTitle;
-    const updatedContent = journalEntryContent;
-
-    if (!updatedTitle || !updatedContent) {
-      console.log("Please fill in both title and content before updating.");
-      return;
-    }
-
-    const isUpdated = await updateJournalEntry(
-      selectedEntryId,
-      updatedTitle,
-      updatedContent
-    );
-    if (isUpdated) {
-      // Show a success message (e.g., using a toast or alert)
-      console.log("Journal entry updated successfully!");
-    } else {
-      // Show an error message (e.g., using a toast or alert)
-      console.log("Failed to update journal entry. Please try again.");
-    }
-  };
+ 
 
   return (
     <SafeAreaView style={{ flex: 1 }}>

@@ -4,11 +4,14 @@ import {
   ScrollView,
   TouchableOpacity,
   ActivityIndicator,
+  TextInput,
 } from "react-native";
 import React, { useEffect, useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { HStack, Stack } from "native-base";
+import { HStack, Stack, Icon, Center, VStack, Input } from "native-base";
 import { AntDesign } from "@expo/vector-icons";
+import { MaterialIcons } from "@expo/vector-icons";
+import { Ionicons } from "@expo/vector-icons";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { auth, db } from "../firebaseConfig";
 import { collection, getDocs, query, orderBy } from "firebase/firestore";
@@ -43,6 +46,8 @@ export default function AllJournalEntries({ navigation }) {
   const [journalEntries, setJournalEntries] = useState([]);
   const auth = getAuth();
   const [isFetching, setIsFetching] = useState(true);
+  const [searchText, setSearchText] = useState("");
+  const [filteredJournals, setFilteredJournals] = useState([]);
 
   const getUserId = async () => {
     const storedUserId = await AsyncStorage.getItem("nonRegisteredUserId");
@@ -89,10 +94,20 @@ export default function AllJournalEntries({ navigation }) {
     }
   };
 
+  const filterJournals = (searchText) => {
+    const filteredJournals = journalEntries.filter((journal) => {
+      // Assuming you have a "title" field in your journal entry
+      return journal.title.toLowerCase().includes(searchText.toLowerCase());
+    });
+    setFilteredJournals(filteredJournals);
+  };
+
   useEffect(() => {
     fetchJournalEntries();
+    filterJournals(searchText);
+
     console.log("journals", journalEntries);
-  }, []);
+  }, [searchText]);
 
   const navigateToEditJournalEntry = (entryId, title, content) => {
     navigation.navigate("EditJournalEntryScreen", { entryId, title, content });
@@ -102,7 +117,9 @@ export default function AllJournalEntries({ navigation }) {
     <SafeAreaView style={{ flex: 1 }}>
       {isFetching ? (
         // Show the loader component while loading is true
-        <View style={{ flex:1, justifyContent: "center", alignItems: "center" }}>
+        <View
+          style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
+        >
           <ActivityIndicator size="large" color="#EF798A" />
         </View>
       ) : (
@@ -136,8 +153,100 @@ export default function AllJournalEntries({ navigation }) {
               </Stack>
             </HStack>
 
+            {/* <View style={{ alignItems: "center", padding: 10 }}>
+              <View
+                style={{
+                  flexDirection: "row",
+                  alignItems: "center",
+                  borderWidth: 1,
+                  borderColor: "gray",
+                  borderRadius: 5,
+                  paddingHorizontal: 10,
+                }}
+              >
+                <Icon
+                  as={Ionicons}
+                  name="search"
+                  size={16}
+                  color="gray"
+                  style={{ marginRight: 5 }}
+                />
+                <TextInput
+                  style={{ flex: 1 }}
+                  // value={searchText}
+                  // onChangeText={setSearchText}
+                  placeholder="Search journals..."
+                />
+              </View>
+            </View> */}
+
+            <Center flex={1} px="6" mt="2">
+              <VStack w="100%" space={5} alignSelf="center">
+                <Input
+                  placeholder="Search Journals"
+                  style={{ fontFamily: "SoraRegular" }}
+                  width="100%"
+                  borderRadius="4"
+                  py="3"
+                  px="1"
+                  fontSize="14"
+                   value={searchText}
+                  onChangeText={setSearchText}
+                  InputLeftElement={
+                    <Icon
+                      m="2"
+                      ml="3"
+                      size="6"
+                      color="gray.400"
+                      as={<MaterialIcons name="search" />}
+                    />
+                  }
+                />
+              </VStack>
+            </Center>
+
             <View>
-              {journalEntries.map((entry) => (
+              {searchText === ""
+                ? // If there's no search text, show all journals
+                  journalEntries.map((entry) => (
+                    // <Text key={entry.id}>{removeHtmlTags(entry.content)}</Text>
+                    <TouchableOpacity
+                      key={entry.id}
+                      onPress={() =>
+                        navigateToEditJournalEntry(
+                          entry.id,
+                          entry.title,
+                          entry.content
+                        )
+                      }
+                    >
+                      <JournalCard
+                        title={entry.title}
+                        content={entry.content}
+                        createdAt={entry.createdAt}
+                      />
+                    </TouchableOpacity>
+                  ))
+                : // If there's search text, show the filtered journals
+                  filteredJournals.map((entry) => (
+                    <TouchableOpacity
+                      key={entry.id}
+                      onPress={() =>
+                        navigateToEditJournalEntry(
+                          entry.id,
+                          entry.title,
+                          entry.content
+                        )
+                      }
+                    >
+                      <JournalCard
+                        title={entry.title}
+                        content={entry.content}
+                        createdAt={entry.createdAt}
+                      />
+                    </TouchableOpacity>
+                  ))}
+              {/* {journalEntries.map((entry) => (
                 // <Text key={entry.id}>{removeHtmlTags(entry.content)}</Text>
                 <TouchableOpacity
                   key={entry.id}
@@ -155,7 +264,7 @@ export default function AllJournalEntries({ navigation }) {
                     createdAt={entry.createdAt}
                   />
                 </TouchableOpacity>
-              ))}
+              ))} */}
             </View>
           </View>
         </ScrollView>

@@ -1,18 +1,31 @@
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
-import React,  { useState, useRef } from "react";
+import React, { useState, useRef } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { RichEditor, RichToolbar } from "react-native-pell-rich-editor";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import {
   HStack,
   Stack,
+  Button,
+  useToast,
+  Box,
 } from "native-base";
+import { auth, db } from "../firebaseConfig";
+import { onAuthStateChanged } from "firebase/auth";
+import {
+  collection,
+  addDoc,
+  serverTimestamp,
+} from "firebase/firestore";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
-export default function RecordGratitudeMoment({navigation}) {
+export default function RecordGratitudeMoment({ navigation }) {
   const [title, setTitle] = useState("");
   const [moment, setMoment] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const titleEditorRef = useRef();
   const momentEditorRef = useRef();
+  const toast = useToast();
 
   const handleTitleChange = (text) => {
     setTitle(text);
@@ -26,7 +39,7 @@ export default function RecordGratitudeMoment({navigation}) {
     editorRef.current.insertImage("https://example.com/image.jpg");
   };
 
-  const saveGratitidueMoment = () => {
+  const saveGratitidueMoment1 = () => {
     // Save the journal entry using the title and note values
     // You can perform any required operations here, such as storing in a database
     console.log("Title:", title);
@@ -37,6 +50,119 @@ export default function RecordGratitudeMoment({navigation}) {
     setMoment("");
 
     navigation.navigate("AllGratitudeMomentsScreen");
+  };
+
+  const saveGratitidueMoment = async () => {
+    setIsSubmitting(true);
+    try {
+    
+      const userId = await getUserId();
+
+      try {
+        const gratitudeData = {
+          title: title,
+          moment: moment,
+          createdAt: serverTimestamp(),
+        };
+
+        const collectionRef = collection(
+          db,
+          "nonRegisteredUsers",
+          userId,
+          "gratitude_moments"
+        );
+
+        await addDoc(collectionRef, gratitudeData);
+        console.log("Gratitude moment saved successfully!", collectionRef.id);
+
+        setIsSubmitting(false);
+
+        setTitle("");
+        setMoment("");
+
+        // Show a success toast
+        toast.show({
+          render: () => {
+            return (
+              <Box bg="emerald.500" px="4" py="3" rounded="sm" mb={5}>
+                <Text style={{ fontFamily: "SoraMedium", color: "#fff" }}>
+                  Journal entry saved successfully!
+                </Text>
+              </Box>
+            );
+          },
+        });
+
+        setTimeout(() => {
+          navigation.navigate("AllGratitudeMomentsScreen");
+        }, 2000);
+      } catch (error) {
+        setIsSubmitting(false);
+        console.error("Error saving gratitude moment:", error);
+
+        // Show an error toast
+        toast.show({
+          render: () => {
+            return (
+              <Box bg="red" px="4" py="3" rounded="sm" mb={5}>
+                <Text style={{ fontFamily: "SoraMedium", color: "#fff" }}>
+                  Error saving gratitude moment! Try again!
+                </Text>
+              </Box>
+            );
+          },
+        });
+      }
+    } catch (error) {
+      setIsSubmitting(false);
+      console.error("Error saving journal entry:", error);
+      // Show an error toast
+      toast.show({
+        render: () => {
+          return (
+            <Box bg="red" px="4" py="3" rounded="sm" mb={5}>
+              <Text style={{ fontFamily: "SoraMedium", color: "#fff" }}>
+                Error saving gratitude moment! Try again!
+              </Text>
+            </Box>
+          );
+        },
+      });
+    }
+  };
+
+  const getUserId = async () => {
+    try {
+      const storedUserId = await AsyncStorage.getItem("nonRegisteredUserId");
+
+      if (storedUserId) {
+        // User is a non-registered user
+        console.log(
+          "Retrieved non-registered userId from AsyncStorage:",
+          storedUserId
+        );
+        return storedUserId;
+      } else {
+        // User is a registered user
+
+        onAuthStateChanged(auth, (user) => {
+          if (user) {
+            const userId = user.uid;
+            console.log("Registered User ID:", userId);
+            return userId;
+          } else {
+            // User is signed out
+
+            console.log("User is signed out");
+            // ...
+          }
+        });
+      }
+    } catch (error) {
+      console.error("Error retrieving user ID:", error);
+    }
+
+    return null;
   };
 
   return (
@@ -51,7 +177,7 @@ export default function RecordGratitudeMoment({navigation}) {
                 name="arrowleft"
                 size={30}
                 color="black"
-                style={{ marginTop:  5}}
+                style={{ marginTop: 5 }}
               />
             </TouchableOpacity>
           </Stack>
@@ -71,7 +197,7 @@ export default function RecordGratitudeMoment({navigation}) {
               marginBottom: 10,
               minHeight: 40,
             }}
-            containerStyle={{ backgroundColor: 'transparent' }}
+            containerStyle={{ backgroundColor: "transparent" }}
             onChange={handleTitleChange}
             initialContentHTML={title}
             placeholder="Title..."
@@ -85,7 +211,7 @@ export default function RecordGratitudeMoment({navigation}) {
               borderColor: "gray",
               marginBottom: 10,
             }}
-            containerStyle={{ backgroundColor: 'transparent' }}
+            containerStyle={{ backgroundColor: "transparent" }}
             onChange={handleMomentChange}
             initialContentHTML={moment}
             placeholder="Moments..."
@@ -98,27 +224,38 @@ export default function RecordGratitudeMoment({navigation}) {
             onPressAddImage={handleInsertImage}
           />
 
-          <TouchableOpacity
-            style={styles.saveButton}
-            onPress={saveGratitidueMoment}
-          >
-            <Text style={styles.saveButtonText}>Save Moment</Text>
-          </TouchableOpacity>
+          {!isSubmitting && (
+            <TouchableOpacity
+              style={styles.saveButton}
+              onPress={saveGratitidueMoment}
+            >
+              <Text style={styles.saveButtonText}>Save Moment</Text>
+            </TouchableOpacity>
+          )}
+
+          {isSubmitting && (
+            <Button
+              isLoading
+              _loading={{
+                bg: "#EF798A",
+                _text: {
+                  color: "coolGray.700",
+                  fontFamily: "SoraMedium",
+                  fontSize: 15,
+                },
+              }}
+              _spinner={{
+                color: "white",
+              }}
+              isLoadingText="Saving Moment"
+            >
+              Button
+            </Button>
+          )}
+
+         
         </View>
       </View>
-
-      {/* <TextInput
-          style={styles.input}
-          multiline
-          placeholder="Write your journal entry here..."
-          value={journalEntry}
-          onChangeText={setJournalEntry}
-        />
-
-       
-        <TouchableOpacity style={styles.saveButton} onPress={handleSaveEntry}>
-          <Text style={styles.saveButtonText}>Save Entry</Text>
-        </TouchableOpacity> */}
     </SafeAreaView>
   );
 }
