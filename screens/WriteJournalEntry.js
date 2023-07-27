@@ -141,7 +141,7 @@ export default function WriteJournalEntry({ navigation }) {
 
         setTimeout(() => {
           navigation.navigate("AllJournalEntriesScreen");
-        }, 2000);
+        }, 1000);
       } catch (error) {
         setIsSubmitting(false);
         console.error("Error saving journal entry:", error);

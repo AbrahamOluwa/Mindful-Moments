@@ -50,7 +50,7 @@ export default function EditGratitudeMoment({ navigation }) {
     setTimeout(() => {
       setLoading(false);
     }, 2000);
-  }, [moment]);
+  }, []);
 
   const getUserId = async () => {
     try {

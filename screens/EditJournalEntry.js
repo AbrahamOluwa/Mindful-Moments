@@ -50,7 +50,7 @@ export default function EditJournalEntry({ navigation }) {
     setTimeout(() => {
       setLoading(false);
     }, 2000);
-  }, [content]);
+  }, []);
 
   const getUserId = async () => {
     try {

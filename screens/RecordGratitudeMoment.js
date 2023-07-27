@@ -39,19 +39,6 @@ export default function RecordGratitudeMoment({ navigation }) {
     editorRef.current.insertImage("https://example.com/image.jpg");
   };
 
-  const saveGratitidueMoment1 = () => {
-    // Save the journal entry using the title and note values
-    // You can perform any required operations here, such as storing in a database
-    console.log("Title:", title);
-    console.log("Moment:", moment);
-
-    // Clear the text input fields
-    setTitle("");
-    setMoment("");
-
-    navigation.navigate("AllGratitudeMomentsScreen");
-  };
-
   const saveGratitidueMoment = async () => {
     setIsSubmitting(true);
     try {
