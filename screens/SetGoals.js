@@ -178,9 +178,7 @@ export default function SetGoals({ navigation }) {
         },
       });
 
-      setTimeout(() => {
-        navigation.navigate("AllJournalEntriesScreen");
-      }, 1000);
+    
 
       // Reset the form fields after saving
       setGoalTitle("");
@@ -191,6 +189,12 @@ export default function SetGoals({ navigation }) {
       setReminderDate(new Date());
       setTasks([]);
       setNewTask("");
+
+      setTimeout(() => {
+        navigation.navigate("GoalsListScreen");
+      }, 1000);
+
+
     } catch (error) {
       console.error("Error saving goal:", error);
     }
@@ -203,7 +207,7 @@ export default function SetGoals({ navigation }) {
     console.log(dueDate);
     console.log(reminderDate);
 
-    navigation.navigate("GoalsListScreen");
+    
   };
 
   return (
@@ -443,7 +447,7 @@ const styles = StyleSheet.create({
     fontFamily: "SoraMedium",
   },
   tasksContainer: {
-    maxHeight: 150,
+    maxHeight: 200,
     marginBottom: 20,
   },
   taskRow: {

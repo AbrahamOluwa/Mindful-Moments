@@ -1,11 +1,15 @@
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from "react-native";
-import React from "react";
+import React, {useState} from "react";
 import { HStack, Stack } from "native-base";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { AntDesign } from "@expo/vector-icons";
+import GoalTabBar from "../components/goals/GoalTabBar";
 import ThoughtCard from "../components/thoughts/ThoughtCard.js";
 
 export default function GoalsList({navigation}) {
+
+  const [activeTab, setActiveTab] = useState('all');
+
   const goals = [
     { id: 1, title: "Goal 1", description: "Description for Goal 1" },
     { id: 2, title: "Goal 2", description: "Description for Goal 2" },
@@ -31,18 +35,16 @@ export default function GoalsList({navigation}) {
             <Text style={styles.title}>All Goals</Text>
           </Stack>
         </HStack>
-        <ScrollView>
+        {/* <ScrollView>
           <View style={styles.container}>
             {goals.map((goal) => (
-              // <View key={goal.id} style={styles.goalItem}>
-              //   <Text style={styles.goalTitle}>{goal.title}</Text>
-              //   <Text>{goal.description}</Text>
-              // </View>
 
               <ThoughtCard key={goal.id} />
             ))}
           </View>
-        </ScrollView>
+        </ScrollView> */}
+
+        <GoalTabBar activeTab={activeTab} setActiveTab={setActiveTab}/>
       </View>
     </SafeAreaView>
   );
