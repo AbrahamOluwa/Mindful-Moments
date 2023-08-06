@@ -6,13 +6,15 @@ import {
   TouchableOpacity,
   Image,
 } from "react-native";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Categories from "../components/home/Categories";
 import { HStack, VStack, Stack } from "native-base";
 import { MaterialIcons } from "@expo/vector-icons";
 import { AntDesign } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
+import { auth, db } from "../firebaseConfig";
+import { collection, getDocs } from "firebase/firestore";
 
 const meditations = [
   {
@@ -37,6 +39,29 @@ const nameOfParentScreen = "Meditations";
 export default function Meditations() {
   // const [categories, setCategories] = useState(articles);
   const navigation = useNavigation();
+  const [meditationData, setMeditationData] = useState([]);
+  const [meditations, setMeditations] = useState([]);
+
+  const getAllMeditations = async () => {
+    try {
+      const querySnapshot = await getDocs(collection(db, "meditations"));
+      const meditations = [];
+      querySnapshot.forEach((doc) => {
+        meditations.push({ id: doc.id, ...doc.data() });
+      });
+      setMeditationData(meditations);
+      console.log(meditations);
+      return meditations;
+    } catch (error) {
+      console.error("Error fetching meditations:", error);
+      return [];
+    }
+  };
+
+  useEffect(() => {
+    getAllMeditations();
+  }, []);
+
   return (
     <SafeAreaView style={{ flex: 1 }}>
       <ScrollView>
@@ -86,21 +111,39 @@ export default function Meditations() {
         />
 
         <View style={{ marginTop: 10 }}>
-          <TouchableOpacity onPress= {() => {
-             navigation.navigate('MeditationPlayerScreen')
-          }}>
+          {meditationData.map((m) => {
+            <TouchableOpacity
+              key={m.id}
+              onPress={() => {
+                navigation.navigate("MeditationPlayerScreen");
+              }}
+            >
+              <Card />
+            </TouchableOpacity>;
+          })}
+
+{/*         
+          <TouchableOpacity
+            onPress={() => {
+              navigation.navigate("MeditationPlayerScreen");
+            }}
+          >
             <Card />
           </TouchableOpacity>
-          <TouchableOpacity onPress= {() => {
-             navigation.navigate('MeditationPlayerScreen')
-          }}>
+          <TouchableOpacity
+            onPress={() => {
+              navigation.navigate("MeditationPlayerScreen");
+            }}
+          >
             <Card />
           </TouchableOpacity>
-          <TouchableOpacity onPress= {() => {
-             navigation.navigate('MeditationPlayerScreen')
-          }}>
+          <TouchableOpacity
+            onPress={() => {
+              navigation.navigate("MeditationPlayerScreen");
+            }}
+          >
             <Card />
-          </TouchableOpacity>
+          </TouchableOpacity> */}
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -109,7 +152,13 @@ export default function Meditations() {
 
 const Card = () => {
   return (
-    <View style={{ alignItems: "center", justifyContent: "center", paddingVertical: 10 }}>
+    <View
+      style={{
+        alignItems: "center",
+        justifyContent: "center",
+        paddingVertical: 10,
+      }}
+    >
       <View
         style={{
           backgroundColor: "#EFB9CB",

@@ -2,12 +2,11 @@ import {
   View,
   Text,
   TouchableOpacity,
-  Image,
-  TextInput,
   StyleSheet,
   ScrollView,
   Dimensions,
   ImageBackground,
+  ActivityIndicator
 } from "react-native";
 import React, { useEffect, useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -22,6 +21,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 export default function Gratitude({ navigation }) {
   const { width } = Dimensions.get("screen");
   const [hasGratitudeMoments, setHasGratitudeMoments] = useState(false);
+  const [isFetching, setIsFetching] = useState(true);
 
   const getUserId = async () => {
     const storedUserId = await AsyncStorage.getItem("nonRegisteredUserId");
@@ -60,12 +60,13 @@ export default function Gratitude({ navigation }) {
 
         if (querySnapshot.empty) {
           console.log("Document data exist");
+          setIsFetching(false);
           setHasGratitudeMoments(true);
         } else {
           console.log("No such document!");
+          setIsFetching(false);
           setHasGratitudeMoments(false);
         }
-
 
         // setHasGratitudeMoments(!querySnapshot.empty); // Check if the query returned any documents
       } catch (error) {
@@ -107,17 +108,72 @@ export default function Gratitude({ navigation }) {
           }}
         >
           <Text style={styles.header}>Gratitude Moments</Text>
-          {hasGratitudeMoments ? (
-            <TouchableOpacity
-              onPress={() => navigation.navigate("AllGratitudeMomentsScreen")}
+          {isFetching ? (
+            // Show the loader component while loading is true
+            <View
+              style={{
+                flex: 1,
+                justifyContent: "center",
+                alignItems: "center",
+                marginTop: 20
+              }}
             >
-              <Text style={styles.description}>View All Moments</Text>
-            </TouchableOpacity>
+              <ActivityIndicator size="large" color="#EF798A" />
+            </View>
           ) : (
-            <>
-              <Text style={styles.description}>Oops... No entries yet!</Text>
-              <Text style={styles.description}>Tap to Start Writing</Text>
-            </>
+            <View>
+              {hasGratitudeMoments ? (
+                <TouchableOpacity
+                  style={styles.viewButton}
+                  onPress={() =>
+                    navigation.navigate("AllGratitudeMomentsScreen")
+                  }
+                >
+                  <Text style={styles.viewButtonText}>View All Moments</Text>
+                </TouchableOpacity>
+              ) : (
+                <>
+                  <Text style={styles.description}>
+                    Oops... No entries yet!
+                  </Text>
+                  <Text style={styles.description}>Tap to Start Writing</Text>
+                </>
+              )}
+
+              <View
+                style={{
+                  alignItems: "center",
+                  justifyContent: "center",
+                  marginTop: 30,
+                }}
+              >
+                <Button
+                  leftIcon={<Icon as={FontAwesome} name="plus" size="md" />}
+                  style={{
+                    backgroundColor: "#EF798A",
+                    borderRadius: 8,
+                    width: 180,
+                  }}
+                >
+                  <TouchableOpacity
+                    onPress={() =>
+                      navigation.navigate("RecordGratitudeMomentScreen")
+                    }
+                    //onPress={() => navigation.navigate("AllGratitudeMomentsScreen")}
+                  >
+                    <Text
+                      style={{
+                        fontFamily: "SoraMedium",
+                        color: "#fff",
+                        fontSize: 15,
+                      }}
+                    >
+                      Add new
+                    </Text>
+                  </TouchableOpacity>
+                </Button>
+              </View>
+            </View>
           )}
         </View>
 
@@ -133,34 +189,6 @@ export default function Gratitude({ navigation }) {
           <Text style={styles.description}>Oops... No entries yet!</Text>
           <Text style={styles.description}>Tap to Start Writing</Text>
         </View> */}
-
-        <View
-          style={{
-            alignItems: "center",
-            justifyContent: "center",
-            marginTop: 50,
-          }}
-        >
-          <Button
-            leftIcon={<Icon as={FontAwesome} name="plus" size="sm" />}
-            style={{ backgroundColor: "#EF798A", borderRadius: 22 }}
-          >
-            <TouchableOpacity
-              onPress={() => navigation.navigate("RecordGratitudeMomentScreen")}
-              //onPress={() => navigation.navigate("AllGratitudeMomentsScreen")}
-            >
-              <Text
-                style={{
-                  fontFamily: "SoraMedium",
-                  color: "#fff",
-                  fontSize: 13,
-                }}
-              >
-                Add new
-              </Text>
-            </TouchableOpacity>
-          </Button>
-        </View>
       </View>
     </SafeAreaView>
   );
@@ -177,5 +205,20 @@ const styles = StyleSheet.create({
     fontFamily: "SoraSemiBold",
     color: "gray",
     fontSize: 15,
+  },
+
+  viewButtonText: {
+    fontFamily: "SoraMedium",
+    color: "white",
+    fontSize: 15,
+  },
+
+  viewButton: {
+    backgroundColor: "#613F75",
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    alignItems: "center",
+    marginTop: 10,
+    borderRadius: 8,
   },
 });

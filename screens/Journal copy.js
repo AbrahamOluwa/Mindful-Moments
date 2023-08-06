@@ -2,21 +2,18 @@ import {
   View,
   Text,
   TouchableOpacity,
+  Image,
+  TextInput,
   StyleSheet,
   ScrollView,
   Dimensions,
   ImageBackground,
-  ActivityIndicator
 } from "react-native";
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { HStack, Stack, Button, Icon } from "native-base";
 import { AntDesign } from "@expo/vector-icons";
 import { FontAwesome } from "@expo/vector-icons";
-import { onAuthStateChanged } from "firebase/auth";
-import { auth, db } from "../firebaseConfig";
-import { collection, getDocs } from "firebase/firestore";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function Journal({ navigation }) {
   const { width } = Dimensions.get("screen");
@@ -47,14 +44,14 @@ export default function Journal({ navigation }) {
 
   useEffect(() => {
     // Check if the user has any gratitude moments in the database
-    const checkJournals = async () => {
+    const checkGratitudeMoments = async () => {
       try {
         const userId = await getUserId(); // Replace this with your function to get the user ID
         const journalsRef = collection(
           db,
           "nonRegisteredUsers",
           userId,
-          "'journal_entries'"
+          "journal_entries"
         );
         const querySnapshot = await getDocs(journalsRef);
 
@@ -74,7 +71,7 @@ export default function Journal({ navigation }) {
       }
     };
 
-    checkJournals();
+    checkGratitudeMoments();
     // console.log(hasGratitudeMoments);
   }, []);
 
@@ -114,75 +111,11 @@ export default function Journal({ navigation }) {
           }}
         >
           <Text style={styles.header}>Journal Entries</Text>
-          {/* <Text style={styles.description}>Oops... No journals yet!</Text>
-          <Text style={styles.description}>Tap to Start Writing</Text> */}
-          {isFetching ? (
-            // Show the loader component while loading is true
-            <View
-              style={{
-                flex: 1,
-                justifyContent: "center",
-                alignItems: "center",
-                marginTop: 20,
-              }}
-            >
-              <ActivityIndicator size="large" color="#EF798A" />
-            </View>
-          ) : (
-            <View>
-              {hasJournals ? (
-                <TouchableOpacity
-                  style={styles.viewButton}
-                  onPress={() => navigation.navigate("AllJournalEntriesScreen")}
-                >
-                  <Text style={styles.viewButtonText}>View All Journals</Text>
-                </TouchableOpacity>
-              ) : (
-                <>
-                  <Text style={styles.description}>
-                    Oops... No journals yet!
-                  </Text>
-                  <Text style={styles.description}>Tap to Start Writing</Text>
-                </>
-              )}
-
-              <View
-                style={{
-                  alignItems: "center",
-                  justifyContent: "center",
-                  marginTop: 30,
-                }}
-              >
-                <Button
-                  leftIcon={<Icon as={FontAwesome} name="plus" size="md" />}
-                  style={{
-                    backgroundColor: "#EF798A",
-                    borderRadius: 8,
-                    width: 180,
-                  }}
-                >
-                  <TouchableOpacity
-                    onPress={() =>
-                      navigation.navigate("WriteJournalEntryScreen")
-                    }
-                  >
-                    <Text
-                      style={{
-                        fontFamily: "SoraMedium",
-                        color: "#fff",
-                        fontSize: 15,
-                      }}
-                    >
-                      Add new
-                    </Text>
-                  </TouchableOpacity>
-                </Button>
-              </View>
-            </View>
-          )}
+          <Text style={styles.description}>Oops... No journals yet!</Text>
+          <Text style={styles.description}>Tap to Start Writing</Text>
         </View>
 
-        {/* <View style={{ alignItems: "center", justifyContent: "center", marginTop: 50 }}>
+        <View style={{ alignItems: "center", justifyContent: "center", marginTop: 50 }}>
           <Button
             leftIcon={<Icon as={FontAwesome} name="plus" size="sm" />}
             style={{ backgroundColor: "#EF798A", borderRadius: 22 }}
@@ -202,7 +135,7 @@ export default function Journal({ navigation }) {
               </Text>
             </TouchableOpacity>
           </Button>
-        </View> */}
+        </View>
       </View>
     </SafeAreaView>
   );
@@ -219,20 +152,5 @@ const styles = StyleSheet.create({
     fontFamily: "SoraSemiBold",
     color: "gray",
     fontSize: 15,
-  },
-
-  viewButtonText: {
-    fontFamily: "SoraMedium",
-    color: "white",
-    fontSize: 15,
-  },
-
-  viewButton: {
-    backgroundColor: "#613F75",
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    alignItems: "center",
-    marginTop: 10,
-    borderRadius: 8,
   },
 });
