@@ -7,8 +7,9 @@ import {
   ScrollView,
   KeyboardAvoidingView,
 } from "react-native";
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { RichEditor, RichToolbar } from "react-native-pell-rich-editor";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import {
   HStack,
@@ -32,9 +33,39 @@ import {
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function WriteJournalEntry({ navigation }) {
+  // useEffect(() => {
+  //   const unsubscribe = onAuthStateChanged(auth, (user) => {
+  //     setUid(user.uid);
+  //     if (user) {
+  //       const isAnonymous = checkAnonymousSignIn();
+  //       if (isAnonymous) {
+  //         const userId = getUserId();
+  //         // Do something with the user ID for the non-registered user
+  //         console.log("Anonymous User ID:", userId);
+  //       } else {
+  //         // User is signed in with a registered account
+  //         // You can access the user ID using currentUser.uid
+  //         const userId = getUserId();
+  //         // Do something with the registered user ID
+  //         console.log("Registered User ID:", userId);
+  //       }
+  //     } else {
+  //       // User is signed out
+  //     }
+  //   });
+
+  //   // Clean up the listener when component unmounts
+  //   return () => unsubscribe();
+  // }, []);
+
+  // ...
+
   const [title, setTitle] = useState("");
   const [note, setNote] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const titleEditorRef = useRef();
+  const noteEditorRef = useRef();
+  const [showModal, setShowModal] = useState(false);
   const toast = useToast();
 
   const handleTitleChange = (text) => {
@@ -45,12 +76,17 @@ export default function WriteJournalEntry({ navigation }) {
     setNote(text);
   };
 
+  const handleInsertImage = () => {
+    editorRef.current.insertImage("https://example.com/image.jpg");
+  };
+
   const saveJournalEntry = async () => {
     setIsSubmitting(true);
     try {
+
       const userId = await getUserId();
 
-      if (!title || !note) {
+      if(!title || !note ) {
         setIsSubmitting(false);
         toast.show({
           render: () => {
@@ -103,7 +139,9 @@ export default function WriteJournalEntry({ navigation }) {
           },
         });
 
-        navigation.navigate("AllJournalEntriesScreen");
+        setTimeout(() => {
+          navigation.navigate("AllJournalEntriesScreen");
+        }, 1000);
       } catch (error) {
         setIsSubmitting(false);
         console.error("Error saving journal entry:", error);
@@ -130,7 +168,7 @@ export default function WriteJournalEntry({ navigation }) {
           return (
             <Box bg="#ff0e0e" px="4" py="3" rounded="sm" mb={5}>
               <Text style={{ fontFamily: "SoraMedium", color: "#fff" }}>
-                Error saving journal entry! Try again!
+              Error saving journal entry! Try again!
               </Text>
             </Box>
           );
@@ -200,22 +238,41 @@ export default function WriteJournalEntry({ navigation }) {
           </HStack>
 
           <View style={{ flex: 1 }}>
-            <ScrollView>
-              <TextInput
-                style={styles.titleInput}
-                placeholder="Enter title here..."
-                value={title}
-                onChangeText={handleTitleChange}
-              />
+            <RichEditor
+              ref={titleEditorRef}
+              style={{
+                //flex: 1,
+                borderWidth: 1,
+                borderColor: "gray",
+                marginBottom: 10,
+                minHeight: 40,
+              }}
+              onChange={handleTitleChange}
+              initialContentHTML={title}
+              placeholder="Title..."
+              androidHardwareAccelerationDisabled={true}
+            />
 
-              <TextInput
-                style={styles.notesInput}
-                placeholder="Enter notes/journal here..."
-                value={note}
-                onChangeText={handleNoteChange}
-                multiline={true}
-              />
-            </ScrollView>
+            <RichEditor
+              ref={noteEditorRef}
+              style={{
+                flex: 1,
+                borderWidth: 1,
+                borderColor: "gray",
+                marginBottom: 1,
+              }}
+              onChange={handleNoteChange}
+              initialContentHTML={note}
+              placeholder="Notes..."
+              androidHardwareAccelerationDisabled={true}
+            />
+
+            <RichToolbar
+              getEditor={() => noteEditorRef.current}
+              selectedIconTint="purple"
+              iconTint="gray"
+              onPressAddImage={handleInsertImage}
+            />
 
             {!isSubmitting && (
               <TouchableOpacity
@@ -246,6 +303,9 @@ export default function WriteJournalEntry({ navigation }) {
               </Button>
             )}
           </View>
+          {/* <TouchableOpacity style={styles.saveButton} onPress={handleSaveEntry}>
+          <Text style={styles.saveButtonText}>Save Entry</Text>
+        </TouchableOpacity> */}
         </View>
       </KeyboardAvoidingView>
     </SafeAreaView>
@@ -263,32 +323,19 @@ const styles = StyleSheet.create({
     fontFamily: "SoraSemiBold",
     marginBottom: 20,
   },
-
-  titleInput: {
+  input: {
+    height: 200,
     borderWidth: 1,
-    borderColor: "#ccc",
-    borderRadius: 4,
+    borderColor: "#CCCCCC",
+    borderRadius: 8,
     padding: 10,
     marginBottom: 20,
-    fontFamily: "SoraRegular",
   },
-
-  notesInput: {
-    borderWidth: 1,
-    borderColor: "#ccc",
-    borderRadius: 4,
-    padding: 10,
-    minHeight: 500,
-    maxHeight: 500,
-    fontFamily: "SoraRegular",
-  },
-
   saveButton: {
     backgroundColor: "#EF798A",
     paddingVertical: 12,
     paddingHorizontal: 16,
     alignItems: "center",
-    marginTop: 10,
   },
   saveButtonText: {
     fontFamily: "SoraMedium",

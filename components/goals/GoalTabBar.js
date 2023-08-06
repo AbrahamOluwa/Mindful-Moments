@@ -78,11 +78,12 @@ const styles = StyleSheet.create({
     backgroundColor: "#f0f0f0", // White background color for the active tab
     borderRadius: 16, // Border radius for the active tab
     borderWidth: 2, // Add border width for the active tab
-    borderColor: "#3f51b5", // Border color for the active tab
+    borderColor: "#EF798A", // Border color for the active tab
     paddingHorizontal: 20, // Increase the horizontal padding to increase the width of the active tab
     paddingVertical: 8, // Reduce the vertical padding to reduce the height of the active tab
   },
   activeTabButtonText: {
-    color: "#3f51b5",
+    color: "#EF798A",
+    //color: "#3f51b5",
   },
 });

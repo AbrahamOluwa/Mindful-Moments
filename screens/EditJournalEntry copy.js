@@ -7,7 +7,6 @@ import {
   KeyboardAvoidingView,
   Keyboard,
   ActivityIndicator,
-  TextInput
 } from "react-native";
 import React, { useState, useEffect, useRef } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -19,24 +18,24 @@ import { doc, updateDoc, serverTimestamp } from "firebase/firestore";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import AntDesign from "@expo/vector-icons/AntDesign";
 
-export default function EditGratitudeMoment({ navigation }) {
+export default function EditJournalEntry({ navigation }) {
   const route = useRoute();
-  const { entryId, title, moment } = route.params;
+  const { entryId, title, content } = route.params;
   const [selectedEntryId, setSelectedEntryId] = useState(entryId);
-  const [gratitudeMomentTitle, setGratitudeMomentTitle] = useState(title);
-  const [gratitudeMomentContent, setGratitudeMomentContent] = useState(moment);
+  const [journalEntryTitle, setJournalEntryTitle] = useState(title);
+  const [journalEntryContent, setJournalEntryContent] = useState(content);
   const titleEditorRef = useRef();
-  const momentEditorRef = useRef();
+  const noteEditorRef = useRef();
   const toast = useToast();
   const [loading, setLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleTitleChange = (text) => {
-    setGratitudeMomentTitle(text);
+    setJournalEntryTitle(text);
   };
 
-  const handleMomentChange = (text) => {
-    setGratitudeMomentContent(text);
+  const handleNoteChange = (text) => {
+    setJournalEntryContent(text);
   };
 
   const handleInsertImage = () => {
@@ -45,8 +44,8 @@ export default function EditGratitudeMoment({ navigation }) {
 
   useEffect(() => {
     // Set the initial content of the rich text editor
-    setGratitudeMomentTitle(title);
-    setGratitudeMomentContent(moment);
+    setJournalEntryTitle(title);
+    setJournalEntryContent(content);
     setSelectedEntryId(entryId);
     setTimeout(() => {
       setLoading(false);
@@ -92,8 +91,8 @@ export default function EditGratitudeMoment({ navigation }) {
 
     setIsSubmitting(true);
 
-    const updatedTitle = gratitudeMomentTitle;
-    const updatedContent = gratitudeMomentContent;
+    const updatedTitle = journalEntryTitle;
+    const updatedContent = journalEntryContent;
 
     if (!updatedTitle || !updatedContent) {
       console.log("Please fill in both title and content before updating.");
@@ -112,27 +111,23 @@ export default function EditGratitudeMoment({ navigation }) {
       return;
     }
 
-    const isUpdated = await updateGratitudeEntry(
+    const isUpdated = await updateJournalEntry(
       selectedEntryId,
       updatedTitle,
       updatedContent
     );
     if (isUpdated) {
+      setIsSubmitting(false);
       // Show a success message (e.g., using a toast or alert)
-      setIsSubmitting(false);
-      console.log("Gratitude moment updated successfully!");
+      console.log("Journal entry updated successfully!");
     } else {
-      // Show an error message (e.g., using a toast or alert)
       setIsSubmitting(false);
-      console.log("Failed to update gratitude moment. Please try again.");
+      // Show an error message (e.g., using a toast or alert)
+      console.log("Failed to update journal entry. Please try again.");
     }
   };
 
-  const updateGratitudeEntry = async (
-    entryId,
-    updatedTitle,
-    updatedContent
-  ) => {
+  const updateJournalEntry = async (entryId, updatedTitle, updatedContent) => {
     try {
       const userId = await getUserId();
 
@@ -140,43 +135,43 @@ export default function EditGratitudeMoment({ navigation }) {
         db,
         "nonRegisteredUsers",
         userId,
-        "gratitude_moments",
+        "journal_entries",
         entryId
       );
 
       // Update the journal entry fields
       await updateDoc(entryRef, {
         title: updatedTitle,
-        moment: updatedContent,
-        updatedAt: serverTimestamp(),
+        content: updatedContent,
+        updatedAt: serverTimestamp(), // Optional: Update the updatedAt field with the current timestamp
       });
 
-      console.log("Gratitude moment updated successfully!");
+      console.log("Journal entry updated successfully!");
       // Show a success toast
       toast.show({
         render: () => {
           return (
             <Box bg="emerald.500" px="4" py="3" rounded="sm" mb={5}>
               <Text style={{ fontFamily: "SoraMedium", color: "#fff" }}>
-                Gratitude moment updated successfully!
+                Journal entry updated successfully!
               </Text>
             </Box>
           );
         },
       });
       setTimeout(() => {
-        navigation.navigate("AllGratitudeMomentsScreen");
-      }, 1000);
+        navigation.navigate("AllJournalEntriesScreen");
+      }, 2000);
       return true; // Return true to indicate successful update
     } catch (error) {
-      console.error("Error updating gratitude moment:", error);
+      console.error("Error updating journal entry:", error);
       // Show an error toast
       toast.show({
         render: () => {
           return (
             <Box bg="#ff0e0e" px="4" py="3" rounded="sm" mb={5}>
               <Text style={{ fontFamily: "SoraMedium", color: "#fff" }}>
-                Error updating gratitude moment! Try again!
+                Error updating journal entry! Try again!
               </Text>
             </Box>
           );
@@ -196,7 +191,7 @@ export default function EditGratitudeMoment({ navigation }) {
           <HStack space={15}>
             <Stack>
               <TouchableOpacity
-                onPress={() => navigation.navigate("AllGratitudeMomentsScreen")}
+                onPress={() => navigation.navigate("AllJournalEntriesScreen")}
               >
                 <AntDesign
                   name="arrowleft"
@@ -208,7 +203,7 @@ export default function EditGratitudeMoment({ navigation }) {
             </Stack>
 
             <Stack>
-              <Text style={styles.header}>Gratitude Entries</Text>
+              <Text style={styles.header}>Journal Entries</Text>
             </Stack>
           </HStack>
           {loading ? (
@@ -224,25 +219,41 @@ export default function EditGratitudeMoment({ navigation }) {
             </View>
           ) : (
             <View style={{ flex: 1 }}>
+              <RichEditor
+                ref={titleEditorRef}
+                style={{
+                  //flex: 1,
+                  borderWidth: 1,
+                  borderColor: "gray",
+                  marginBottom: 10,
+                  minHeight: 40,
+                }}
+                onChange={handleTitleChange}
+                initialContentHTML={journalEntryTitle}
+                androidHardwareAccelerationDisabled={true}
+              />
               <ScrollView>
-                <TextInput
-                  style={styles.titleInput}
-                  placeholder="Enter title here..."
-                  value={gratitudeMomentTitle}
-                  onChangeText={handleTitleChange}
-                />
-
-                <TextInput
-                  style={styles.notesInput}
-                  placeholder="Enter moments here..."
-                  value={gratitudeMomentContent}
-                  onChangeText={handleMomentChange}
-                  multiline={true}
-                  // numberOfLines={50} // Set the initial number of lines for the input
-                  // scrollEnabled={true} // Enable scrolling for long text
+                <RichEditor
+                  ref={noteEditorRef}
+                  style={{
+                    flex: 1,
+                    borderWidth: 1,
+                    borderColor: "gray",
+                    marginBottom: 1,
+                    height: 300,
+                  }}
+                  onChange={handleNoteChange}
+                  initialContentHTML={journalEntryContent}
+                  androidHardwareAccelerationDisabled={true}
                 />
               </ScrollView>
-             
+              <RichToolbar
+                getEditor={() => noteEditorRef.current}
+                selectedIconTint="purple"
+                iconTint="gray"
+                onPressAddImage={handleInsertImage}
+              />
+
               {!isSubmitting && (
                 <TouchableOpacity
                   style={styles.saveButton}
@@ -283,29 +294,12 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 15,
+    //backgroundColor: "#FFFFFF",
   },
   header: {
     fontSize: 24,
     fontFamily: "SoraSemiBold",
     marginBottom: 20,
-  },
-  titleInput: {
-    borderWidth: 1,
-    borderColor: "#ccc",
-    borderRadius: 4,
-    padding: 10,
-    marginBottom: 20,
-    fontFamily: "SoraRegular",
-  },
-
-  notesInput: {
-    borderWidth: 1,
-    borderColor: "#ccc",
-    borderRadius: 4,
-    padding: 10,
-    minHeight: 500, // Set a minimum height for the input
-    maxHeight: 500,
-    fontFamily: "SoraRegular",
   },
   saveButton: {
     backgroundColor: "#EF798A",

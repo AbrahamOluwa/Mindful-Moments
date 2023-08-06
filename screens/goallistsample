@@ -1,0 +1,47 @@
+import React, { useState } from 'react';
+import { View, Text, FlatList } from 'react-native';
+import TabBar from './TabBar'; // Import the TabBar component
+
+// Your GoalListItem component and other code...
+
+const GoalList = () => {
+  const [activeTab, setActiveTab] = useState('all'); // State to track the active tab
+
+  // Assuming you have a state hook to store the list of goals
+  const [goals, setGoals] = useState([]);
+
+  // Fetch the list of goals using useEffect or any other method
+
+  // Sample data for demonstration
+  const sampleGoals = [
+    // Your goal data here...
+  ];
+
+  // Your useEffect hook or method to fetch goals...
+
+  // Filter the goals based on the active tab
+  const filteredGoals = goals.filter((goal) => {
+    if (activeTab === 'all') {
+      return true; // Show all goals
+    } else if (activeTab === 'active') {
+      return !goal.completed; // Show only active goals (not completed)
+    } else if (activeTab === 'completed') {
+      return goal.completed; // Show only completed goals
+    }
+  });
+
+  return (
+    <View>
+      <TabBar activeTab={activeTab} setActiveTab={setActiveTab} />
+
+      {/* Render the filtered goals */}
+      <FlatList
+        data={filteredGoals}
+        keyExtractor={(item, index) => index.toString()}
+        renderItem={({ item }) => <GoalListItem goal={item} />}
+      />
+    </View>
+  );
+};
+
+export default GoalList;

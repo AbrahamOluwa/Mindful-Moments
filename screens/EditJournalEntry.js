@@ -7,10 +7,10 @@ import {
   KeyboardAvoidingView,
   Keyboard,
   ActivityIndicator,
+  TextInput,
 } from "react-native";
 import React, { useState, useEffect, useRef } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { RichEditor, RichToolbar } from "react-native-pell-rich-editor";
 import { useRoute } from "@react-navigation/native";
 import { HStack, Stack, useToast, Box, Button } from "native-base";
 import { auth, db } from "../firebaseConfig";
@@ -24,8 +24,6 @@ export default function EditJournalEntry({ navigation }) {
   const [selectedEntryId, setSelectedEntryId] = useState(entryId);
   const [journalEntryTitle, setJournalEntryTitle] = useState(title);
   const [journalEntryContent, setJournalEntryContent] = useState(content);
-  const titleEditorRef = useRef();
-  const noteEditorRef = useRef();
   const toast = useToast();
   const [loading, setLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -36,10 +34,6 @@ export default function EditJournalEntry({ navigation }) {
 
   const handleNoteChange = (text) => {
     setJournalEntryContent(text);
-  };
-
-  const handleInsertImage = () => {
-    editorRef.current.insertImage("https://example.com/image.jpg");
   };
 
   useEffect(() => {
@@ -219,40 +213,20 @@ export default function EditJournalEntry({ navigation }) {
             </View>
           ) : (
             <View style={{ flex: 1 }}>
-              <RichEditor
-                ref={titleEditorRef}
-                style={{
-                  //flex: 1,
-                  borderWidth: 1,
-                  borderColor: "gray",
-                  marginBottom: 10,
-                  minHeight: 40,
-                }}
-                onChange={handleTitleChange}
-                initialContentHTML={journalEntryTitle}
-                androidHardwareAccelerationDisabled={true}
-              />
               <ScrollView>
-                <RichEditor
-                  ref={noteEditorRef}
-                  style={{
-                    flex: 1,
-                    borderWidth: 1,
-                    borderColor: "gray",
-                    marginBottom: 1,
-                    height: 300,
-                  }}
-                  onChange={handleNoteChange}
-                  initialContentHTML={journalEntryContent}
-                  androidHardwareAccelerationDisabled={true}
+                <TextInput
+                  style={styles.titleInput}
+                  value={journalEntryTitle}
+                  onChangeText={handleTitleChange}
+                />
+
+                <TextInput
+                  style={styles.notesInput}
+                  value={journalEntryContent}
+                  onChangeText={handleNoteChange}
+                  multiline={true}
                 />
               </ScrollView>
-              <RichToolbar
-                getEditor={() => noteEditorRef.current}
-                selectedIconTint="purple"
-                iconTint="gray"
-                onPressAddImage={handleInsertImage}
-              />
 
               {!isSubmitting && (
                 <TouchableOpacity
@@ -301,11 +275,30 @@ const styles = StyleSheet.create({
     fontFamily: "SoraSemiBold",
     marginBottom: 20,
   },
+  titleInput: {
+    borderWidth: 1,
+    borderColor: "#ccc",
+    borderRadius: 4,
+    padding: 10,
+    marginBottom: 20,
+    fontFamily: "SoraRegular",
+  },
+
+  notesInput: {
+    borderWidth: 1,
+    borderColor: "#ccc",
+    borderRadius: 4,
+    padding: 10,
+    minHeight: 500,
+    maxHeight: 500,
+    fontFamily: "SoraRegular",
+  },
   saveButton: {
     backgroundColor: "#EF798A",
     paddingVertical: 12,
     paddingHorizontal: 16,
     alignItems: "center",
+    marginTop: 10,
   },
   saveButtonText: {
     fontFamily: "SoraMedium",

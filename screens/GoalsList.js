@@ -1,14 +1,20 @@
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from "react-native";
-import React, {useState} from "react";
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  ScrollView,
+} from "react-native";
+import React, { useState } from "react";
 import { HStack, Stack } from "native-base";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { AntDesign } from "@expo/vector-icons";
 import GoalTabBar from "../components/goals/GoalTabBar";
 import ThoughtCard from "../components/thoughts/ThoughtCard.js";
+import GoalListItem from "../components/goals/GoalListItem.js";
 
-export default function GoalsList({navigation}) {
-
-  const [activeTab, setActiveTab] = useState('all');
+export default function GoalsList({ navigation }) {
+  const [activeTab, setActiveTab] = useState("all");
 
   const goals = [
     { id: 1, title: "Goal 1", description: "Description for Goal 1" },
@@ -44,7 +50,18 @@ export default function GoalsList({navigation}) {
           </View>
         </ScrollView> */}
 
-        <GoalTabBar activeTab={activeTab} setActiveTab={setActiveTab}/>
+        <GoalTabBar activeTab={activeTab} setActiveTab={setActiveTab} />
+
+        <ScrollView>
+          <View style={{ marginTop: 25 }}>
+            <View style={{ padding: 15 }}>
+              <Text style={{fontSize: 15, fontFamily: 'SoraMedium'}}>Mar 2020 - May 2022</Text>
+            </View>
+            <GoalListItem />
+            <GoalListItem />
+            <GoalListItem />
+          </View>
+        </ScrollView>
       </View>
     </SafeAreaView>
   );

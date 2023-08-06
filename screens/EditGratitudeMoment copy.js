@@ -7,7 +7,6 @@ import {
   KeyboardAvoidingView,
   Keyboard,
   ActivityIndicator,
-  TextInput
 } from "react-native";
 import React, { useState, useEffect, useRef } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -224,25 +223,41 @@ export default function EditGratitudeMoment({ navigation }) {
             </View>
           ) : (
             <View style={{ flex: 1 }}>
+              <RichEditor
+                ref={titleEditorRef}
+                style={{
+                  //flex: 1,
+                  borderWidth: 1,
+                  borderColor: "gray",
+                  marginBottom: 10,
+                  minHeight: 40,
+                }}
+                onChange={handleTitleChange}
+                initialContentHTML={gratitudeMomentTitle}
+                androidHardwareAccelerationDisabled={true}
+              />
               <ScrollView>
-                <TextInput
-                  style={styles.titleInput}
-                  placeholder="Enter title here..."
-                  value={gratitudeMomentTitle}
-                  onChangeText={handleTitleChange}
-                />
-
-                <TextInput
-                  style={styles.notesInput}
-                  placeholder="Enter moments here..."
-                  value={gratitudeMomentContent}
-                  onChangeText={handleMomentChange}
-                  multiline={true}
-                  // numberOfLines={50} // Set the initial number of lines for the input
-                  // scrollEnabled={true} // Enable scrolling for long text
+                <RichEditor
+                  ref={momentEditorRef}
+                  style={{
+                    flex: 1,
+                    borderWidth: 1,
+                    borderColor: "gray",
+                    marginBottom: 1,
+                    height: 300,
+                  }}
+                  onChange={handleMomentChange}
+                  initialContentHTML={gratitudeMomentContent}
+                  androidHardwareAccelerationDisabled={true}
                 />
               </ScrollView>
-             
+              <RichToolbar
+                getEditor={() => momentEditorRef.current}
+                selectedIconTint="purple"
+                iconTint="gray"
+                onPressAddImage={handleInsertImage}
+              />
+
               {!isSubmitting && (
                 <TouchableOpacity
                   style={styles.saveButton}
@@ -288,24 +303,6 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontFamily: "SoraSemiBold",
     marginBottom: 20,
-  },
-  titleInput: {
-    borderWidth: 1,
-    borderColor: "#ccc",
-    borderRadius: 4,
-    padding: 10,
-    marginBottom: 20,
-    fontFamily: "SoraRegular",
-  },
-
-  notesInput: {
-    borderWidth: 1,
-    borderColor: "#ccc",
-    borderRadius: 4,
-    padding: 10,
-    minHeight: 500, // Set a minimum height for the input
-    maxHeight: 500,
-    fontFamily: "SoraRegular",
   },
   saveButton: {
     backgroundColor: "#EF798A",

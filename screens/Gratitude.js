@@ -9,7 +9,7 @@ import {
   Dimensions,
   ImageBackground,
 } from "react-native";
-import React, {useEffect, useState} from "react";
+import React, { useEffect, useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { HStack, Stack, Button, Icon } from "native-base";
 import { AntDesign } from "@expo/vector-icons";
@@ -50,19 +50,29 @@ export default function Gratitude({ navigation }) {
     const checkGratitudeMoments = async () => {
       try {
         const userId = await getUserId(); // Replace this with your function to get the user ID
-        const gratitudeMomentsRef = collection(db, 'nonRegisteredUsers', userId, '"gratitude_moments"');
+        const gratitudeMomentsRef = collection(
+          db,
+          "nonRegisteredUsers",
+          userId,
+          '"gratitude_moments"'
+        );
         const querySnapshot = await getDocs(gratitudeMomentsRef);
 
-        console.log('Gratitude moments query result:', querySnapshot.empty);
-        console.log(querySnapshot)
-        
-        setHasGratitudeMoments(!querySnapshot.empty); // Check if the query returned any documents
-        
-    
+        if (querySnapshot.empty) {
+          console.log("Document data exist");
+          setHasGratitudeMoments(true);
+        } else {
+          console.log("No such document!");
+          setHasGratitudeMoments(false);
+        }
+
+
+        // setHasGratitudeMoments(!querySnapshot.empty); // Check if the query returned any documents
       } catch (error) {
-        console.error('Error fetching gratitude moments:', error);
+        console.error("Error fetching gratitude moments:", error);
       }
     };
+
     checkGratitudeMoments();
     // console.log(hasGratitudeMoments);
   }, []);
@@ -88,10 +98,19 @@ export default function Gratitude({ navigation }) {
           </HStack>
         </ImageBackground>
 
-        <View style={{ marginTop: -30, alignItems: 'center', justifyContent: 'center', fontFamily: 'SoraSemiBold' }}>
+        <View
+          style={{
+            marginTop: -30,
+            alignItems: "center",
+            justifyContent: "center",
+            fontFamily: "SoraSemiBold",
+          }}
+        >
           <Text style={styles.header}>Gratitude Moments</Text>
           {hasGratitudeMoments ? (
-            <TouchableOpacity onPress={() => navigation.navigate('AllGratitudeMomentsScreen')}>
+            <TouchableOpacity
+              onPress={() => navigation.navigate("AllGratitudeMomentsScreen")}
+            >
               <Text style={styles.description}>View All Moments</Text>
             </TouchableOpacity>
           ) : (
