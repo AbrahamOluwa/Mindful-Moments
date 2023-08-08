@@ -5,11 +5,14 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { Audio } from "expo-av";
 import { Feather } from '@expo/vector-icons'; 
 import { AntDesign } from '@expo/vector-icons';
+import { useRoute } from "@react-navigation/native";
 
 
 const { width } = Dimensions.get("screen");
-export default function MeditationPlayer() {
- 
+export default function MeditationPlayer({ route }) { 
+
+  // const route = useRoute();
+  const { medidationId, title, description, audioURL } = route.params;
   const [isPlaying, setIsPlaying] = useState(false);
   const [sound, setSound] = useState(null);
   const [playbackStatus, setPlaybackStatus] = useState(null);
@@ -74,12 +77,13 @@ export default function MeditationPlayer() {
 
   const loadAudio = async () => {
     try {
-      // const { sound } = await Audio.Sound.createAsync({
-      //   // uri: meditation.audioUrl,
-      // });
-      const { sound } = await Audio.Sound.createAsync(
-        require("../assets/audio/dyksen.mp3")
-      );
+      const { sound } = await Audio.Sound.createAsync({
+        // uri: meditation.audioUrl,
+        uri: audioURL,
+      });
+      // const { sound } = await Audio.Sound.createAsync(
+      //   require("../assets/audio/dyksen.mp3")
+      // );
       setSound(sound);
       sound.setOnPlaybackStatusUpdate(handlePlaybackStatusUpdate);
     } catch (error) {
