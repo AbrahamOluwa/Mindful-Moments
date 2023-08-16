@@ -26,6 +26,7 @@ import { auth, db } from "../firebaseConfig";
 import { collection, getDocs, query, orderBy } from "firebase/firestore";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import ThoughtCard from "../components/thoughts/ThoughtCard.js";
+import { debounce } from "lodash";
 
 const removeHtmlTags = (htmlString) => {
   return htmlString.replace(/<\/?div>/g, "").replace(/&nbsp;/g, "");
@@ -110,6 +111,8 @@ export default function AllJournalEntries({ navigation }) {
     });
     setFilteredJournals(filteredJournals);
   };
+
+  const debouncedFilter = debounce(filterJournals, 300);
 
   useEffect(() => {
     fetchJournalEntries();

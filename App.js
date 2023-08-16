@@ -29,6 +29,7 @@ import GoalsList from "./screens/GoalsList.js";
 import UserAuthentication from "./screens/UserAuthentication.js";
 import EditJournalEntry from "./screens/EditJournalEntry.js";
 import EditGratitudeMoment from "./screens/EditGratitudeMoment.js";
+import UploadCourses from "./screens/UploadCourses.js";
 
 // import TrackPlayer from 'react-native-track-player';
 
@@ -98,6 +99,7 @@ export default function App() {
           <Stack.Screen name="SetGoalsScreen" component={SetGoals} />
           <Stack.Screen name="GoalsListScreen" component={GoalsList} />
           <Stack.Screen name="UserAuthenticationScreen" component={UserAuthentication} />
+          <Stack.Screen name="UploadCourseScreen" component={UploadCourses} />
         </Stack.Navigator>
       </NavigationContainer>
     </NativeBaseProvider>

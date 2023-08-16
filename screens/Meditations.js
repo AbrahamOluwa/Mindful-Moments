@@ -48,8 +48,6 @@ export default function Meditations() {
   const [filteredMeditations, setFilteredMeditations] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState("");
 
-  
-
   const getAllMeditations = async () => {
     try {
       const querySnapshot = await getDocs(collection(db, "meditations"));
@@ -66,7 +64,6 @@ export default function Meditations() {
       return [];
     }
   };
-  
 
   const navigateToMeditationPlayer = (
     medidationId,
@@ -82,25 +79,19 @@ export default function Meditations() {
     });
   };
 
-  
-
   const filterMeditations = (searchText) => {
     const filteredMeditations = meditationData.filter((meditation) => {
-      return meditation.title
-        .toLowerCase()
-        .includes(searchText.toLowerCase());
+      return meditation.title.toLowerCase().includes(searchText.toLowerCase());
     });
     setFilteredMeditations(filteredMeditations);
   };
 
   const debouncedFilter = debounce(filterMeditations, 300);
 
-
-
   // const filterMeditations = (searchText, selectedCategory) => {
   //   const filteredMeditations = meditationData.filter((meditation) => {
   //     const titleMatches = meditation.title.toLowerCase().includes(searchText.toLowerCase());
-        
+
   //     if (selectedCategory === "All") {
   //       return titleMatches;
   //     } else {
@@ -140,54 +131,54 @@ export default function Meditations() {
               Meditations
             </Text>
           </View>
+          <ScrollView>
+            <View style={{ marginTop: 30 }}>
+              <HStack space={1}>
+                <Text
+                  style={{
+                    fontFamily: "SoraSemiBold",
+                    marginLeft: 10,
+                    fontSize: 22,
+                  }}
+                >
+                  Explore Topics
+                </Text>
 
-          <View style={{ marginTop: 30 }}>
-            <HStack space={1}>
-              <Text
-                style={{
-                  fontFamily: "SoraSemiBold",
-                  marginLeft: 10,
-                  fontSize: 22,
-                }}
-              >
-                Explore Topics
-              </Text>
-
-              <MaterialIcons
-                name="explore"
-                size={27}
-                color="black"
-                style={{
-                  marginTop: 7,
-                }}
-              />
-            </HStack>
-          </View>
-
-          <View>
-            <Center px="4" mt="2">
-              <VStack w="100%" space={5} alignSelf="center">
-                <Input
-                  placeholder="Search Meditations"
-                  style={{ fontFamily: "SoraRegular" }}
-                  width="97%"
-                  borderRadius="4"
-                  py="3"
-                  px="1"
-                  fontSize="14"
-                  value={searchText}
-                  onChangeText={setSearchText}
-                  InputLeftElement={
-                    <Icon
-                      m="2"
-                      ml="3"
-                      size="6"
-                      color="gray.400"
-                      as={<MaterialIcons name="search" />}
-                    />
-                  }
+                <MaterialIcons
+                  name="explore"
+                  size={27}
+                  color="black"
+                  style={{
+                    marginTop: 7,
+                  }}
                 />
-                {/* <Picker
+              </HStack>
+            </View>
+
+            <View>
+              <Center px="4" mt="2">
+                <VStack w="100%" space={5} alignSelf="center">
+                  <Input
+                    placeholder="Search Meditations"
+                    style={{ fontFamily: "SoraRegular" }}
+                    width="97%"
+                    borderRadius="4"
+                    py="3"
+                    px="1"
+                    fontSize="14"
+                    value={searchText}
+                    onChangeText={setSearchText}
+                    InputLeftElement={
+                      <Icon
+                        m="2"
+                        ml="3"
+                        size="6"
+                        color="gray.400"
+                        as={<MaterialIcons name="search" />}
+                      />
+                    }
+                  />
+                  {/* <Picker
                   selectedValue={selectedCategory}
                   onValueChange={(value) => setSelectedCategory(value)}
                   style={{
@@ -202,17 +193,16 @@ export default function Meditations() {
                   <Picker.Item label="All Categories" value="All" />
                   <Picker.Item label="Relaxation" value="Relaxation" />
                 </Picker> */}
-              </VStack>
-            </Center>
-          </View>
+                </VStack>
+              </Center>
+            </View>
 
-          {/* <Categories
+            {/* <Categories
             categories={meditations}
             navigation={navigation}
             nameOfParentScreen={nameOfParentScreen}
           /> */}
 
-          <ScrollView>
             <View style={{ marginTop: 4, marginBottom: 200 }}>
               {searchText === ""
                 ? meditationData.map((m, index) => {

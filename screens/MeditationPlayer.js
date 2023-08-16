@@ -107,7 +107,7 @@ export default function MeditationPlayer({ route }) {
     <SafeAreaView style={{}}>
       <View style={styles.container}>
         {/* <Text style={styles.title}>{meditation.title}</Text> */}
-        <Text style={styles.title}>Breather</Text>
+        <Text style={styles.title}>{title}</Text>
 
         <Image
           source={require("../assets/images/meditation.png")}

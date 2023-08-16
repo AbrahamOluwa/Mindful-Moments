@@ -77,6 +77,7 @@ export default function Categories({ navigation, ...props }) {
                   onPress={() => {
                     if(props.nameOfParentScreen === "Articles") {
                       const selectedCategory = props.categories[index];
+                      console.log('selected category', selectedCategory)
                       navigation.navigate('TopicsScreen', {selectedCategory})
                     } else if(props.nameOfParentScreen === "Meditations") {
                       console.log('pressed');

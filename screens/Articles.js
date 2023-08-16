@@ -1,4 +1,4 @@
-import { View, Text, ScrollView } from "react-native";
+import { View, Text, ScrollView, TouchableOpacity } from "react-native";
 import React, { useState } from "react";
 import {
   Box,
@@ -11,7 +11,7 @@ import {
 } from "native-base";
 import Categories from "../components/home/Categories";
 import { MaterialIcons } from "@expo/vector-icons";
-import { useNavigation } from "@react-navigation/native"
+import { useNavigation } from "@react-navigation/native";
 
 const articles = [
   {
@@ -96,7 +96,7 @@ const articles = [
   },
 ];
 
-const nameOfParentScreen = 'Articles';
+const nameOfParentScreen = "Articles";
 
 const hotTopicsItems = [
   {
@@ -196,6 +196,30 @@ export default function Articles() {
               return <Pill key={index} data={item} index={index} />;
             })}
           </ScrollView>
+        </View>
+
+        <View style={{ flex: 1, marginTop: 20 }}>
+          <TouchableOpacity
+            style={{
+              backgroundColor: "#613F75",
+              paddingVertical: 10,
+              paddingHorizontal: 15,
+              borderRadius: 5,
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+            onPress={() => navigation.navigate("UploadCourseScreen")}
+          >
+            <Text
+              style={{
+                color: "white",
+                fontSize: 18,
+                fontFamily: "SoraSemiBold",
+              }}
+            >
+              Upload Course
+            </Text>
+          </TouchableOpacity>
         </View>
       </ScrollView>
     </View>

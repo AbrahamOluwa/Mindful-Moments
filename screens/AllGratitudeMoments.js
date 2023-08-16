@@ -23,6 +23,7 @@ import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { auth, db } from "../firebaseConfig";
 import { collection, getDocs, query, orderBy } from "firebase/firestore";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { debounce } from "lodash";
 
 const removeHtmlTags = (htmlString) => {
   return htmlString.replace(/<\/?div>/g, "").replace(/&nbsp;/g, "").replace(/<br>/g, "")
@@ -108,6 +109,8 @@ export default function AllGratitudeMoments({ navigation }) {
     setFilteredMoments(filteredMoments);
   };
 
+  const debouncedFilter = debounce(filterMoments, 300);
+
   useEffect(() => {
     fetchGratitudeMoments();
     filterMoments(searchText);
@@ -115,6 +118,10 @@ export default function AllGratitudeMoments({ navigation }) {
 
   const navigateToEditGratitudeMoment = (entryId, title, moment) => {
     navigation.navigate("EditGratitudeMomentScreen", { entryId, title, moment });
+  };
+
+  const handleFabPress = () => {
+    navigation.navigate("RecordGratitudeMomentScreen");
   };
 
   return (
@@ -234,6 +241,7 @@ export default function AllGratitudeMoments({ navigation }) {
           size="sm"
           style={{ backgroundColor: "#613F75" }}
           icon={<Icon color="white" as={AntDesign} name="plus" size="lg" />}
+          onPress={handleFabPress}
         />
       </Center>
     </SafeAreaView>

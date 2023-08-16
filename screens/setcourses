@@ -220,3 +220,80 @@ db.collection("topics").add({
 .catch((error) => {
     console.error("Error adding topic document: ", error);
 });
+
+
+
+// New
+// Initialize Firebase (Make sure you have configured Firebase in your project)
+const firebaseConfig = {
+    apiKey: "YOUR_API_KEY",
+    authDomain: "YOUR_AUTH_DOMAIN",
+    projectId: "YOUR_PROJECT_ID",
+    storageBucket: "YOUR_STORAGE_BUCKET",
+    messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+    appId: "YOUR_APP_ID"
+  };
+  
+  firebase.initializeApp(firebaseConfig);
+  
+  // Get a reference to the Firestore database
+  const db = firebase.firestore();
+  
+  // Upload Course Content to Firestore
+  db.collection("courses").add({
+    category_id: "YOUR_CATEGORY_ID", // Replace with the actual category ID
+    title: "The Basics of Mindfulness",
+    introduction: "Welcome to...",
+    story: "Meet Emily, a young professional...",
+    parable: "Imagine a traveler lost in a dense forest...",
+    key_takeaways: ["Mindfulness is the practice of being fully present and non-judgmentally aware.", ...],
+    practical_tips: ["Mindful Breathing: Spend a few minutes daily focusing on your breath...", ...],
+    goals: ["Daily Mindfulness Practice: Dedicate 10 minutes each day to mindfulness meditation.", ...],
+    subtopics: [
+      {
+        title: "Understanding Mindfulness",
+        content: "Exploring the concept of mindfulness and its benefits."
+      },
+      {
+        title: "Present-Moment Awareness",
+        content: "Embracing the power of now and detaching from past and future."
+      },
+      // ... other subtopics
+    ],
+    mindfulness_in_challenges: [
+      {
+        title: "Mindful Stress Management",
+        content: "Techniques to remain calm and centered during stressful situations."
+      },
+      {
+        title: "Mindful Communication",
+        content: "Applying mindfulness to improve communication and resolve conflicts."
+      },
+      // ... other challenges
+    ],
+    additional_resources: [
+      {
+        title: "Books",
+        resources: [
+          "The Miracle of Mindfulness by Thich Nhat Hanh",
+          "Wherever You Go, There You Are by Jon Kabat-Zinn"
+        ]
+      },
+      {
+        title: "Apps",
+        resources: [
+          "Headspace: Guided meditation and mindfulness exercises.",
+          "Insight Timer: Timer, guided meditations, and community support."
+        ]
+      },
+      // ... other resource categories
+    ],
+    conclusion: "Embark on this transformative journey with an open heart...",
+  })
+  .then((docRef) => {
+      console.log("Course document written with ID: ", docRef.id);
+  })
+  .catch((error) => {
+      console.error("Error adding course document: ", error);
+  });
+  

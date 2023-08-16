@@ -1,5 +1,5 @@
 import { View, Text, TouchableOpacity, ScrollView } from "react-native";
-import React from "react";
+import React, { useEffect } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import {
@@ -14,6 +14,10 @@ import {
 
 export default function Topics({ route, navigation }) {
   const { selectedCategory } = route.params;
+
+  // useEffect(() => {
+  //   console.log(route.params);
+  // }, []);
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
@@ -38,7 +42,14 @@ export default function Topics({ route, navigation }) {
 
       <ScrollView>
         {selectedCategory.topics.map((item, index) => {
-          return <Pill key={index} data={item} index={index} navigation={navigation} />;
+          return (
+            <Pill
+              key={index}
+              data={item}
+              index={index}
+              navigation={navigation}
+            />
+          );
         })}
       </ScrollView>
     </SafeAreaView>
@@ -47,7 +58,9 @@ export default function Topics({ route, navigation }) {
 
 const Pill = (props) => {
   return (
-    <TouchableOpacity onPress={() => props.navigation.navigate("SelectedTopicScreen")}>
+    <TouchableOpacity
+      onPress={() => props.navigation.navigate("SelectedTopicScreen")}
+    >
       <Box
         key={props.index}
         alignItems="center"
