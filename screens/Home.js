@@ -17,6 +17,7 @@ import { auth, db } from "../firebaseConfig";
 import { signInAnonymously, onAuthStateChanged, getAuth } from "firebase/auth";
 import { doc, collection, setDoc, getDoc, serverTimestamp } from "firebase/firestore";
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import MotivationalImages from "./MotivationalImages.js";
 
 export default function Home() {
   // useEffect(() => {
@@ -139,7 +140,7 @@ export default function Home() {
         </Box>
       </SafeAreaView>
 
-      <Tabs quotes={Quotes} articles={Articles} />
+      <Tabs quotes={Quotes} articles={Articles} images={MotivationalImages} />
     </>
   );
 }

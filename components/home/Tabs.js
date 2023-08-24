@@ -51,45 +51,41 @@ import Articles from "../../screens/Articles.js";
 //   fourth: FourthRoute,
 // });
 
-
-
 export default function Tabs(props) {
-
   const FirstRoute = () => (
     <Center flex={1} my="7">
-       <props.quotes />
+      <props.quotes />
     </Center>
   );
-  
+
   const SecondRoute = () => (
     <Center flex={1} my="4">
-        <props.articles />
+      <props.articles />
     </Center>
   );
-  
+
   const ThirdRoute = () => (
     <Center flex={1} my="4">
-      This is Tab 3
+      <props.images />
     </Center>
   );
-  
+
   const FourthRoute = () => (
     <Center flex={1} my="4">
       This is Tab 4{" "}
     </Center>
   );
-  
+
   const initialLayout = {
     width: Dimensions.get("window").width,
   };
-  
+
   const renderScene = SceneMap({
     first: FirstRoute,
     second: SecondRoute,
     third: ThirdRoute,
     fourth: FourthRoute,
   });
-
 
   const [index, setIndex] = useState(0);
   const [routes] = useState([
@@ -131,7 +127,7 @@ export default function Tabs(props) {
               ? "black"
               : useColorModeValue("coolGray.200", "gray.400");
 
-              // "#6883bc"
+          // "#6883bc"
           return (
             <Box
               borderBottomWidth="3"
@@ -151,7 +147,7 @@ export default function Tabs(props) {
                 <Animated.Text
                   style={{
                     color,
-                    fontFamily: 'SoraMedium'
+                    fontFamily: "SoraMedium",
                   }}
                 >
                   {route.title}
@@ -165,24 +161,21 @@ export default function Tabs(props) {
   };
 
   return (
-      <TabView
-        navigationState={{
-          index,
-          routes,
-        }}
-        renderScene={renderScene}
-        renderTabBar={renderTabBar}
-        onIndexChange={setIndex}
-        initialLayout={initialLayout}
-        style={{
-          flex: 1,
-          marginTop: StatusBar.currentHeight,
-          //backgroundColor: '#fff',
-        }}
-        swipeEnabled={false}
-      />
-
-    
- 
+    <TabView
+      navigationState={{
+        index,
+        routes,
+      }}
+      renderScene={renderScene}
+      renderTabBar={renderTabBar}
+      onIndexChange={setIndex}
+      initialLayout={initialLayout}
+      style={{
+        flex: 1,
+        marginTop: StatusBar.currentHeight,
+        //backgroundColor: '#fff',
+      }}
+      swipeEnabled={false}
+    />
   );
 }
