@@ -1,5 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { View, Image, StyleSheet, ActivityIndicator, Text } from "react-native";
+import {
+  View,
+  Image,
+  StyleSheet,
+  ActivityIndicator,
+  Text,
+  ScrollView,
+} from "react-native";
 import { getDocs, collection } from "firebase/firestore";
 import { auth, db } from "../firebaseConfig";
 
@@ -13,7 +20,7 @@ export default function MotivationalImages() {
       const imageList = [];
       querySnapshot.forEach((doc) => {
         const data = doc.data();
-        imageList.push(data.imageUrl);
+        imageList.push(data);
       });
       setImages(imageList);
       setLoading(false);
@@ -36,28 +43,36 @@ export default function MotivationalImages() {
 
   return (
     <View style={styles.container}>
-      {images.map((imageUrl, index) => (
-        <Image
-          key={index}
-          source={{ uri: imageUrl }}
-          style={styles.image}
-          resizeMode="cover"
-        />
-      ))}
+      <ScrollView>
+        {images.map((imageData, index) => (
+          <View key={index} style={styles.imageContainer}>
+            <Image
+              source={{ uri: imageData.imageUrl }}
+              style={styles.image}
+              resizeMode="contain"
+            />
+          </View>
+        ))}
+      </ScrollView>
     </View>
+  
+
+    
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 16,
-    backgroundColor: "#fff",
+    padding: 25,
+    //backgroundColor: "#fff",
+  },
+  imageContainer: {
+    marginBottom: 16,
   },
   image: {
     width: "100%",
-    height: 200,
-    marginBottom: 16,
+    aspectRatio: 8 / 9,
   },
   loadingContainer: {
     flex: 1,
@@ -65,3 +80,17 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
 });
+
+// const styles = StyleSheet.create({
+//   container: {
+//     padding: 16,
+//     flexDirection: 'row',
+//     flexWrap: 'wrap',
+//     justifyContent: 'space-between',
+//   },
+//   image: {
+//     width: '48%', // Adjust as needed to create columns
+//     aspectRatio: 1, // Maintain aspect ratio
+//     marginBottom: 16,
+//   },
+// });

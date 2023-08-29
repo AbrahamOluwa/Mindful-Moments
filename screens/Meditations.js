@@ -46,15 +46,54 @@ export default function Meditations() {
   const [isFetching, setIsFetching] = useState(true);
   const [searchText, setSearchText] = useState("");
   const [filteredMeditations, setFilteredMeditations] = useState([]);
-  const [selectedCategory, setSelectedCategory] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("All");
+
+  // const getAllMeditations = async () => {
+  //   try {
+  //     const querySnapshot = await getDocs(collection(db, "meditations"));
+  //     const meditations = [];
+  //     querySnapshot.forEach((doc) => {
+  //       meditations.push({ id: doc.id, ...doc.data() });
+  //     });
+  //     setMeditationData(meditations);
+  //     setIsFetching(false);
+  //     return meditations;
+  //   } catch (error) {
+  //     console.error("Error fetching meditations:", error);
+  //     setIsFetching(false);
+  //     return [];
+  //   }
+  // };
 
   const getAllMeditations = async () => {
     try {
-      const querySnapshot = await getDocs(collection(db, "meditations"));
+      const [meditationsQuery, categoriesQuery] = await Promise.all([
+        getDocs(collection(db, "meditations")),
+        getDocs(collection(db, "meditation_category")),
+      ]);
+
       const meditations = [];
-      querySnapshot.forEach((doc) => {
-        meditations.push({ id: doc.id, ...doc.data() });
+      meditationsQuery.forEach((doc) => {
+        const meditationData = doc.data();
+        const categoryReference = meditationData.category;
+        const categoryId = categoryReference.id; // Assuming this is how you store the category ID in each meditation document
+        // console.log("Meditation ID:", doc.id);
+        // console.log("Category ID:", categoryId);
+
+        const category = categoriesQuery.docs.find(
+          (categoryDoc) => categoryDoc.id === categoryId
+        );
+        // console.log("Category Query Result:", category);
+
+        const categoryData = category ? category.data() : null;
+
+        meditations.push({
+          id: doc.id,
+          ...meditationData,
+          category: categoryData, // Add the category data to each meditation
+        });
       });
+
       setMeditationData(meditations);
       setIsFetching(false);
       return meditations;
@@ -79,32 +118,36 @@ export default function Meditations() {
     });
   };
 
-  const filterMeditations = (searchText) => {
-    const filteredMeditations = meditationData.filter((meditation) => {
-      return meditation.title.toLowerCase().includes(searchText.toLowerCase());
-    });
-    setFilteredMeditations(filteredMeditations);
-  };
-
-  const debouncedFilter = debounce(filterMeditations, 300);
-
-  // const filterMeditations = (searchText, selectedCategory) => {
+  // const filterMeditations = (searchText) => {
   //   const filteredMeditations = meditationData.filter((meditation) => {
-  //     const titleMatches = meditation.title.toLowerCase().includes(searchText.toLowerCase());
-
-  //     if (selectedCategory === "All") {
-  //       return titleMatches;
-  //     } else {
-  //       const categoryMatches = meditation.category && meditation.category.name.toLowerCase() === selectedCategory.toLowerCase();
-  //       return titleMatches && categoryMatches;
-  //     }
+  //     return meditation.title.toLowerCase().includes(searchText.toLowerCase());
   //   });
   //   setFilteredMeditations(filteredMeditations);
   // };
 
+  //const debouncedFilter = debounce(filterMeditations, 300);
+
+  const filterMeditations = (searchText, selectedCategory) => {
+    const filteredMeditations = meditationData.filter((meditation) => {
+      const titleMatches = meditation.title
+        .toLowerCase()
+        .includes(searchText.toLowerCase());
+
+      if (selectedCategory === "All") {
+        return titleMatches;
+      } else {
+        const categoryMatches =
+          meditation.category.name.toLowerCase() ===
+          selectedCategory.toLowerCase();
+        return titleMatches && categoryMatches;
+      }
+    });
+    setFilteredMeditations(filteredMeditations);
+  };
+
   useEffect(() => {
     getAllMeditations();
-    filterMeditations(searchText);
+    filterMeditations(searchText, selectedCategory);
     //console.log("Meditation Data", meditationData);
   }, [searchText, selectedCategory]);
 
@@ -161,7 +204,7 @@ export default function Meditations() {
                   <Input
                     placeholder="Search Meditations"
                     style={{ fontFamily: "SoraRegular" }}
-                    width="97%"
+                    width="98%"
                     borderRadius="4"
                     py="3"
                     px="1"
@@ -178,21 +221,33 @@ export default function Meditations() {
                       />
                     }
                   />
-                  {/* <Picker
-                  selectedValue={selectedCategory}
-                  onValueChange={(value) => setSelectedCategory(value)}
-                  style={{
-                    width: "100%",
-                    borderRadius: 4,
-                    borderWidth: 1,
-                    borderColor: "gray.400",
-                    py: 3,
-                    px: 1,
-                  }}
-                >
-                  <Picker.Item label="All Categories" value="All" />
-                  <Picker.Item label="Relaxation" value="Relaxation" />
-                </Picker> */}
+                  <View style={{ paddingHorizontal: 1, marginRight: 5}}>
+                    <Picker
+                      selectedValue={selectedCategory}
+                      onValueChange={(value) => setSelectedCategory(value)}
+                      style={{
+                        borderWidth: 2,
+                        borderColor: "#fff",
+                        borderRadius: 8,
+                        marginBottom: 20,
+                        backgroundColor: "#FFF",
+                      }}
+                      itemStyle={{ fontFamily: 'SoraMedium' }}
+                     // fontFamily= "SoraMedium"
+                    >
+                      <Picker.Item
+                        label="All Categories"
+                        value="All"
+                       // fontFamily= "SoraMedium"
+                      />
+                      <Picker.Item label="Relaxation" value="Relaxation" />
+                      <Picker.Item label="Hopeful" value="Hopeful" />
+                      <Picker.Item
+                        label="Positive Affirmation"
+                        value="Positive Affirmation"
+                      />
+                    </Picker>
+                  </View>
                 </VStack>
               </Center>
             </View>
@@ -204,7 +259,7 @@ export default function Meditations() {
           /> */}
 
             <View style={{ marginTop: 4, marginBottom: 200 }}>
-              {searchText === ""
+              {searchText === "" && selectedCategory === "All"
                 ? meditationData.map((m, index) => {
                     return (
                       <TouchableOpacity
@@ -277,8 +332,9 @@ const Card = (props) => {
             style={{
               backgroundColor: "#613F75",
               borderRadius: 8,
-              width: 80,
-              padding: 5,
+              width: 150,
+              paddingHorizontal: 8,
+              padding: 8,
             }}
           >
             <Text
