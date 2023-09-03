@@ -58,7 +58,7 @@ export default function Journal({ navigation }) {
         );
         const querySnapshot = await getDocs(journalsRef);
 
-        if (querySnapshot.empty) {
+        if (!querySnapshot.empty) {
           console.log("Document data exist");
           setIsFetching(false);
           setHasJournals(true);

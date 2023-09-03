@@ -204,13 +204,18 @@ export default function WriteJournalEntry({ navigation }) {
               <TextInput
                 style={styles.titleInput}
                 placeholder="Enter title here..."
+                placeholderTextColor="#999"
                 value={title}
                 onChangeText={handleTitleChange}
+                multiline={true}
               />
+
+              <View style={styles.titleInputLine}></View>
 
               <TextInput
                 style={styles.notesInput}
                 placeholder="Enter notes/journal here..."
+                placeholderTextColor="#999"
                 value={note}
                 onChangeText={handleNoteChange}
                 multiline={true}
@@ -264,23 +269,46 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
 
+  // titleInput: {
+  //   borderWidth: 1,
+  //   borderColor: "#ccc",
+  //   borderRadius: 4,
+  //   padding: 10,
+  //   marginBottom: 20,
+  //   fontFamily: "SoraRegular",
+  // },
+
   titleInput: {
-    borderWidth: 1,
-    borderColor: "#ccc",
-    borderRadius: 4,
     padding: 10,
-    marginBottom: 20,
-    fontFamily: "SoraRegular",
+    fontFamily: "SoraSemiBold",
+    fontSize: 16, // Set the font size as desired
+    lineHeight: 24, // Set the line height as desired
+    color: "#333", // Set the text color as desired
+    textAlignVertical: "top", // Start text from the top, not centered vertically
   },
 
+  titleInputLine: {
+    borderBottomWidth: 1,
+    borderBottomColor: "#333", // Customize the line color
+  },
+
+  // notesInput: {
+  //   borderWidth: 1,
+  //   borderColor: "#ccc",
+  //   borderRadius: 4,
+  //   padding: 10,
+  //   minHeight: 500,
+  //   maxHeight: 500,
+  //   fontFamily: "SoraRegular",
+  // },
+
   notesInput: {
-    borderWidth: 1,
-    borderColor: "#ccc",
-    borderRadius: 4,
     padding: 10,
-    minHeight: 500,
-    maxHeight: 500,
     fontFamily: "SoraRegular",
+    fontSize: 16,
+    lineHeight: 24,
+    color: "#333",
+    textAlignVertical: "top",
   },
 
   saveButton: {

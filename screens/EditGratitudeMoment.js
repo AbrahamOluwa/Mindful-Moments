@@ -7,7 +7,7 @@ import {
   KeyboardAvoidingView,
   Keyboard,
   ActivityIndicator,
-  TextInput
+  TextInput,
 } from "react-native";
 import React, { useState, useEffect, useRef } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -230,7 +230,10 @@ export default function EditGratitudeMoment({ navigation }) {
                   placeholder="Enter title here..."
                   value={gratitudeMomentTitle}
                   onChangeText={handleTitleChange}
+                  multiline={true}
                 />
+
+                <View style={styles.titleInputLine}></View>
 
                 <TextInput
                   style={styles.notesInput}
@@ -242,7 +245,7 @@ export default function EditGratitudeMoment({ navigation }) {
                   // scrollEnabled={true} // Enable scrolling for long text
                 />
               </ScrollView>
-             
+
               {!isSubmitting && (
                 <TouchableOpacity
                   style={styles.saveButton}
@@ -289,24 +292,48 @@ const styles = StyleSheet.create({
     fontFamily: "SoraSemiBold",
     marginBottom: 20,
   },
+  // titleInput: {
+  //   borderWidth: 1,
+  //   borderColor: "#ccc",
+  //   borderRadius: 4,
+  //   padding: 10,
+  //   marginBottom: 20,
+  //   fontFamily: "SoraRegular",
+  // },
+
   titleInput: {
-    borderWidth: 1,
-    borderColor: "#ccc",
-    borderRadius: 4,
     padding: 10,
-    marginBottom: 20,
-    fontFamily: "SoraRegular",
+    fontFamily: "SoraSemiBold",
+    fontSize: 16, // Set the font size as desired
+    lineHeight: 24, // Set the line height as desired
+    color: "#333", // Set the text color as desired
+    textAlignVertical: "top", // Start text from the top, not centered vertically
   },
 
-  notesInput: {
-    borderWidth: 1,
-    borderColor: "#ccc",
-    borderRadius: 4,
-    padding: 10,
-    minHeight: 500, // Set a minimum height for the input
-    maxHeight: 500,
-    fontFamily: "SoraRegular",
+  titleInputLine: {
+    borderBottomWidth: 1,
+    borderBottomColor: "#333", // Customize the line color
   },
+
+  // notesInput: {
+  //   borderWidth: 1,
+  //   borderColor: "#ccc",
+  //   borderRadius: 4,
+  //   padding: 10,
+  //   minHeight: 500, // Set a minimum height for the input
+  //   maxHeight: 500,
+  //   fontFamily: "SoraRegular",
+  // },
+
+  notesInput: {
+    padding: 10,
+    fontFamily: "SoraRegular",
+    fontSize: 16,
+    lineHeight: 24,
+    color: "#333",
+    textAlignVertical: "top",
+  },
+
   saveButton: {
     backgroundColor: "#EF798A",
     paddingVertical: 12,

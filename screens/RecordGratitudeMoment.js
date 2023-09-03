@@ -187,14 +187,19 @@ export default function RecordGratitudeMoment({ navigation }) {
             <TextInput
               style={styles.titleInput}
               placeholder="Enter title here..."
+              placeholderTextColor="#999"
               value={title}
               onChangeText={handleTitleChange}
+              multiline={true}
             />
+
+            <View style={styles.titleInputLine}></View>
 
             <View style={styles.notesInputContainer}>
               <TextInput
                 style={styles.notesInput}
                 placeholder="Enter moments here..."
+                placeholderTextColor="#999"
                 value={moment}
                 onChangeText={handleMomentChange}
                 multiline={true}
@@ -250,27 +255,51 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
 
+  // titleInput: {
+  //   borderWidth: 1,
+  //   borderColor: "#ccc",
+  //   borderRadius: 4,
+  //   padding: 10,
+  //   marginBottom: 20,
+  //   fontFamily: "SoraRegular",
+  // },
+
   titleInput: {
-    borderWidth: 1,
-    borderColor: "#ccc",
-    borderRadius: 4,
     padding: 10,
-    marginBottom: 20,
-    fontFamily: "SoraRegular",
+    fontFamily: "SoraSemiBold",
+    fontSize: 16, // Set the font size as desired
+    lineHeight: 24, // Set the line height as desired
+    color: "#333", // Set the text color as desired
+    textAlignVertical: "top", // Start text from the top, not centered vertically
+  },
+
+  titleInputLine: {
+    borderBottomWidth: 1,
+    borderBottomColor: "#333", // Customize the line color
   },
 
   notesInputContainer: {
-    paddingVertical: -80, // Add vertical padding to move the placeholder higher
+    //flex: 1,
   },
 
+  // notesInput: {
+  //   borderWidth: 1,
+  //   borderColor: "#ccc",
+  //   borderRadius: 4,
+  //   padding: 10,
+  //   //minHeight: 500, // Set a minimum height for the input
+  //   //  // maxHeight: 500,
+  //   flex: 1,
+  //   fontFamily: "SoraRegular",
+  // },
+
   notesInput: {
-    borderWidth: 1,
-    borderColor: "#ccc",
-    borderRadius: 4,
     padding: 10,
-    minHeight: 500, // Set a minimum height for the input
-    maxHeight: 500,
     fontFamily: "SoraRegular",
+    fontSize: 16, // Set the font size as desired
+    lineHeight: 24, // Set the line height as desired
+    color: "#333", // Set the text color as desired
+    textAlignVertical: "top", // Start text from the top, not centered vertically
   },
 
   saveButton: {

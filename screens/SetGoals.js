@@ -150,6 +150,8 @@ export default function SetGoals({ navigation }) {
         dueDate: dueDate,
         reminderDate: reminderDate,
         tasks: tasks,
+        isCompleted: false,
+        isActive: false,
         createdAt: serverTimestamp(),
       };
 

@@ -76,14 +76,13 @@ export default function Meditations() {
       meditationsQuery.forEach((doc) => {
         const meditationData = doc.data();
         const categoryReference = meditationData.category;
-        const categoryId = categoryReference.id; // Assuming this is how you store the category ID in each meditation document
+        const categoryId = categoryReference.id;
         // console.log("Meditation ID:", doc.id);
         // console.log("Category ID:", categoryId);
 
         const category = categoriesQuery.docs.find(
           (categoryDoc) => categoryDoc.id === categoryId
         );
-        // console.log("Category Query Result:", category);
 
         const categoryData = category ? category.data() : null;
 
