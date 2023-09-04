@@ -5,22 +5,62 @@ import {
   TouchableOpacity,
   ScrollView,
 } from "react-native";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { getDocs, collection, query, where } from "firebase/firestore";
+import { auth, db } from "../firebaseConfig";
 import { HStack, Stack } from "native-base";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { AntDesign } from "@expo/vector-icons";
 import GoalTabBar from "../components/goals/GoalTabBar";
 import ThoughtCard from "../components/thoughts/ThoughtCard.js";
 import GoalListItem from "../components/goals/GoalListItem.js";
+import { getUserId } from "../components/home/GetUserId";
 
 export default function GoalsList({ navigation }) {
   const [activeTab, setActiveTab] = useState("all");
 
-  const goals = [
-    { id: 1, title: "Goal 1", description: "Description for Goal 1" },
-    { id: 2, title: "Goal 2", description: "Description for Goal 2" },
-    { id: 3, title: "Goal 3", description: "Description for Goal 3" },
-  ];
+  const [goals, setGoals] = useState([]);
+
+  // const goals = [
+  //   { id: 1, title: "Goal 1", description: "Description for Goal 1" },
+  //   { id: 2, title: "Goal 2", description: "Description for Goal 2" },
+  //   { id: 3, title: "Goal 3", description: "Description for Goal 3" },
+  // ];
+
+  //const userId = getUserId();
+
+  const fetchGoalsByStatus = async (status) => {
+    try {
+      const userId = await getUserId();
+ 
+      const querySnapshot = await getDocs(
+        collection(db, "nonRegisteredUsers", userId, "goals"),
+        where("status", "==", status)
+      );
+
+      console.log(status);
+
+      const goals = querySnapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      setGoals(goals);
+      // setLoading(false);
+    } catch (error) {
+      console.error(error);
+      // setLoading(false); 
+    }
+  };
+
+  useEffect(() => {
+    if (activeTab === "all") {
+      fetchGoalsByStatus(""); 
+    } else if (activeTab === "active") {
+      fetchGoalsByStatus("active");
+    } else if (activeTab === "completed") {
+      fetchGoalsByStatus("completed");
+    }
+  }, [activeTab]);
 
   return (
     <SafeAreaView>
@@ -53,14 +93,25 @@ export default function GoalsList({ navigation }) {
         <GoalTabBar activeTab={activeTab} setActiveTab={setActiveTab} />
 
         <ScrollView>
-          <View style={{ marginTop: 25 }}>
+          {goals.map((goal) => (
+            <View key={goal.id} style={{ marginTop: 25 }}>
+              {/* <Text>{goal.title}</Text>
+              <Text>{goal.description}</Text>
+              <Text>{goal.status}</Text> */}
+              <GoalListItem title={goal.title} description={goal.description} numberOfTasks={goal.numberOfTasks} />
+            </View>
+          ))}
+
+          {/* <View style={{ marginTop: 25 }}>
             <View style={{ padding: 15 }}>
-              <Text style={{fontSize: 15, fontFamily: 'SoraMedium'}}>Mar 2020 - May 2022</Text>
+              <Text style={{ fontSize: 15, fontFamily: "SoraMedium" }}>
+                Mar 2020 - May 2022
+              </Text>
             </View>
             <GoalListItem />
             <GoalListItem />
             <GoalListItem />
-          </View>
+          </View> */}
         </ScrollView>
       </View>
     </SafeAreaView>

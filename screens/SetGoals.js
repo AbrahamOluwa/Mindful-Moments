@@ -23,6 +23,7 @@ import {
   serverTimestamp,
 } from "firebase/firestore";
 import { Button, useToast, Box } from "native-base";
+import { getUserId } from "../components/home/GetUserId";
 
 export default function SetGoals({ navigation }) {
   const [goalTitle, setGoalTitle] = useState("");
@@ -60,9 +61,17 @@ export default function SetGoals({ navigation }) {
     }
   };
 
+  // const addTask = () => {
+  //   if (newTask) {
+  //     setTasks([...tasks, newTask]);
+  //     setNewTask("");
+  //   }
+  // };
+
   const addTask = () => {
     if (newTask) {
-      setTasks([...tasks, newTask]);
+      const newTaskObject = { text: newTask, completed: false };
+      setTasks([...tasks, newTaskObject]);
       setNewTask("");
     }
   };
@@ -73,44 +82,14 @@ export default function SetGoals({ navigation }) {
     setTasks(updatedTasks);
   };
 
-  const getUserId = async () => {
-    try {
-      const storedUserId = await AsyncStorage.getItem("nonRegisteredUserId");
-
-      if (storedUserId) {
-        // User is a non-registered user
-        console.log(
-          "Retrieved non-registered userId from AsyncStorage:",
-          storedUserId
-        );
-        return storedUserId;
-      } else {
-        // User is a registered user
-
-        onAuthStateChanged(auth, (user) => {
-          if (user) {
-            const userId = user.uid;
-            console.log("Registered User ID:", userId);
-            return userId;
-          } else {
-            // User is signed out
-
-            console.log("User is signed out");
-            // ...
-          }
-        });
-      }
-    } catch (error) {
-      console.error("Error retrieving user ID:", error);
-    }
-
-    return null;
+  // Function to mark a task as completed
+  const markTaskAsCompleted = (index) => {
+    const updatedTasks = [...tasks];
+    updatedTasks[index].completed = true;
+    setTasks(updatedTasks);
   };
 
   const saveGoal = async () => {
-    // Implement the logic to save the goal and its associated tasks
-    // You can also perform form validation here before saving
-
     setIsSubmitting(true);
 
     try {
@@ -150,8 +129,9 @@ export default function SetGoals({ navigation }) {
         dueDate: dueDate,
         reminderDate: reminderDate,
         tasks: tasks,
+        numberOfTasks: tasks.length,
         isCompleted: false,
-        isActive: false,
+        status: "active",
         createdAt: serverTimestamp(),
       };
 
@@ -180,8 +160,6 @@ export default function SetGoals({ navigation }) {
         },
       });
 
-    
-
       // Reset the form fields after saving
       setGoalTitle("");
       setGoalDescription("");
@@ -195,8 +173,6 @@ export default function SetGoals({ navigation }) {
       setTimeout(() => {
         navigation.navigate("GoalsListScreen");
       }, 1000);
-
-
     } catch (error) {
       console.error("Error saving goal:", error);
     }
@@ -208,8 +184,6 @@ export default function SetGoals({ navigation }) {
     console.log(tasks);
     console.log(dueDate);
     console.log(reminderDate);
-
-    
   };
 
   return (
@@ -328,7 +302,7 @@ export default function SetGoals({ navigation }) {
           <ScrollView style={styles.tasksContainer}>
             {tasks.map((task, index) => (
               <View key={index} style={styles.taskRow}>
-                <Text style={styles.taskText}>{task}</Text>
+                <Text style={styles.taskText}>{task.text}</Text>
                 <TouchableOpacity onPress={() => removeTask(index)}>
                   <AntDesign name="delete" size={20} color="black" />
                 </TouchableOpacity>

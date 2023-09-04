@@ -17,33 +17,14 @@ import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { auth, db } from "../firebaseConfig";
 import { collection, getDocs, query, orderBy } from "firebase/firestore";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { getUserId } from "../components/home/GetUserId";
 
 export default function Gratitude({ navigation }) {
   const { width } = Dimensions.get("screen");
   const [hasGratitudeMoments, setHasGratitudeMoments] = useState(false);
   const [isFetching, setIsFetching] = useState(true);
 
-  const getUserId = async () => {
-    const storedUserId = await AsyncStorage.getItem("nonRegisteredUserId");
-    if (storedUserId) {
-      console.log(
-        "Retrieved non-registered userId from AsyncStorage:",
-        storedUserId
-      );
-      return storedUserId;
-    } else {
-      return new Promise((resolve, reject) => {
-        const unsubscribe = onAuthStateChanged(auth, (user) => {
-          if (user) {
-            resolve(user.uid);
-          } else {
-            reject(new Error("User is not signed in."));
-          }
-          unsubscribe();
-        });
-      });
-    }
-  };
+   
 
   useEffect(() => {
     // Check if the user has any gratitude moments in the database

@@ -24,6 +24,7 @@ import { auth, db } from "../firebaseConfig";
 import { collection, getDocs, query, orderBy } from "firebase/firestore";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { debounce } from "lodash";
+import { getUserId } from "../components/home/GetUserId";
 
 const removeHtmlTags = (htmlString) => {
   return htmlString.replace(/<\/?div>/g, "").replace(/&nbsp;/g, "").replace(/<br>/g, "")
@@ -56,27 +57,7 @@ export default function AllGratitudeMoments({ navigation }) {
   const [searchText, setSearchText] = useState("");
   const [filteredMoments, setFilteredMoments] = useState([]);
 
-  const getUserId = async () => {
-    const storedUserId = await AsyncStorage.getItem("nonRegisteredUserId");
-    if (storedUserId) {
-      console.log(
-        "Retrieved non-registered userId from AsyncStorage:",
-        storedUserId
-      );
-      return storedUserId;
-    } else {
-      return new Promise((resolve, reject) => {
-        const unsubscribe = onAuthStateChanged(auth, (user) => {
-          if (user) {
-            resolve(user.uid);
-          } else {
-            reject(new Error("User is not signed in."));
-          }
-          unsubscribe();
-        });
-      });
-    }
-  };
+
 
   const fetchGratitudeMoments = async () => {
     try {

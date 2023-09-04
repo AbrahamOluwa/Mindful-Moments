@@ -3,11 +3,10 @@ import React from "react";
 import { HStack, Stack } from "native-base";
 // import ProgressCircle from "react-native-progress-circle";
 
-export default function GoalListItem() {
+export default function GoalListItem(props) {
   // const progressPercentage = (goal.progress / goal.total) * 100;
   return (
     <View>
-    
       <View style={styles.card}>
         <View style={styles.progressCircleContainer}>
           {/* <ProgressCircle
@@ -23,13 +22,11 @@ export default function GoalListItem() {
           {/* <Text
           style={styles.progressItemProgress}
         >{`${data.progress}/100`}</Text> */}
-          <Text style={styles.progressItemProgress}>2/5</Text>
+          <Text style={styles.progressItemProgress}>2/{props.numberOfTasks}</Text>
         </View>
         <View style={styles.goalInfoContainer}>
-          <Text style={styles.title}>Lose 10 pounds</Text>
-          <Text style={styles.description}>
-            I want to lose 10 pounds by the end of the month.
-          </Text>
+          <Text style={styles.title}>{props.title}</Text>
+          <Text style={styles.description}>{props.description}</Text>
         </View>
       </View>
     </View>
