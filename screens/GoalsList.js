@@ -18,48 +18,82 @@ import { getUserId } from "../components/home/GetUserId";
 
 export default function GoalsList({ navigation }) {
   const [activeTab, setActiveTab] = useState("all");
-
   const [goals, setGoals] = useState([]);
+  const [allGoals, setAllGoals] = useState([]);
+  const [filteredGoals, setFilteredGoals] = useState([]);
 
-  // const goals = [
-  //   { id: 1, title: "Goal 1", description: "Description for Goal 1" },
-  //   { id: 2, title: "Goal 2", description: "Description for Goal 2" },
-  //   { id: 3, title: "Goal 3", description: "Description for Goal 3" },
-  // ];
+  // const fetchGoalsByStatus = async (status) => {
+  //   try {
+  //     const userId = await getUserId();
+  //     const collectionRef = collection(db, "nonRegisteredUsers", userId, "goals");
+  
+  //     let querySnapshot;
+  
+  //     if (status === "") {
+  //       querySnapshot = await getDocs(collectionRef);
+  //     } else {
+  //       const q = query(collectionRef, where("status", "==", status));
+  //       querySnapshot = await getDocs(q);
+  //     }
+  
+  //     const goals = querySnapshot.docs.map((doc) => ({
+  //       id: doc.id,
+  //       ...doc.data(),
+  //     }));
+  //     setGoals(goals);
+  //     console.log(goals);
+  //   } catch (error) {
+  //     console.error(error);
+  //   }
+  // };
 
-  //const userId = getUserId();
+  // useEffect(() => {
+  //   if (activeTab === "all") {
+  //     fetchGoalsByStatus("");
+  //   } else if (activeTab === "active") {
+  //     fetchGoalsByStatus("active");
+  //   } else if (activeTab === "completed") {
+  //     fetchGoalsByStatus("completed");
+  //   }
+  // }, [activeTab]);
 
-  const fetchGoalsByStatus = async (status) => {
+  const fetchAllGoals = async () => {
     try {
       const userId = await getUserId();
- 
-      const querySnapshot = await getDocs(
-        collection(db, "nonRegisteredUsers", userId, "goals"),
-        where("status", "==", status)
-      );
-
-      console.log(status);
-
+      const collectionRef = collection(db, "nonRegisteredUsers", userId, "goals");
+      const querySnapshot = await getDocs(collectionRef);
       const goals = querySnapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
       }));
-      setGoals(goals);
-      // setLoading(false);
+      setAllGoals(goals);
+      // Initially set the filtered goals to all goals
+      setFilteredGoals(goals);
     } catch (error) {
       console.error(error);
-      // setLoading(false); 
     }
   };
-
-  useEffect(() => {
-    if (activeTab === "all") {
-      fetchGoalsByStatus(""); 
-    } else if (activeTab === "active") {
-      fetchGoalsByStatus("active");
-    } else if (activeTab === "completed") {
-      fetchGoalsByStatus("completed");
+  
+  // Function to filter goals based on activeTab
+  const filterGoalsByStatus = (status) => {
+    if (status === "all") {
+      // Show all goals
+      setFilteredGoals(allGoals);
+    } else {
+      // Filter goals by status
+      const filtered = allGoals.filter((goal) => goal.status === status);
+      setFilteredGoals(filtered);
     }
+  };
+  
+  // Effect to fetch all goals when the component mounts
+  useEffect(() => {
+    fetchAllGoals();
+  }, []);
+  
+  // Effect to filter goals when activeTab changes
+  useEffect(() => {
+    filterGoalsByStatus(activeTab);
   }, [activeTab]);
 
   return (
@@ -81,24 +115,20 @@ export default function GoalsList({ navigation }) {
             <Text style={styles.title}>All Goals</Text>
           </Stack>
         </HStack>
-        {/* <ScrollView>
-          <View style={styles.container}>
-            {goals.map((goal) => (
-
-              <ThoughtCard key={goal.id} />
-            ))}
-          </View>
-        </ScrollView> */}
 
         <GoalTabBar activeTab={activeTab} setActiveTab={setActiveTab} />
 
         <ScrollView>
-          {goals.map((goal) => (
+          {filteredGoals.map((goal) => (
             <View key={goal.id} style={{ marginTop: 25 }}>
               {/* <Text>{goal.title}</Text>
               <Text>{goal.description}</Text>
               <Text>{goal.status}</Text> */}
-              <GoalListItem title={goal.title} description={goal.description} numberOfTasks={goal.numberOfTasks} />
+              <GoalListItem
+                title={goal.title}
+                description={goal.description}
+                numberOfTasks={goal.numberOfTasks}
+              />
             </View>
           ))}
 

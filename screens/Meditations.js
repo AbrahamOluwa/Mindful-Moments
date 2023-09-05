@@ -94,6 +94,7 @@ export default function Meditations() {
       });
 
       setMeditationData(meditations);
+      console.log(meditationData);
       setIsFetching(false);
       return meditations;
     } catch (error) {
@@ -146,8 +147,10 @@ export default function Meditations() {
 
   useEffect(() => {
     getAllMeditations();
+  }, []);
+
+  useEffect(() => {
     filterMeditations(searchText, selectedCategory);
-    //console.log("Meditation Data", meditationData);
   }, [searchText, selectedCategory]);
 
   return (

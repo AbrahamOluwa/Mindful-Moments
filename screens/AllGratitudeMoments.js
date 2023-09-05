@@ -94,6 +94,13 @@ export default function AllGratitudeMoments({ navigation }) {
 
   useEffect(() => {
     fetchGratitudeMoments();
+  }, []);
+
+  useEffect(() => {
+    fetchGratitudeMoments();
+  }, [gratitudeMoments]);
+
+  useEffect(() => {
     filterMoments(searchText);
   }, [searchText]);
 
@@ -241,7 +248,7 @@ const MomentCard = (props) => {
         style={{
           backgroundColor: "#FBF2FD",
           borderRadius: 8,
-          width: "35%",
+          width: "45%",
           padding: 7,
           justifyContent: "flex-start",
           marginLeft: 12,
