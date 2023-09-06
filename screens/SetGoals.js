@@ -130,10 +130,13 @@ export default function SetGoals({ navigation }) {
         reminderDate: reminderDate,
         tasks: tasks,
         numberOfTasks: tasks.length,
+        completedTasks: tasks.filter(task => task.completed === true).length,
         isCompleted: false,
         status: "active",
         createdAt: serverTimestamp(),
       };
+
+      console.log('compeletedTasks', goalData.completedTasks);
 
       const collectionRef = collection(
         db,

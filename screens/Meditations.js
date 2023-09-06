@@ -149,6 +149,10 @@ export default function Meditations() {
     getAllMeditations();
   }, []);
 
+  // useEffect(() => {
+  //   getAllMeditations();
+  // }, [meditationData]);
+
   useEffect(() => {
     filterMeditations(searchText, selectedCategory);
   }, [searchText, selectedCategory]);

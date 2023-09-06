@@ -27,7 +27,10 @@ import { debounce } from "lodash";
 import { getUserId } from "../components/home/GetUserId";
 
 const removeHtmlTags = (htmlString) => {
-  return htmlString.replace(/<\/?div>/g, "").replace(/&nbsp;/g, "").replace(/<br>/g, "")
+  return htmlString
+    .replace(/<\/?div>/g, "")
+    .replace(/&nbsp;/g, "")
+    .replace(/<br>/g, "");
 };
 
 const formatDate = (timestamp) => {
@@ -56,8 +59,6 @@ export default function AllGratitudeMoments({ navigation }) {
   const [isFetching, setIsFetching] = useState(true);
   const [searchText, setSearchText] = useState("");
   const [filteredMoments, setFilteredMoments] = useState([]);
-
-
 
   const fetchGratitudeMoments = async () => {
     try {
@@ -96,16 +97,20 @@ export default function AllGratitudeMoments({ navigation }) {
     fetchGratitudeMoments();
   }, []);
 
-  useEffect(() => {
-    fetchGratitudeMoments();
-  }, [gratitudeMoments]);
+  // useEffect(() => {
+  //   fetchGratitudeMoments();
+  // }, [gratitudeMoments]);
 
   useEffect(() => {
     filterMoments(searchText);
   }, [searchText]);
 
   const navigateToEditGratitudeMoment = (entryId, title, moment) => {
-    navigation.navigate("EditGratitudeMomentScreen", { entryId, title, moment });
+    navigation.navigate("EditGratitudeMomentScreen", {
+      entryId,
+      title,
+      moment,
+    });
   };
 
   const handleFabPress = () => {

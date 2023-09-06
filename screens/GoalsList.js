@@ -26,16 +26,16 @@ export default function GoalsList({ navigation }) {
   //   try {
   //     const userId = await getUserId();
   //     const collectionRef = collection(db, "nonRegisteredUsers", userId, "goals");
-  
+
   //     let querySnapshot;
-  
+
   //     if (status === "") {
   //       querySnapshot = await getDocs(collectionRef);
   //     } else {
   //       const q = query(collectionRef, where("status", "==", status));
   //       querySnapshot = await getDocs(q);
   //     }
-  
+
   //     const goals = querySnapshot.docs.map((doc) => ({
   //       id: doc.id,
   //       ...doc.data(),
@@ -57,15 +57,49 @@ export default function GoalsList({ navigation }) {
   //   }
   // }, [activeTab]);
 
+  const formatDate = (timestamp) => {
+    const date = timestamp.toDate();
+    return date.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+  };
+
+  function formatFirestoreTimestamp(timestamp) {
+    // Check if the input is a valid Firestore Timestamp
+
+    // Convert the Firestore Timestamp to a JavaScript Date
+    const jsDate = timestamp.toDate();
+
+    // Format the JavaScript Date to "yyyy-MM-dd"
+    const formattedDate = jsDate.toISOString().split("T")[0];
+
+    return formattedDate;
+  }
+
   const fetchAllGoals = async () => {
     try {
       const userId = await getUserId();
-      const collectionRef = collection(db, "nonRegisteredUsers", userId, "goals");
+      const collectionRef = collection(
+        db,
+        "nonRegisteredUsers",
+        userId,
+        "goals"
+      );
       const querySnapshot = await getDocs(collectionRef);
-      const goals = querySnapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
+
+      const goals = querySnapshot.docs.map((doc) => {
+        const data = doc.data();
+        const dueDateMonthYear = data.dueDate ? formatDate(data.dueDate) : null;
+
+        return {
+          id: doc.id,
+          ...data,
+          dueDateMonthYear: dueDateMonthYear,
+        };
+      });
+
       setAllGoals(goals);
       // Initially set the filtered goals to all goals
       setFilteredGoals(goals);
@@ -73,7 +107,7 @@ export default function GoalsList({ navigation }) {
       console.error(error);
     }
   };
-  
+
   // Function to filter goals based on activeTab
   const filterGoalsByStatus = (status) => {
     if (status === "all") {
@@ -85,13 +119,25 @@ export default function GoalsList({ navigation }) {
       setFilteredGoals(filtered);
     }
   };
-  
-  // Effect to fetch all goals when the component mounts
+
+  const groupGoalsByMonthYear = (goals) => {
+    return goals.reduce((groups, goal) => {
+      const dateRange = goal.dueDateMonthYear; // Use the formatted dueDateMonthYear
+      if (!groups[dateRange]) {
+        groups[dateRange] = [];
+      }
+      groups[dateRange].push(goal);
+      return groups;
+    }, {});
+  };
+
+  // Group the filtered goals by month and year
+  const groupedGoals = groupGoalsByMonthYear(filteredGoals);
+
   useEffect(() => {
     fetchAllGoals();
   }, []);
-  
-  // Effect to filter goals when activeTab changes
+
   useEffect(() => {
     filterGoalsByStatus(activeTab);
   }, [activeTab]);
@@ -119,29 +165,22 @@ export default function GoalsList({ navigation }) {
         <GoalTabBar activeTab={activeTab} setActiveTab={setActiveTab} />
 
         <ScrollView>
-          {filteredGoals.map((goal) => (
-            <View key={goal.id} style={{ marginTop: 25 }}>
-              {/* <Text>{goal.title}</Text>
-              <Text>{goal.description}</Text>
-              <Text>{goal.status}</Text> */}
-              <GoalListItem
-                title={goal.title}
-                description={goal.description}
-                numberOfTasks={goal.numberOfTasks}
-              />
+          {Object.keys(groupedGoals).map((dateRange) => (
+            <View key={dateRange} style={{ marginTop: 25 }}>
+              <Text style={styles.dateRange}>Deadline: {dateRange} </Text>
+              {groupedGoals[dateRange].map((goal) => (
+                <GoalListItem
+                  key={goal.id}
+                  title={goal.title}
+                  description={goal.description}
+                  numberOfTasks={goal.numberOfTasks}
+                  completedTasks={goal.completedTasks}
+                  dueDate = {goal.dueDate}
+                  navigation={navigation}
+                />
+              ))}
             </View>
           ))}
-
-          {/* <View style={{ marginTop: 25 }}>
-            <View style={{ padding: 15 }}>
-              <Text style={{ fontSize: 15, fontFamily: "SoraMedium" }}>
-                Mar 2020 - May 2022
-              </Text>
-            </View>
-            <GoalListItem />
-            <GoalListItem />
-            <GoalListItem />
-          </View> */}
         </ScrollView>
       </View>
     </SafeAreaView>
@@ -150,11 +189,8 @@ export default function GoalsList({ navigation }) {
 
 const styles = StyleSheet.create({
   container: {
-    //flex: 1,
-    //backgroundColor: "#F5F5F5",
     paddingHorizontal: 8,
     marginTop: -30,
-    //paddingTop: 24,
   },
   title: {
     fontSize: 24,
@@ -163,26 +199,39 @@ const styles = StyleSheet.create({
     color: "#333",
     textAlign: "center",
   },
-  goalItem: {
-    backgroundColor: "#EECFD4",
-    padding: 16,
-    marginBottom: 12,
-    borderRadius: 8,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 4,
-  },
-  goalTitle: {
-    fontSize: 18,
-    fontFamily: "SoraSemiBold",
+
+  dateRange: {
+    backgroundColor: "#EF798A",
+    color: "#FFFFFF", 
+    padding: 8, 
+    borderRadius: 4,
+    alignSelf: "flex-start", 
     marginBottom: 8,
-    color: "#333",
-  },
-  goalDescription: {
-    fontSize: 16,
-    color: "#666",
+    marginLeft: 15,
     fontFamily: "SoraRegular",
+    fontSize: 12
   },
+
+  // goalItem: {
+  //   backgroundColor: "#EECFD4",
+  //   padding: 16,
+  //   marginBottom: 12,
+  //   borderRadius: 8,
+  //   shadowColor: "#000",
+  //   shadowOffset: { width: 0, height: 2 },
+  //   shadowOpacity: 0.1,
+  //   shadowRadius: 4,
+  //   elevation: 4,
+  // },
+  // goalTitle: {
+  //   fontSize: 17,
+  //   fontFamily: "SoraSemiBold",
+  //   marginBottom: 8,
+  //   color: "#333",
+  // },
+  // goalDescription: {
+  //   fontSize: 15,
+  //   color: "#666",
+  //   fontFamily: "SoraRegular",
+  // },
 });

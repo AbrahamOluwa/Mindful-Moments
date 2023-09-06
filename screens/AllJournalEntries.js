@@ -97,9 +97,9 @@ export default function AllJournalEntries({ navigation }) {
     fetchJournalEntries();
   }, []);
 
-  useEffect(() => {
-    fetchJournalEntries();
-  }, [journalEntries]);
+  // useEffect(() => {
+  //   fetchJournalEntries();
+  // }, [journalEntries]);
   
   useEffect(() => {
     filterJournals(searchText);
