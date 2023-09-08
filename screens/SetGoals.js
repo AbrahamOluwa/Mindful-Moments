@@ -11,6 +11,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import { Picker } from "@react-native-picker/picker";
 import DatePicker from "@react-native-community/datetimepicker";
+import DateTimePicker from "@react-native-community/datetimepicker";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { auth, db } from "../firebaseConfig";
 import { onAuthStateChanged } from "firebase/auth";
@@ -22,8 +23,9 @@ import {
   addDoc,
   serverTimestamp,
 } from "firebase/firestore";
-import { Button, useToast, Box } from "native-base";
+import { Button, useToast, Box, Select, CheckIcon } from "native-base";
 import { getUserId } from "../components/home/GetUserId";
+import { Calendar } from "react-native-calendars";
 
 export default function SetGoals({ navigation }) {
   const [goalTitle, setGoalTitle] = useState("");
@@ -38,6 +40,33 @@ export default function SetGoals({ navigation }) {
   const [reminderDate, setReminderDate] = useState(new Date());
   const [isSubmitting, setIsSubmitting] = useState(false);
   const toast = useToast();
+  // const [selectedDays, setSelectedDays] = useState({});
+  // const [selectedTime, setSelectedTime] = useState("");
+  const [selectedTime, setSelectedTime] = useState(new Date());
+  const [repeatOption, setRepeatOption] = useState("Daily"); // Default to Daily
+  const [selectedDays, setSelectedDays] = useState([]); // Selected days for Weekly
+  const [selectedDate, setSelectedDate] = useState(new Date().toDateString()); // Selected date for Monthly and Yearly
+  const [showTimePicker, setShowTimePicker] = useState(false);
+
+  const [service, setService] = React.useState("");
+
+  const handleTimeChange = (event, selected) => {
+    if (event.type === "set") {
+      setSelectedTime(selected || selectedTime);
+    }
+    setShowTimePicker(Platform.OS === "ios");
+  };
+
+  const formattedTime = selectedTime.toLocaleTimeString([], {
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: true,
+  });
+
+  const handleDropdownChange = (itemValue) => {
+    setCategory(itemValue);
+    setOpen(false);
+  };
 
   const showDueDatePickerModal = () => {
     setShowDueDatePicker(true);
@@ -130,13 +159,13 @@ export default function SetGoals({ navigation }) {
         reminderDate: reminderDate,
         tasks: tasks,
         numberOfTasks: tasks.length,
-        completedTasks: tasks.filter(task => task.completed === true).length,
+        completedTasks: tasks.filter((task) => task.completed === true).length,
         isCompleted: false,
         status: "active",
         createdAt: serverTimestamp(),
       };
 
-      console.log('compeletedTasks', goalData.completedTasks);
+      console.log("compeletedTasks", goalData.completedTasks);
 
       const collectionRef = collection(
         db,
@@ -167,7 +196,7 @@ export default function SetGoals({ navigation }) {
       setGoalTitle("");
       setGoalDescription("");
       setDueDate(new Date());
-      setCategory("category1");
+      setCategory("");
       setPriority("");
       setReminderDate(new Date());
       setTasks([]);
@@ -189,34 +218,77 @@ export default function SetGoals({ navigation }) {
     console.log(reminderDate);
   };
 
+  const onDayPress = (day) => {
+    // Clone the current selectedDays state to avoid mutating it directly
+    const newSelectedDays = { ...selectedDays };
+
+    if (newSelectedDays[day.dateString]) {
+      // Deselect the day if it's already selected
+      delete newSelectedDays[day.dateString];
+    } else {
+      // Select the day if it's not already selected
+      newSelectedDays[day.dateString] = {
+        selected: true,
+        marked: true,
+        selectedColor: "blue", // You can customize the selected day's appearance
+      };
+    }
+
+    setSelectedDays(newSelectedDays);
+  };
+
+  const toggleRepeatOption = (option) => {
+    setRepeatOption(option);
+  };
+
+  const toggleDay = (day) => {
+    // Toggle the selected state of a day for Weekly reminders
+    if (selectedDays.includes(day)) {
+      setSelectedDays(
+        selectedDays.filter((selectedDay) => selectedDay !== day)
+      );
+    } else {
+      setSelectedDays([...selectedDays, day]);
+    }
+  };
+
+  const onDatePress = (date) => {
+    // Handle date selection for Monthly and Yearly
+    setSelectedDate(date);
+  };
+
   return (
     <SafeAreaView style={{ flex: 1 }}>
       <View style={styles.container}>
         <Text style={styles.heading}>Set Goal</Text>
 
         <ScrollView showsVerticalScrollIndicator={false}>
-          <Text style={styles.label}>
-            Title <Text style={{ color: "red" }}>*</Text>
-          </Text>
-          <TextInput
-            style={styles.input}
-            multiline
-            placeholder="Goal Title"
-            value={goalTitle}
-            onChangeText={(text) => setGoalTitle(text)}
-          />
+          <View>
+            <Text style={styles.label}>
+              Title <Text style={{ color: "red" }}>*</Text>
+            </Text>
+            <TextInput
+              style={styles.input}
+              multiline
+              placeholder="Goal Title"
+              value={goalTitle}
+              onChangeText={(text) => setGoalTitle(text)}
+            />
+          </View>
 
-          <Text style={styles.label}>
-            Description <Text style={{ color: "red" }}>*</Text>
-          </Text>
+          <View>
+            <Text style={styles.label}>
+              Description <Text style={{ color: "red" }}>*</Text>
+            </Text>
 
-          <TextInput
-            style={styles.input2}
-            placeholder="Enter Goal Description"
-            multiline
-            value={goalDescription}
-            onChangeText={(text) => setGoalDescription(text)}
-          />
+            <TextInput
+              style={styles.input2}
+              placeholder="Enter Goal Description"
+              multiline
+              value={goalDescription}
+              onChangeText={(text) => setGoalDescription(text)}
+            />
+          </View>
 
           {/* <TextInput
           style={styles.input}
@@ -225,66 +297,348 @@ export default function SetGoals({ navigation }) {
           onChangeText={(text) => setDueDate(text)}
         /> */}
 
-          <Text style={styles.label}>
-            Due Date <Text style={{ color: "red" }}>*</Text>
-          </Text>
-          <TouchableOpacity
-            style={styles.datePickerContainer}
-            onPress={showDueDatePickerModal}
-          >
-            <AntDesign name="calendar" size={20} color="#888" />
-            <Text style={styles.datePickerText}>{dueDate.toDateString()}</Text>
-          </TouchableOpacity>
-          {showDueDatePicker && (
-            <DatePicker
-              value={dueDate}
-              mode="date"
-              display="default"
-              onChange={handleDueDatePickerChange}
-            />
-          )}
+          <View>
+            <Text style={styles.label}>
+              Due Date <Text style={{ color: "red" }}>*</Text>
+            </Text>
+            <TouchableOpacity
+              style={styles.datePickerContainer}
+              onPress={showDueDatePickerModal}
+            >
+              <AntDesign name="calendar" size={20} color="#888" />
+              <Text style={styles.datePickerText}>
+                {dueDate.toDateString()}
+              </Text>
+            </TouchableOpacity>
+            {showDueDatePicker && (
+              <DatePicker
+                value={dueDate}
+                mode="date"
+                display="default"
+                onChange={handleDueDatePickerChange}
+              />
+            )}
+          </View>
 
-          <Text style={styles.label}>
-            Category <Text style={{ color: "red" }}>*</Text>
-          </Text>
+          <View>
+            <Text style={styles.label}>
+              Category <Text style={{ color: "red" }}>*</Text>
+            </Text>
 
-          <Picker
+            <View
+              style={{
+                backgroundColor: "#fff",
+                borderColor: "#fff",
+                borderWidth: 2,
+                borderRadius: 8,
+                marginBottom: 20,
+              }}
+              
+            >
+              <Select
+                selectedValue={category}
+                minWidth="200"
+                accessibilityLabel="Choose Category"
+                placeholder="Choose Category"
+                _selectedItem={{
+                  bg: "teal.600",
+                  endIcon: <CheckIcon size="5" />,
+                }}
+                variant='unstyled'
+                mt={1}
+                shadow={2}
+                style={{fontSize: 14, fontFamily: "SoraMedium",}}
+                onValueChange={(itemValue) => setCategory(itemValue)}
+              >
+                <Select.Item label="General" value="General" />
+                <Select.Item label="Health and Fitness" value="Health and Fitness" />
+                <Select.Item label="Personal Development" value="Personal Development" />
+                <Select.Item label="Career and Work" value="Career and Work" />
+                <Select.Item label="Finance and Money" value="Finance and Money" />
+                <Select.Item label="Education" value="Education" />
+                <Select.Item label="Travel and Adventure" value="Travel and Adventure" />
+                <Select.Item label="Relationships" value="Relationships" />
+                <Select.Item label="Home and Lifestyle" value="Home and Lifestyle" />
+                <Select.Item label="Community and Social Impact" value="Community and Social Impact" />
+                <Select.Item label="Spirituality" value="Spirituality" />
+              </Select>
+            </View>
+          </View>
+
+          {/* <Picker
             style={styles.dropdown}
             selectedValue={category}
             onValueChange={(value) => setCategory(value)}
           >
             <Picker.Item
-              label="Category 1"
-              value="category1"
+              label="General"
+              value="General"
               style={styles.pickerItemStyle}
             />
             <Picker.Item
-              label="Category 2"
-              value="category2"
+              label="Health and Fitness"
+              value="Health and Fitness"
               style={styles.pickerItemStyle}
             />
             <Picker.Item
-              label="Category 3"
-              value="category3"
+              label="Personal Development"
+              value="Personal Development"
               style={styles.pickerItemStyle}
             />
-          </Picker>
+            <Picker.Item
+              label="Career and Work"
+              value="Career and Work"
+              style={styles.pickerItemStyle}
+            />
+            <Picker.Item
+              label="Finance and Money"
+              value="Finance and Money"
+              style={styles.pickerItemStyle}
+            />
+            <Picker.Item
+              label="Education"
+              value="Education"
+              style={styles.pickerItemStyle}
+            />
+            <Picker.Item
+              label="Travel and Adventure"
+              value="Travel and Adventure"
+              style={styles.pickerItemStyle}
+            />
+            <Picker.Item
+              label="Relationships"
+              value="Relationships"
+              style={styles.pickerItemStyle}
+            />
+            <Picker.Item
+              label="Home and Lifestyle"
+              value="Home and Lifestyle"
+              style={styles.pickerItemStyle}
+            />
+            <Picker.Item
+              label="Community and Social Impact"
+              value="Community and Social Impact"
+              style={styles.pickerItemStyle}
+            />
+            <Picker.Item
+              label="Spirituality"
+              value="Spirituality"
+              style={styles.pickerItemStyle}
+            />
+          </Picker> */}
 
-          <Text style={styles.label}>
-            Priority <Text style={{ color: "red" }}>*</Text>
-          </Text>
+          <View>
+            <Text style={styles.label}>
+              Priority <Text style={{ color: "red" }}>*</Text>
+            </Text>
 
-          <TextInput
+            
+            <View
+              style={{
+                backgroundColor: "#fff",
+                borderColor: "#fff",
+                borderWidth: 2,
+                borderRadius: 8,
+                marginBottom: 20,
+              }}
+            >
+              <Select
+                selectedValue={priority}
+                minWidth="200"
+                accessibilityLabel="Choose Priority"
+                placeholder="Choose Priority"
+                _selectedItem={{
+                  bg: "teal.600",
+                  endIcon: <CheckIcon size="5" />
+                }}
+                variant='unstyled'
+                mt={1}
+                shadow={2}
+                style={{fontSize: 14,  fontFamily: "SoraMedium"}}
+                onValueChange={(itemValue) => setPriority(itemValue)}
+              >
+                <Select.Item label="Critical" value="Critical" />
+                <Select.Item label="High" value="High" />
+                <Select.Item label="Medium" value="Medium" />
+                <Select.Item label="Low" value="Low" />
+              </Select>
+            </View>
+
+            {/* <Picker
+              style={styles.dropdown}
+              selectedValue={priority}
+              onValueChange={(value) => setPriority(value)}
+            >
+              <Picker.Item
+                label="Critical"
+                value="Critical"
+                style={styles.pickerItemStyle}
+              />
+              <Picker.Item
+                label="High"
+                value="High"
+                style={styles.pickerItemStyle}
+              />
+              <Picker.Item
+                label="Medium"
+                value="Medium"
+                style={styles.pickerItemStyle}
+              />
+              <Picker.Item
+                label="Low"
+                value="Low"
+                style={styles.pickerItemStyle}
+              />
+            </Picker> */}
+          </View>
+
+          {/* <TextInput
             style={styles.input}
             placeholder="Priority"
             value={priority}
             onChangeText={(text) => setPriority(text)}
-          />
+          /> */}
 
-          <Text style={styles.label}>
-            Reminder Date <Text style={{ color: "red" }}>*</Text>
+          {/* <Text style={styles.label}>
+            Set Reminder <Text style={{ color: "red" }}>*</Text>
           </Text>
-          <TouchableOpacity
+          <Text style={styles.label}>
+            Select Days <Text style={{ color: "red" }}>*</Text>
+          </Text>
+          <Calendar
+            current={"2023-09-01"}
+            markedDates={selectedDays}
+            onDayPress={onDayPress}
+          /> */}
+
+          {/* <DateTimePicker
+            value={reminderDate}
+            mode="time" // Set the mode to 'time' for time picking
+            is24Hour={true} // Set to true if you want a 24-hour format
+            display="spinner" // Use 'spinner' display for a wheel-style picker
+            onChange={(event, selectedTime) => {
+              // Handle the selected time here
+              if (event.type === "set") {
+                setReminderDate(selectedTime);
+              }
+              // You can also handle the cancel event if needed
+            }}
+          /> */}
+
+          <View>
+            <Text style={styles.label}>
+              Set Reminder <Text style={{ color: "red" }}>*</Text>
+            </Text>
+            <View style={[styles.row]}>
+              {["Daily", "Weekly", "Monthly", "Yearly"].map((option) => (
+                <TouchableOpacity
+                  key={option}
+                  onPress={() => toggleRepeatOption(option)}
+                  style={[
+                    styles.option,
+                    {
+                      backgroundColor:
+                        repeatOption === option ? "#EF798A" : "#F2F2F2",
+                    },
+                  ]}
+                >
+                  <Text
+                    style={{
+                      color: repeatOption === option ? "white" : "black",
+                      fontFamily: "SoraLight",
+                    }}
+                  >
+                    {option}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+            {repeatOption === "Daily" && (
+              <View style={{ marginTop: 15 }}>
+                <Text style={styles.miniLabel}>Select Time</Text>
+
+                <TouchableOpacity onPress={() => setShowTimePicker(true)}>
+                  <View
+                    style={{
+                      paddingVertical: 15,
+                      backgroundColor: "#fff",
+                      alignItems: "center",
+                    }}
+                  >
+                    <Text
+                      style={{
+                        fontFamily: "SoraSemiBold",
+                        color: "#613F75",
+                        fontSize: 20,
+                      }}
+                    >
+                      {formattedTime}
+                    </Text>
+                  </View>
+                </TouchableOpacity>
+
+                {showTimePicker && (
+                  <DateTimePicker
+                    value={selectedTime}
+                    mode="time"
+                    //is24Hour={true}
+                    display="clock"
+                    onChange={handleTimeChange}
+                  />
+                )}
+              </View>
+            )}
+            {repeatOption === "Weekly" && (
+              <View style={{ marginTop: 15 }}>
+                <Text style={[styles.miniLabel, { marginLeft: 10 }]}>
+                  Repeat On
+                </Text>
+                <View style={styles.row}>
+                  {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map(
+                    (day) => (
+                      <TouchableOpacity
+                        key={day}
+                        onPress={() => toggleDay(day)}
+                        style={[
+                          styles.option,
+                          {
+                            backgroundColor: selectedDays.includes(day)
+                              ? "#EF798A"
+                              : "#F2F2F2",
+                          },
+                        ]}
+                      >
+                        <Text
+                          style={{
+                            color: selectedDays.includes(day)
+                              ? "white"
+                              : "black",
+                            fontFamily: "SoraLight",
+                          }}
+                        >
+                          {day}
+                        </Text>
+                      </TouchableOpacity>
+                    )
+                  )}
+                </View>
+              </View>
+            )}
+            {(repeatOption === "Monthly" || repeatOption === "Yearly") && (
+              <View style={{ marginTop: 15 }}>
+                <Text style={styles.miniLabel}>Select Date</Text>
+                <Calendar
+                  current={selectedDate}
+                  onDayPress={(day) => onDatePress(day.dateString)}
+                  markedDates={
+                    selectedDate ? { [selectedDate]: { selected: true } } : {}
+                  }
+                />
+              </View>
+            )}
+          </View>
+
+          {/* <TouchableOpacity
             style={styles.datePickerContainer}
             onPress={showReminderDatePickerModal}
           >
@@ -292,7 +646,7 @@ export default function SetGoals({ navigation }) {
             <Text style={styles.datePickerText}>
               {reminderDate.toDateString()}
             </Text>
-          </TouchableOpacity>
+          </TouchableOpacity> */}
           {showReminderDatePicker && (
             <DatePicker
               value={reminderDate}
@@ -370,6 +724,12 @@ const styles = StyleSheet.create({
     fontFamily: "SoraMedium",
     fontSize: 16,
     marginBottom: 10,
+  },
+  miniLabel: {
+    fontFamily: "SoraSemiBold",
+    fontSize: 14,
+    marginBottom: 10,
+    color: "#222222",
   },
   input: {
     height: 45,
@@ -484,5 +844,18 @@ const styles = StyleSheet.create({
     color: "white",
     fontSize: 18,
     fontFamily: "SoraSemiBold",
+  },
+  row: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+  option: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 8,
+    borderRadius: 8,
+    marginHorizontal: 4,
+    fontFamily: "SoraRegular",
   },
 });
