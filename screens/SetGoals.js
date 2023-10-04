@@ -48,8 +48,6 @@ export default function SetGoals({ navigation }) {
   const [selectedDate, setSelectedDate] = useState(new Date().toDateString()); // Selected date for Monthly and Yearly
   const [showTimePicker, setShowTimePicker] = useState(false);
 
-  const [service, setService] = React.useState("");
-
   const handleTimeChange = (event, selected) => {
     if (event.type === "set") {
       setSelectedTime(selected || selectedTime);
@@ -62,11 +60,6 @@ export default function SetGoals({ navigation }) {
     minute: "2-digit",
     hour12: true,
   });
-
-  const handleDropdownChange = (itemValue) => {
-    setCategory(itemValue);
-    setOpen(false);
-  };
 
   const showDueDatePickerModal = () => {
     setShowDueDatePicker(true);
@@ -156,13 +149,19 @@ export default function SetGoals({ navigation }) {
         category: category,
         priority: priority,
         dueDate: dueDate,
-        reminderDate: reminderDate,
+        // reminderDate: reminderDate,
         tasks: tasks,
         numberOfTasks: tasks.length,
         completedTasks: tasks.filter((task) => task.completed === true).length,
         isCompleted: false,
         status: "active",
         createdAt: serverTimestamp(),
+        reminderSettings: {
+          repeatOption: repeatOption, // "Daily", "Weekly", "Monthly", "Yearly"
+          selectedDays: selectedDays, // Array of selected days (for Weekly)
+          selectedDate: repeatOption === 'Monthly' || repeatOption === 'Yearly' ? selectedDate : '', // Array of selected dates (for Monthly and Yearly)
+          selectedTime: repeatOption === 'Daily' ? selectedTime : '', // Time selected by the user (for Daily)
+        },
       };
 
       console.log("compeletedTasks", goalData.completedTasks);
@@ -192,6 +191,10 @@ export default function SetGoals({ navigation }) {
         },
       });
 
+      setTimeout(() => {
+        navigation.navigate("GoalsListScreen");
+      }, 1000);
+
       // Reset the form fields after saving
       setGoalTitle("");
       setGoalDescription("");
@@ -202,9 +205,9 @@ export default function SetGoals({ navigation }) {
       setTasks([]);
       setNewTask("");
 
-      setTimeout(() => {
-        navigation.navigate("GoalsListScreen");
-      }, 1000);
+      // setTimeout(() => {
+      //   navigation.navigate("GoalsListScreen");
+      // }, 1000);
     } catch (error) {
       console.error("Error saving goal:", error);
     }
@@ -215,7 +218,13 @@ export default function SetGoals({ navigation }) {
     console.log(priority);
     console.log(tasks);
     console.log(dueDate);
-    console.log(reminderDate);
+    // console.log(reminderDate);
+    console.log(repeatOption); 
+    console.log(selectedDays)
+    console.log(repeatOption === 'Monthly' || repeatOption === 'Yearly' ? selectedDate : '',)
+    console.log(repeatOption === 'Daily' ? selectedTime : '')
+
+    setIsSubmitting(false)
   };
 
   const onDayPress = (day) => {
@@ -364,68 +373,6 @@ export default function SetGoals({ navigation }) {
               </Select>
             </View>
           </View>
-
-          {/* <Picker
-            style={styles.dropdown}
-            selectedValue={category}
-            onValueChange={(value) => setCategory(value)}
-          >
-            <Picker.Item
-              label="General"
-              value="General"
-              style={styles.pickerItemStyle}
-            />
-            <Picker.Item
-              label="Health and Fitness"
-              value="Health and Fitness"
-              style={styles.pickerItemStyle}
-            />
-            <Picker.Item
-              label="Personal Development"
-              value="Personal Development"
-              style={styles.pickerItemStyle}
-            />
-            <Picker.Item
-              label="Career and Work"
-              value="Career and Work"
-              style={styles.pickerItemStyle}
-            />
-            <Picker.Item
-              label="Finance and Money"
-              value="Finance and Money"
-              style={styles.pickerItemStyle}
-            />
-            <Picker.Item
-              label="Education"
-              value="Education"
-              style={styles.pickerItemStyle}
-            />
-            <Picker.Item
-              label="Travel and Adventure"
-              value="Travel and Adventure"
-              style={styles.pickerItemStyle}
-            />
-            <Picker.Item
-              label="Relationships"
-              value="Relationships"
-              style={styles.pickerItemStyle}
-            />
-            <Picker.Item
-              label="Home and Lifestyle"
-              value="Home and Lifestyle"
-              style={styles.pickerItemStyle}
-            />
-            <Picker.Item
-              label="Community and Social Impact"
-              value="Community and Social Impact"
-              style={styles.pickerItemStyle}
-            />
-            <Picker.Item
-              label="Spirituality"
-              value="Spirituality"
-              style={styles.pickerItemStyle}
-            />
-          </Picker> */}
 
           <View>
             <Text style={styles.label}>
@@ -800,7 +747,7 @@ const styles = StyleSheet.create({
   },
   taskText: {
     flex: 1,
-    fontSize: 15,
+    fontSize: 14,
     fontFamily: "SoraRegular",
     // color: '#fff'
   },

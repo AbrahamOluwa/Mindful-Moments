@@ -241,8 +241,6 @@ export default function EditGratitudeMoment({ navigation }) {
                   value={gratitudeMomentContent}
                   onChangeText={handleMomentChange}
                   multiline={true}
-                  // numberOfLines={50} // Set the initial number of lines for the input
-                  // scrollEnabled={true} // Enable scrolling for long text
                 />
               </ScrollView>
 
@@ -292,38 +290,20 @@ const styles = StyleSheet.create({
     fontFamily: "SoraSemiBold",
     marginBottom: 20,
   },
-  // titleInput: {
-  //   borderWidth: 1,
-  //   borderColor: "#ccc",
-  //   borderRadius: 4,
-  //   padding: 10,
-  //   marginBottom: 20,
-  //   fontFamily: "SoraRegular",
-  // },
 
   titleInput: {
     padding: 10,
     fontFamily: "SoraSemiBold",
-    fontSize: 16, // Set the font size as desired
-    lineHeight: 24, // Set the line height as desired
-    color: "#333", // Set the text color as desired
-    textAlignVertical: "top", // Start text from the top, not centered vertically
+    fontSize: 16,
+    lineHeight: 24, 
+    color: "#333", 
+    textAlignVertical: "top",
   },
 
   titleInputLine: {
     borderBottomWidth: 1,
     borderBottomColor: "#333", // Customize the line color
   },
-
-  // notesInput: {
-  //   borderWidth: 1,
-  //   borderColor: "#ccc",
-  //   borderRadius: 4,
-  //   padding: 10,
-  //   minHeight: 500, // Set a minimum height for the input
-  //   maxHeight: 500,
-  //   fontFamily: "SoraRegular",
-  // },
 
   notesInput: {
     padding: 10,

@@ -1,18 +1,49 @@
-import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  ScrollView,
+} from "react-native";
 import React from "react";
 import { HStack, Stack } from "native-base";
 import { MaterialIcons } from "@expo/vector-icons";
 // import ProgressCircle from "react-native-progress-circle";
 
 export default function GoalListItem(props) {
-  const { title, description, dueDate } = props;
+  const {
+    title,
+    description,
+    dueDate,
+    category,
+    priority,
+    repeatOption,
+    selectedDays,
+    numberOfTasks,
+    selectedTime,
+    selectedDateMY,
+    tasks
+  } = props;
   return (
     <View style={styles.card}>
-      <TouchableOpacity style={styles.editButton} onPress={() => props.navigation.navigate("EditGoalScreen", {
-        title, 
-        description,
-        dueDate
-      })}>
+      <TouchableOpacity
+        style={styles.editButton}
+        onPress={() =>
+          props.navigation.navigate("EditGoalScreen", {
+            title,
+            description,
+            dueDate,
+            category,
+            priority,
+            numberOfTasks,
+            repeatOption,
+            selectedDays,
+            selectedTime,
+            selectedDateMY,
+            tasks
+          })
+        }
+      >
         <MaterialIcons
           name="edit"
           size={20}
@@ -54,7 +85,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     borderRadius: 15,
     padding: 16,
-    marginBottom: 16,
+    marginBottom: 10,
     elevation: 2,
     marginHorizontal: 12,
     position: "relative",
@@ -81,11 +112,13 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 15, // Increase font size for the title
     fontFamily: "SoraSemiBold",
+    maxWidth: "80%", // Adjust the maximum width as needed
   },
   description: {
     fontSize: 13, // Increase font size for the description
     marginTop: 8,
     fontFamily: "SoraRegular",
+    maxWidth: "90%",
   },
   progressBar: {
     height: 10,

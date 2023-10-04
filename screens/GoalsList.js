@@ -4,6 +4,8 @@ import {
   StyleSheet,
   TouchableOpacity,
   ScrollView,
+  FlatList,
+  Dimensions
 } from "react-native";
 import React, { useState, useEffect } from "react";
 import { getDocs, collection, query, where } from "firebase/firestore";
@@ -56,6 +58,13 @@ export default function GoalsList({ navigation }) {
   //     fetchGoalsByStatus("completed");
   //   }
   // }, [activeTab]);
+
+  const screenHeight = Dimensions.get("window").height;
+  const containerHeightPercentage = 82;
+
+  const containerStyle = {
+    height: (screenHeight * containerHeightPercentage) / 100,
+  };
 
   const formatDate = (timestamp) => {
     const date = timestamp.toDate();
@@ -143,7 +152,7 @@ export default function GoalsList({ navigation }) {
   }, [activeTab]);
 
   return (
-    <SafeAreaView>
+    <SafeAreaView style={{ flex: 1 }}>
       <View>
         <HStack space={70} p={4}>
           <Stack>
@@ -164,24 +173,35 @@ export default function GoalsList({ navigation }) {
 
         <GoalTabBar activeTab={activeTab} setActiveTab={setActiveTab} />
 
-        <ScrollView>
-          {Object.keys(groupedGoals).map((dateRange) => (
-            <View key={dateRange} style={{ marginTop: 25 }}>
-              <Text style={styles.dateRange}>Deadline: {dateRange} </Text>
-              {groupedGoals[dateRange].map((goal) => (
-                <GoalListItem
-                  key={goal.id}
-                  title={goal.title}
-                  description={goal.description}
-                  numberOfTasks={goal.numberOfTasks}
-                  completedTasks={goal.completedTasks}
-                  dueDate = {goal.dueDate}
-                  navigation={navigation}
-                />
-              ))}
-            </View>
-          ))}
-        </ScrollView>
+        <View style={containerStyle}>
+          <FlatList
+            data={Object.keys(groupedGoals)}
+            keyExtractor={(dateRange) => dateRange.toString()} // Use a unique key
+            renderItem={({ item: dateRange }) => (
+              <View style={{ marginTop: 25 }}>
+                <Text style={styles.dateRange}>Deadline: {dateRange} </Text>
+                {groupedGoals[dateRange].map((goal) => (
+                  <GoalListItem
+                    key={goal.id}
+                    title={goal.title}
+                    description={goal.description}
+                    numberOfTasks={goal.numberOfTasks}
+                    completedTasks={goal.completedTasks}
+                    dueDate={goal.dueDate}
+                    navigation={navigation}
+                    category={goal.category}
+                    priority={goal.priority}
+                    tasks={goal.tasks}
+                    repeatOption={goal.reminderSettings.repeatOption}
+                    selectedDays={goal.reminderSettings.selectedDays}
+                    selectedTime={goal.reminderSettings.selectedTime}
+                    selectedDateMY={goal.reminderSettings.selectedDate}
+                  />
+                ))}
+              </View>
+            )}
+          />
+        </View>
       </View>
     </SafeAreaView>
   );
@@ -189,7 +209,8 @@ export default function GoalsList({ navigation }) {
 
 const styles = StyleSheet.create({
   container: {
-    paddingHorizontal: 8,
+    flex: 1,
+    //paddingHorizontal: 8,
     marginTop: -30,
   },
   title: {
@@ -202,14 +223,14 @@ const styles = StyleSheet.create({
 
   dateRange: {
     backgroundColor: "#EF798A",
-    color: "#FFFFFF", 
-    padding: 8, 
+    color: "#FFFFFF",
+    padding: 8,
     borderRadius: 4,
-    alignSelf: "flex-start", 
+    alignSelf: "flex-start",
     marginBottom: 8,
     marginLeft: 15,
     fontFamily: "SoraRegular",
-    fontSize: 12
+    fontSize: 12,
   },
 
   // goalItem: {
