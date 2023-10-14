@@ -17,16 +17,12 @@ import GoalTabBar from "../components/goals/GoalTabBar";
 import ThoughtCard from "../components/thoughts/ThoughtCard.js";
 import GoalListItem from "../components/goals/GoalListItem.js";
 import { getUserId } from "../components/home/GetUserId";
-import { useRoute } from "@react-navigation/native";
 
 export default function GoalsList({ navigation }) {
-  const route = useRoute();
-  const goalsCreated = route.params;
   const [activeTab, setActiveTab] = useState("all");
   const [goals, setGoals] = useState([]);
-  const [allGoals, setAllGoals] = useState(goalsCreated.goalsAlreadyCreated);
-  const [filteredGoals, setFilteredGoals] = useState(goalsCreated.goalsAlreadyCreated);
-  
+  const [allGoals, setAllGoals] = useState([]);
+  const [filteredGoals, setFilteredGoals] = useState([]);
 
   // const fetchGoalsByStatus = async (status) => {
   //   try {
@@ -91,35 +87,35 @@ export default function GoalsList({ navigation }) {
     return formattedDate;
   }
 
-  // const fetchAllGoals = async () => {
-  //   try {
-  //     const userId = await getUserId();
-  //     const collectionRef = collection(
-  //       db,
-  //       "nonRegisteredUsers",
-  //       userId,
-  //       "goals"
-  //     );
-  //     const querySnapshot = await getDocs(collectionRef);
+  const fetchAllGoals = async () => {
+    try {
+      const userId = await getUserId();
+      const collectionRef = collection(
+        db,
+        "nonRegisteredUsers",
+        userId,
+        "goals"
+      );
+      const querySnapshot = await getDocs(collectionRef);
 
-  //     const goals = querySnapshot.docs.map((doc) => {
-  //       const data = doc.data();
-  //       const dueDateMonthYear = data.dueDate ? formatDate(data.dueDate) : null;
+      const goals = querySnapshot.docs.map((doc) => {
+        const data = doc.data();
+        const dueDateMonthYear = data.dueDate ? formatDate(data.dueDate) : null;
 
-  //       return {
-  //         id: doc.id,
-  //         ...data,
-  //         dueDateMonthYear: dueDateMonthYear,
-  //       };
-  //     });
+        return {
+          id: doc.id,
+          ...data,
+          dueDateMonthYear: dueDateMonthYear,
+        };
+      });
 
-  //     setAllGoals(goals);
-  //     // Initially set the filtered goals to all goals
-  //     setFilteredGoals(goals);
-  //   } catch (error) {
-  //     console.error(error);
-  //   }
-  // };
+      setAllGoals(goals);
+      // Initially set the filtered goals to all goals
+      setFilteredGoals(goals);
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   // Function to filter goals based on activeTab
   const filterGoalsByStatus = (status) => {
@@ -148,7 +144,7 @@ export default function GoalsList({ navigation }) {
   const groupedGoals = groupGoalsByMonthYear(filteredGoals);
 
   useEffect(() => {
-    //fetchAllGoals();
+    fetchAllGoals();
   }, []);
 
   useEffect(() => {
@@ -187,7 +183,6 @@ export default function GoalsList({ navigation }) {
                 {groupedGoals[dateRange].map((goal) => (
                   <GoalListItem
                     key={goal.id}
-                    id={goal.id}
                     title={goal.title}
                     description={goal.description}
                     numberOfTasks={goal.numberOfTasks}

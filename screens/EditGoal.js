@@ -9,15 +9,24 @@ import {
 } from "react-native";
 import React, { useState, useEffect } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
-import {
-  doc,
-  updateDoc,
-  serverTimestamp,
-} from "firebase/firestore";
+import { doc, updateDoc, serverTimestamp } from "firebase/firestore";
+import { auth, db } from "../firebaseConfig";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import { Picker } from "@react-native-picker/picker";
 import DatePicker from "@react-native-community/datetimepicker";
-import { Button, useToast, Select, CheckIcon } from "native-base";
+import {
+  Button,
+  useToast,
+  Select,
+  CheckIcon,
+  Center,
+  VStack,
+  HStack,
+  CloseIcon,
+  Box,
+  IconButton,
+  Alert,
+} from "native-base";
 import { useRoute } from "@react-navigation/native";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { getUserId } from "../components/home/GetUserId";
@@ -27,6 +36,7 @@ import Checkbox from "expo-checkbox";
 export default function EditGoal() {
   const route = useRoute();
   const {
+    id,
     title,
     description,
     dueDate,
@@ -39,6 +49,7 @@ export default function EditGoal() {
     tasks,
   } = route.params;
 
+  const [goalId, setGoalId] = useState(id);
   const [goalTitle, setGoalTitle] = useState(title);
   const [goalDescription, setGoalDescription] = useState(description);
   const [goalCategory, setGoalCategory] = useState(category);
@@ -59,6 +70,8 @@ export default function EditGoal() {
   const [selectedDate, setSelectedDate] = useState(selectedDateMY); // Selected date for Monthly and Yearly
   const [showTimePicker, setShowTimePicker] = useState(false);
   const [goalTasks, setGoalTasks] = useState(tasks);
+  const [goalSaved, setGoalSaved] = useState(false);
+  const [showAlert, setShowAlert] = useState(false);
 
   function formatFirestoreTimestamp(timestamp) {
     const jsDate = timestamp.toDate();
@@ -149,47 +162,243 @@ export default function EditGoal() {
         console.log("Please fill all the required fields.");
         return;
       }
+
+      const userId = await getUserId();
+
+      const goalData = {
+        title: goalTitle,
+        description: goalDescription,
+        dueDate: newDueDate,
+        category: goalCategory,
+        priority: goalPriority,
+        // reminderDate: reminderDate,
+        tasks: goalTasks,
+        numberOfTasks: goalTasks.length,
+        completedTasks: goalTasks.filter((task) => task.completed === true)
+          .length,
+        isCompleted:
+          goalTasks.length ===
+          goalTasks.filter((task) => task.completed === true).length
+            ? true
+            : false,
+        status:
+          goalTasks.length ===
+          goalTasks.filter((task) => task.completed === true).length
+            ? "completed"
+            : "active",
+        reminderSettings: {
+          repeatOption: goalRepeatOption,
+          selectedDays: goalSelectedDays,
+          selectedDate:
+            goalRepeatOption === "Monthly" || goalRepeatOption === "Yearly"
+              ? selectedDate
+              : "",
+          selectedTime: goalRepeatOption === "Daily" ? goalSelectedTime : "", // Time selected by the user (for Daily)
+        },
+      };
+
+      console.log(goalData);
+
+      const collectionRef = doc(
+        db,
+        "nonRegisteredUsers",
+        userId,
+        "goals",
+        goalId
+      );
+
+      await updateDoc(collectionRef, goalData);
+
+      console.log("Goal updated successfully! Document ID:", collectionRef.id);
+
+      setIsSubmitting(false);
     } catch (error) {
       console.error("Error saving goal:", error);
     }
 
-    const tasksThatHasBeenMarkedAsComplete = goalTasks.filter((task) => task.completed === true).length;
+    const tasksThatHasBeenMarkedAsComplete = goalTasks.filter(
+      (task) => task.completed === true
+    ).length;
 
-    if(goalTasks.length === tasksThatHasBeenMarkedAsComplete) {
-      console.log('This goal has been achieved');
+    if (goalTasks.length === tasksThatHasBeenMarkedAsComplete) {
+      console.log("This goal has been achieved");
+      setGoalSaved(true);
+
+      // render: () => {
+      //   return (
+      //     <Center>
+      //       <VStack space={5} maxW="400">
+      //         <Alert w="100%" status="success">
+      //           <VStack space={2} flexShrink={1} w="100%">
+      //             <HStack
+      //               flexShrink={1}
+      //               space={1}
+      //               alignItems="center"
+      //               justifyContent="space-between"
+      //             >
+      //               <HStack space={2} flexShrink={1} alignItems="center">
+      //                 <Alert.Icon />
+      //                 <Text
+      //                   fontSize="md"
+      //                   fontWeight="medium"
+      //                   _dark={{
+      //                     color: "coolGray.800",
+      //                   }}
+      //                 >
+      //                   Application received!
+      //                 </Text>
+      //               </HStack>
+      //               <IconButton
+      //                 variant="unstyled"
+      //                 _focus={{
+      //                   borderWidth: 0,
+      //                 }}
+      //                 icon={<CloseIcon size="3" />}
+      //                 _icon={{
+      //                   color: "coolGray.600",
+      //                 }}
+      //               />
+      //             </HStack>
+      //             <Box
+      //               pl="6"
+      //               _dark={{
+      //                 _text: {
+      //                   color: "coolGray.600",
+      //                 },
+      //               }}
+      //             >
+      //               Your application has been received. We will review your
+      //               application and respond within the next 48 hours.
+      //             </Box>
+      //           </VStack>
+      //         </Alert>
+      //         <Alert w="100%" status="success">
+      //           <VStack space={1} flexShrink={1} w="100%" alignItems="center">
+      //             <Alert.Icon size="md" />
+      //             <Text
+      //               fontSize="md"
+      //               fontWeight="medium"
+      //               _dark={{
+      //                 color: "coolGray.800",
+      //               }}
+      //             >
+      //               Goal Completed
+      //             </Text>
+
+      //             <Box
+      //               _text={{
+      //                 textAlign: "center",
+      //               }}
+      //               _dark={{
+      //                 _text: {
+      //                   color: "coolGray.600",
+      //                 },
+      //               }}
+      //             >
+      //               Congratulations! 🎉 You have achieved your goal. Keep up the
+      //               great work and set new goals to conquer!
+      //             </Box>
+      //           </VStack>
+      //         </Alert>
+      //       </VStack>
+      //     </Center>
+      //   );
+      // };
+
+      // <Center>
+      //   <VStack space={5} maxW="400">
+      //     <Alert w="100%" status="success">
+      //     <VStack space={2} flexShrink={1} w="100%">
+      //       <HStack
+      //         flexShrink={1}
+      //         space={1}
+      //         alignItems="center"
+      //         justifyContent="space-between"
+      //       >
+      //         <HStack space={2} flexShrink={1} alignItems="center">
+      //           <Alert.Icon />
+      //           <Text
+      //             fontSize="md"
+      //             fontWeight="medium"
+      //             _dark={{
+      //               color: "coolGray.800",
+      //             }}
+      //           >
+      //             Application received!
+      //           </Text>
+      //         </HStack>
+      //         <IconButton
+      //           variant="unstyled"
+      //           _focus={{
+      //             borderWidth: 0,
+      //           }}
+      //           icon={<CloseIcon size="3" />}
+      //           _icon={{
+      //             color: "coolGray.600",
+      //           }}
+      //         />
+      //       </HStack>
+      //       <Box
+      //         pl="6"
+      //         _dark={{
+      //           _text: {
+      //             color: "coolGray.600",
+      //           },
+      //         }}
+      //       >
+      //         Your application has been received. We will review your
+      //         application and respond within the next 48 hours.
+      //       </Box>
+      //     </VStack>
+      //   </Alert>
+      //     <Alert w="100%" status="success">
+      //       <VStack space={1} flexShrink={1} w="100%" alignItems="center">
+      //         <Alert.Icon size="md" />
+      //         <Text
+      //           fontSize="md"
+      //           fontWeight="medium"
+      //           _dark={{
+      //             color: "coolGray.800",
+      //           }}
+      //         >
+      //           Goal Completed
+      //         </Text>
+
+      //         <Box
+      //           _text={{
+      //             textAlign: "center",
+      //           }}
+      //           _dark={{
+      //             _text: {
+      //               color: "coolGray.600",
+      //             },
+      //           }}
+      //         >
+      //           Congratulations! 🎉 You have achieved your goal. Keep up the
+      //           great work and set new goals to conquer!
+      //         </Box>
+      //       </VStack>
+      //     </Alert>
+      //   </VStack>
+      // </Center>
+    } else {
+      toast.show({
+        render: () => {
+          return (
+            <Box bg="emerald.500" px="4" py="3" rounded="sm" mb={5}>
+              <Text style={{ fontFamily: "SoraMedium", color: "#fff" }}>
+                Goal uploaded successfully!
+              </Text>
+            </Box>
+          );
+        },
+      });
     }
-
-    //const userId = await getUserId();
-
-    const goalData = {
-      title: goalTitle,
-      description: goalDescription,
-      dueDate: newDueDate,
-      category: goalCategory,
-      priority: goalPriority,
-      // reminderDate: reminderDate,
-      tasks: goalTasks,
-      numberOfTasks: goalTasks.length,
-      completedTasks: goalTasks.filter((task) => task.completed === true).length,
-      isCompleted: false,
-      status: goalTasks.length === goalTasks.filter((task) => task.completed === true).length ? 'completed' : 'active',
-      reminderSettings: {
-        repeatOption: goalRepeatOption,
-        selectedDays: goalSelectedDays,
-        selectedDate: goalRepeatOption === 'Monthly' || goalRepeatOption === 'Yearly' ? selectedDate : '', 
-        selectedTime: goalRepeatOption === 'Daily' ? goalSelectedTime : '', // Time selected by the user (for Daily)
-      },
-    };
-
-    console.log(goalData);
-
-    setIsSubmitting(false)
   };
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
       <Text style={styles.heading}>Edit Goal</Text>
-
       <View style={styles.container}>
         <ScrollView showsVerticalScrollIndicator={false}>
           <Text style={styles.label}>
@@ -450,7 +659,7 @@ export default function EditGoal() {
           </View>
 
           <View style={{ marginTop: 25 }}>
-          <Text style={styles.miniLabel}>Tasks Created</Text>
+            <Text style={styles.miniLabel}>Tasks Created</Text>
             {goalTasks.map((task, index) => (
               <View key={index} style={styles.taskRow}>
                 <Checkbox
@@ -512,6 +721,91 @@ export default function EditGoal() {
           )}
         </ScrollView>
       </View>
+      {goalSaved && (
+        <Center>
+          {/* <VStack space={5} maxW="400">
+            <Alert w="100%" status="success">
+              <VStack space={1} flexShrink={1} w="100%" alignItems="center">
+                <Alert.Icon size="md" />
+                <Text
+                  fontSize="md"
+                  fontWeight="medium"
+                  _dark={{
+                    color: "coolGray.800",
+                  }}
+                >
+                  Goal Completed
+                </Text>
+
+                <Box
+                  _text={{
+                    textAlign: "center",
+                  }}
+                  _dark={{
+                    _text: {
+                      color: "coolGray.600",
+                    },
+                  }}
+                >
+                  <Text>
+                    Congratulations! 🎉 You have achieved your goal. Keep up the
+                    great work and set new goals to conquer!
+                  </Text>
+                </Box>
+              </VStack>
+            </Alert>
+          </VStack> */}
+
+          <VStack space={5} maxW="400">
+            <Alert w="100%" status="success">
+              <VStack space={2} flexShrink={1} w="100%">
+                <HStack
+                  flexShrink={1}
+                  space={1}
+                  alignItems="center"
+                  justifyContent="space-between"
+                >
+                  <HStack space={2} flexShrink={1} alignItems="center">
+                    <Alert.Icon />
+                    <Text
+                      fontSize="md"
+                      fontWeight="medium"
+                      _dark={{
+                        color: "coolGray.800",
+                      }}
+                    >
+                      Goal Completed
+                    </Text>
+                  </HStack>
+                  <IconButton
+                    variant="unstyled"
+                    _focus={{
+                      borderWidth: 0,
+                    }}
+                    icon={<CloseIcon size="5" />}
+                    _icon={{
+                      color: "coolGray.600",
+                    }} onPress={() => setShowAlert(!showAlert)}
+                  /> 
+                </HStack>
+                <Box
+                  pl="6"
+                  _dark={{
+                    _text: {
+                      color: "coolGray.600",
+                    },
+                  }}
+                >
+                   <Text>
+                    Congratulations! 🎉 You have achieved your goal. Keep up the
+                    great work and set new goals to conquer!
+                  </Text>
+                </Box>
+              </VStack>
+            </Alert>
+          </VStack>
+        </Center>
+      )}
     </SafeAreaView>
   );
 }

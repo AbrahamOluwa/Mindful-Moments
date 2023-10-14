@@ -12,6 +12,7 @@ import { MaterialIcons } from "@expo/vector-icons";
 
 export default function GoalListItem(props) {
   const {
+    id,
     title,
     description,
     dueDate,
@@ -30,6 +31,7 @@ export default function GoalListItem(props) {
         style={styles.editButton}
         onPress={() =>
           props.navigation.navigate("EditGoalScreen", {
+            id,
             title,
             description,
             dueDate,

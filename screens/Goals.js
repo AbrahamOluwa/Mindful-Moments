@@ -5,19 +5,80 @@ import {
   Image,
   Dimensions,
   StyleSheet,
-  Pressable,
+  ActivityIndicator,
 } from "react-native";
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Button, Icon } from "native-base";
 import { Ionicons } from "@expo/vector-icons";
 import { FontAwesome } from "@expo/vector-icons";
+import { getUserId } from "../components/home/GetUserId";
+import { getDocs, collection, query, where } from "firebase/firestore";
+import { db } from "../firebaseConfig";
 
 export default function Goals({ navigation }) {
   const { width } = Dimensions.get("screen");
 
+  const [hasGoals, setHasGoals] = useState(false);
+  const [isFetching, setIsFetching] = useState(true);
+  const [goalsAlreadyCreated, setGoalsAlreadyCreated] = useState();
+
+  const formatDate = (timestamp) => {
+    const date = timestamp.toDate();
+    return date.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+  };
+
+  useEffect(() => {
+    // Check if the user has any gratitude moments in the database
+    const checkGoals = async () => {
+      try {
+        const userId = await getUserId();
+        const collectionRef = collection(
+          db,
+          "nonRegisteredUsers",
+          userId,
+          "goals"
+        );
+        const querySnapshot = await getDocs(collectionRef);
+
+        if (!querySnapshot.empty) {
+          console.log("Document data exist");
+          setIsFetching(false);
+          setHasGoals(true);
+          const goals = querySnapshot.docs.map((doc) => {
+            const data = doc.data();
+            const dueDateMonthYear = data.dueDate
+              ? formatDate(data.dueDate)
+              : null;
+
+            return {
+              id: doc.id,
+              ...data,
+              dueDateMonthYear: dueDateMonthYear,
+            };
+          });
+
+          setGoalsAlreadyCreated(goals);
+        } else {
+          console.log("No such document!");
+          setIsFetching(false);
+          setHasGoals(false);
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    checkGoals();
+    // console.log(hasGratitudeMoments);
+  }, []);
+
   return (
-    <SafeAreaView style={{ }}>
+    <SafeAreaView style={{}}>
       <View style={{ marginTop: 10, marginLeft: 10 }}>
         <Text style={{ fontFamily: "SoraSemiBold", fontSize: 28 }}>Goals</Text>
       </View>
@@ -26,42 +87,118 @@ export default function Goals({ navigation }) {
         source={require("../assets/images/g3.png")}
         style={{
           width: width,
-          height: 400,
+          height: 350,
         }}
         resizeMode="contain"
       />
 
-      <View
-        style={{
-          marginTop: -10,
-          alignItems: "center",
-          justifyContent: "center",
-          fontFamily: "SoraSemiBold",
-        }}
-      >
-        <Text style={styles.description}>Oops... No goals yet!</Text>
-        <Text style={styles.description}>Tap to Start Planning</Text>
-      </View>
-
-      <View style={{alignItems: "center", justifyContent: "center", marginTop: 50 }}>
-        <Button
-          leftIcon={<Icon as={FontAwesome} name="plus" size="sm" />}
-          style={{ backgroundColor: "#EF798A", borderRadius: 22 }}
+      {/* <View style={{ marginTop: 10 }}>
+        <Text
+          style={{
+            textAlign: "center",
+            fontSize: 14,
+            marginBottom: 20,
+            paddingHorizontal: 20,
+            fontFamily: "SoraRegular",
+          }}
         >
-          <TouchableOpacity
-            onPress={() => {
-              //navigation.navigate("SetGoalsScreen");
-              navigation.navigate("GoalsListScreen");
+          Get started on your journey to growth by setting and tracking your
+          goals. Create new goals to stay organized and motivated. Ready to see
+          your progress? Check out all your existing goals below.
+        </Text>
+      </View> */}
+
+      {isFetching ? (
+        <View
+          style={{
+            flex: 1,
+            justifyContent: "center",
+            alignItems: "center",
+            marginTop: 20,
+          }}
+        >
+          <ActivityIndicator size="large" color="#EF798A" />
+        </View>
+      ) : (
+        <View>
+          <View
+            style={{
+              marginTop: 25,
+              alignItems: "center",
+              justifyContent: "center",
+              fontFamily: "SoraSemiBold",
             }}
           >
-            <Text
-              style={{ fontFamily: "SoraMedium", color: "#fff", fontSize: 13 }}
+            {hasGoals ? (
+              <View>
+                <View>
+                  <Text style={styles.description}>
+                    Impressive! You're on your way to achieving your goals. Feel
+                    free to review your progress and manage all your existing
+                    goals right here. Ready to set new milestones? Click the
+                    button to add more goals.
+                  </Text>
+                </View>
+
+                <View
+                  style={{
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  <TouchableOpacity
+                    style={styles.viewButton}
+                    onPress={() =>
+                      navigation.navigate("GoalsListScreen", {
+                        goalsAlreadyCreated,
+                      })
+                    }
+                  >
+                    <Text style={styles.viewButtonText}>View All Goals</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            ) : (
+              <>
+                <Text style={styles.description}>
+                  You're ready to start your journey towards success! Begin by
+                  setting your very first goal. Don't worry; we're here to help
+                  you achieve your dreams.
+                </Text>
+              </>
+            )}
+          </View>
+          <View
+            style={{
+              alignItems: "center",
+              justifyContent: "center",
+              marginTop: 50,
+            }}
+          >
+            <Button
+              leftIcon={<Icon as={FontAwesome} name="plus" size="sm" />}
+              style={{ backgroundColor: "#EF798A", borderRadius: 22 }}
             >
-              Add new
-            </Text>
-          </TouchableOpacity>
-        </Button>
-      </View>
+              <TouchableOpacity
+                onPress={() => {
+                  navigation.navigate("SetGoalsScreen");
+                  //navigation.navigate("GoalsListScreen");
+                }}
+              >
+                <Text
+                  style={{
+                    fontFamily: "SoraMedium",
+                    color: "#fff",
+                    fontSize: 13,
+                  }}
+                >
+                  Add New Goal
+                </Text>
+              </TouchableOpacity>
+            </Button>
+          </View>
+        </View>
+      )}
 
       {/* <TouchableOpacity>
           
@@ -86,8 +223,30 @@ export default function Goals({ navigation }) {
 
 const styles = StyleSheet.create({
   description: {
-    fontFamily: "SoraSemiBold",
-    color: "gray",
-    fontSize: 15,
+    textAlign: "center",
+    fontSize: 14,
+    marginBottom: 20,
+    paddingHorizontal: 20,
+    fontFamily: "SoraRegular",
+  },
+  // description: {
+  //   fontFamily: "SoraSemiBold",
+  //   color: "gray",
+  //   fontSize: 15,
+  // },
+
+  viewButtonText: {
+    fontFamily: "SoraMedium",
+    color: "white",
+    fontSize: 13,
+  },
+
+  viewButton: {
+    backgroundColor: "#613F75",
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    alignItems: "center",
+    marginTop: 10,
+    borderRadius: 8,
   },
 });
