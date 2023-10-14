@@ -22,6 +22,7 @@ import {
   getDoc,
   addDoc,
   serverTimestamp,
+  getDocs
 } from "firebase/firestore";
 import { Button, useToast, Box, Select, CheckIcon } from "native-base";
 import { getUserId } from "../components/home/GetUserId";
@@ -47,6 +48,7 @@ export default function SetGoals({ navigation }) {
   const [selectedDays, setSelectedDays] = useState([]); // Selected days for Weekly
   const [selectedDate, setSelectedDate] = useState(new Date().toDateString()); // Selected date for Monthly and Yearly
   const [showTimePicker, setShowTimePicker] = useState(false);
+  const [goalsAlreadyCreated, setGoalsAlreadyCreated] = useState([]);
 
   const handleTimeChange = (event, selected) => {
     if (event.type === "set") {
@@ -60,6 +62,15 @@ export default function SetGoals({ navigation }) {
     minute: "2-digit",
     hour12: true,
   });
+
+  const formatDate = (timestamp) => {
+    const date = timestamp.toDate();
+    return date.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+  };
 
   const showDueDatePickerModal = () => {
     setShowDueDatePicker(true);
@@ -163,8 +174,7 @@ export default function SetGoals({ navigation }) {
           selectedTime: repeatOption === 'Daily' ? selectedTime : '', // Time selected by the user (for Daily)
         },
       };
-
-      console.log("compeletedTasks", goalData.completedTasks);
+      
 
       const collectionRef = collection(
         db,
@@ -177,7 +187,9 @@ export default function SetGoals({ navigation }) {
 
       console.log("Goal saved successfully! Document ID:", collectionRef.id);
 
-      setIsSubmitting(false);
+      await GetAllGoals();
+
+      //setIsSubmitting(false);
 
       toast.show({
         render: () => {
@@ -193,7 +205,7 @@ export default function SetGoals({ navigation }) {
 
       setTimeout(() => {
         navigation.navigate("GoalsListScreen");
-      }, 1000);
+      }, 2000);
 
       // Reset the form fields after saving
       setGoalTitle("");
@@ -205,26 +217,57 @@ export default function SetGoals({ navigation }) {
       setTasks([]);
       setNewTask("");
 
-      // setTimeout(() => {
-      //   navigation.navigate("GoalsListScreen");
-      // }, 1000);
     } catch (error) {
       console.error("Error saving goal:", error);
+    } finally {
+      setIsSubmitting(false); // This is placed in the finally block
     }
 
-    console.log(goalTitle);
-    console.log(goalDescription);
-    console.log(category);
-    console.log(priority);
-    console.log(tasks);
-    console.log(dueDate);
-    // console.log(reminderDate);
-    console.log(repeatOption); 
-    console.log(selectedDays)
-    console.log(repeatOption === 'Monthly' || repeatOption === 'Yearly' ? selectedDate : '',)
-    console.log(repeatOption === 'Daily' ? selectedTime : '')
+    // console.log(goalTitle);
+    // console.log(goalDescription);
+    // console.log(category);
+    // console.log(priority);
+    // console.log(tasks);
+    // console.log(dueDate);
+    // console.log(repeatOption); 
+    // console.log(selectedDays)
+    // console.log(repeatOption === 'Monthly' || repeatOption === 'Yearly' ? selectedDate : '',)
+    // console.log(repeatOption === 'Daily' ? selectedTime : '')
 
-    setIsSubmitting(false)
+    //setIsSubmitting(false)
+  };
+
+
+  const GetAllGoals = async () => {
+    try {
+      const userId = await getUserId();
+      const collectionRef = collection(
+        db,
+        "nonRegisteredUsers",
+        userId,
+        "goals"
+      );
+      const querySnapshot = await getDocs(collectionRef);
+
+      const goals = querySnapshot.docs.map((doc) => {
+        const data = doc.data();
+        const dueDateMonthYear = data.dueDate
+          ? formatDate(data.dueDate)
+          : null;
+
+        return {
+          id: doc.id,
+          ...data,
+          dueDateMonthYear: dueDateMonthYear,
+        };
+      });
+
+      setGoalsAlreadyCreated(goals);
+
+
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   const onDayPress = (day) => {
@@ -265,6 +308,7 @@ export default function SetGoals({ navigation }) {
     // Handle date selection for Monthly and Yearly
     setSelectedDate(date);
   };
+
 
   return (
     <SafeAreaView style={{ flex: 1 }}>

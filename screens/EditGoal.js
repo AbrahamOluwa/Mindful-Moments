@@ -12,6 +12,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { doc, updateDoc, serverTimestamp } from "firebase/firestore";
 import { auth, db } from "../firebaseConfig";
 import AntDesign from "@expo/vector-icons/AntDesign";
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { Picker } from "@react-native-picker/picker";
 import DatePicker from "@react-native-community/datetimepicker";
 import {
@@ -22,10 +23,8 @@ import {
   Center,
   VStack,
   HStack,
-  CloseIcon,
   Box,
-  IconButton,
-  Alert,
+  Modal,
 } from "native-base";
 import { useRoute } from "@react-navigation/native";
 import DateTimePicker from "@react-native-community/datetimepicker";
@@ -33,7 +32,7 @@ import { getUserId } from "../components/home/GetUserId";
 import { Calendar } from "react-native-calendars";
 import Checkbox from "expo-checkbox";
 
-export default function EditGoal() {
+export default function EditGoal({navigation}) {
   const route = useRoute();
   const {
     id,
@@ -70,9 +69,9 @@ export default function EditGoal() {
   const [selectedDate, setSelectedDate] = useState(selectedDateMY); // Selected date for Monthly and Yearly
   const [showTimePicker, setShowTimePicker] = useState(false);
   const [goalTasks, setGoalTasks] = useState(tasks);
-  const [goalSaved, setGoalSaved] = useState(false);
-  const [showAlert, setShowAlert] = useState(false);
+  const [showModal, setShowModal] = useState(false);
 
+ 
   function formatFirestoreTimestamp(timestamp) {
     const jsDate = timestamp.toDate();
     const formattedDate = jsDate.toISOString().split("T")[0];
@@ -222,165 +221,7 @@ export default function EditGoal() {
 
     if (goalTasks.length === tasksThatHasBeenMarkedAsComplete) {
       console.log("This goal has been achieved");
-      setGoalSaved(true);
-
-      // render: () => {
-      //   return (
-      //     <Center>
-      //       <VStack space={5} maxW="400">
-      //         <Alert w="100%" status="success">
-      //           <VStack space={2} flexShrink={1} w="100%">
-      //             <HStack
-      //               flexShrink={1}
-      //               space={1}
-      //               alignItems="center"
-      //               justifyContent="space-between"
-      //             >
-      //               <HStack space={2} flexShrink={1} alignItems="center">
-      //                 <Alert.Icon />
-      //                 <Text
-      //                   fontSize="md"
-      //                   fontWeight="medium"
-      //                   _dark={{
-      //                     color: "coolGray.800",
-      //                   }}
-      //                 >
-      //                   Application received!
-      //                 </Text>
-      //               </HStack>
-      //               <IconButton
-      //                 variant="unstyled"
-      //                 _focus={{
-      //                   borderWidth: 0,
-      //                 }}
-      //                 icon={<CloseIcon size="3" />}
-      //                 _icon={{
-      //                   color: "coolGray.600",
-      //                 }}
-      //               />
-      //             </HStack>
-      //             <Box
-      //               pl="6"
-      //               _dark={{
-      //                 _text: {
-      //                   color: "coolGray.600",
-      //                 },
-      //               }}
-      //             >
-      //               Your application has been received. We will review your
-      //               application and respond within the next 48 hours.
-      //             </Box>
-      //           </VStack>
-      //         </Alert>
-      //         <Alert w="100%" status="success">
-      //           <VStack space={1} flexShrink={1} w="100%" alignItems="center">
-      //             <Alert.Icon size="md" />
-      //             <Text
-      //               fontSize="md"
-      //               fontWeight="medium"
-      //               _dark={{
-      //                 color: "coolGray.800",
-      //               }}
-      //             >
-      //               Goal Completed
-      //             </Text>
-
-      //             <Box
-      //               _text={{
-      //                 textAlign: "center",
-      //               }}
-      //               _dark={{
-      //                 _text: {
-      //                   color: "coolGray.600",
-      //                 },
-      //               }}
-      //             >
-      //               Congratulations! 🎉 You have achieved your goal. Keep up the
-      //               great work and set new goals to conquer!
-      //             </Box>
-      //           </VStack>
-      //         </Alert>
-      //       </VStack>
-      //     </Center>
-      //   );
-      // };
-
-      // <Center>
-      //   <VStack space={5} maxW="400">
-      //     <Alert w="100%" status="success">
-      //     <VStack space={2} flexShrink={1} w="100%">
-      //       <HStack
-      //         flexShrink={1}
-      //         space={1}
-      //         alignItems="center"
-      //         justifyContent="space-between"
-      //       >
-      //         <HStack space={2} flexShrink={1} alignItems="center">
-      //           <Alert.Icon />
-      //           <Text
-      //             fontSize="md"
-      //             fontWeight="medium"
-      //             _dark={{
-      //               color: "coolGray.800",
-      //             }}
-      //           >
-      //             Application received!
-      //           </Text>
-      //         </HStack>
-      //         <IconButton
-      //           variant="unstyled"
-      //           _focus={{
-      //             borderWidth: 0,
-      //           }}
-      //           icon={<CloseIcon size="3" />}
-      //           _icon={{
-      //             color: "coolGray.600",
-      //           }}
-      //         />
-      //       </HStack>
-      //       <Box
-      //         pl="6"
-      //         _dark={{
-      //           _text: {
-      //             color: "coolGray.600",
-      //           },
-      //         }}
-      //       >
-      //         Your application has been received. We will review your
-      //         application and respond within the next 48 hours.
-      //       </Box>
-      //     </VStack>
-      //   </Alert>
-      //     <Alert w="100%" status="success">
-      //       <VStack space={1} flexShrink={1} w="100%" alignItems="center">
-      //         <Alert.Icon size="md" />
-      //         <Text
-      //           fontSize="md"
-      //           fontWeight="medium"
-      //           _dark={{
-      //             color: "coolGray.800",
-      //           }}
-      //         >
-      //           Goal Completed
-      //         </Text>
-
-      //         <Box
-      //           _text={{
-      //             textAlign: "center",
-      //           }}
-      //           _dark={{
-      //             _text: {
-      //               color: "coolGray.600",
-      //             },
-      //           }}
-      //         >
-      //           Congratulations! 🎉 You have achieved your goal. Keep up the
-      //           great work and set new goals to conquer!
-      //         </Box>
-      //       </VStack>
-      //     </Alert>
-      //   </VStack>
-      // </Center>
+      setShowModal(true);
     } else {
       toast.show({
         render: () => {
@@ -393,11 +234,18 @@ export default function EditGoal() {
           );
         },
       });
+
+      setTimeout(() => {
+        navigation.navigate("GoalsListScreen");
+      }, 2000);
     }
+
+  
   };
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
+      <View></View>
       <Text style={styles.heading}>Edit Goal</Text>
       <View style={styles.container}>
         <ScrollView showsVerticalScrollIndicator={false}>
@@ -721,91 +569,48 @@ export default function EditGoal() {
           )}
         </ScrollView>
       </View>
-      {goalSaved && (
-        <Center>
-          {/* <VStack space={5} maxW="400">
-            <Alert w="100%" status="success">
-              <VStack space={1} flexShrink={1} w="100%" alignItems="center">
-                <Alert.Icon size="md" />
-                <Text
-                  fontSize="md"
-                  fontWeight="medium"
-                  _dark={{
-                    color: "coolGray.800",
-                  }}
-                >
-                  Goal Completed
+
+      <Center>
+        <Modal
+          isOpen={showModal}
+          onClose={() => setShowModal(false)}
+          _backdrop={{
+            _dark: {
+              bg: "coolGray.800",
+            },
+            bg: "black",
+          }}
+        >
+          <Modal.Content maxWidth="350" maxH="250">
+            <Modal.CloseButton />
+            <VStack alignItems="center" style={{marginTop: 10}}>
+              {/* <AntDesign name="checkcircleo" size={45} color="green" /> */}
+              <MaterialCommunityIcons name="party-popper" size={45} color="#FF007F" />
+            </VStack>
+            <Modal.Body>
+              <Text style={{ fontFamily: "SoraRegular" , fontSize: 12}}>
+                Congratulations! 🎉 You have achieved your goal. Keep up the
+                great work and set new goals to conquer!
+              </Text>
+            </Modal.Body>
+            <Modal.Footer>
+              <Button
+                onPress={() => {
+                  setShowModal(false);
+                  setTimeout(() => {
+                    navigation.navigate("GoalsListScreen");
+                  }, 2000);
+                }}
+              >
+                <Text style={{ fontFamily: "SoraRegular" , color: '#fff'}}>
+                   Close
                 </Text>
-
-                <Box
-                  _text={{
-                    textAlign: "center",
-                  }}
-                  _dark={{
-                    _text: {
-                      color: "coolGray.600",
-                    },
-                  }}
-                >
-                  <Text>
-                    Congratulations! 🎉 You have achieved your goal. Keep up the
-                    great work and set new goals to conquer!
-                  </Text>
-                </Box>
-              </VStack>
-            </Alert>
-          </VStack> */}
-
-          <VStack space={5} maxW="400">
-            <Alert w="100%" status="success">
-              <VStack space={2} flexShrink={1} w="100%">
-                <HStack
-                  flexShrink={1}
-                  space={1}
-                  alignItems="center"
-                  justifyContent="space-between"
-                >
-                  <HStack space={2} flexShrink={1} alignItems="center">
-                    <Alert.Icon />
-                    <Text
-                      fontSize="md"
-                      fontWeight="medium"
-                      _dark={{
-                        color: "coolGray.800",
-                      }}
-                    >
-                      Goal Completed
-                    </Text>
-                  </HStack>
-                  <IconButton
-                    variant="unstyled"
-                    _focus={{
-                      borderWidth: 0,
-                    }}
-                    icon={<CloseIcon size="5" />}
-                    _icon={{
-                      color: "coolGray.600",
-                    }} onPress={() => setShowAlert(!showAlert)}
-                  /> 
-                </HStack>
-                <Box
-                  pl="6"
-                  _dark={{
-                    _text: {
-                      color: "coolGray.600",
-                    },
-                  }}
-                >
-                   <Text>
-                    Congratulations! 🎉 You have achieved your goal. Keep up the
-                    great work and set new goals to conquer!
-                  </Text>
-                </Box>
-              </VStack>
-            </Alert>
-          </VStack>
-        </Center>
-      )}
+                
+              </Button>
+            </Modal.Footer>
+          </Modal.Content>
+        </Modal>
+      </Center>
     </SafeAreaView>
   );
 }
@@ -818,7 +623,9 @@ const styles = StyleSheet.create({
   heading: {
     fontSize: 24,
     fontFamily: "SoraSemiBold",
-    marginBottom: 20,
+    marginBottom: 10,
+    marginLeft: 10,
+    marginTop: 10
   },
   label: {
     fontFamily: "SoraMedium",

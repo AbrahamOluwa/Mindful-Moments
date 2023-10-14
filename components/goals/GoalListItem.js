@@ -23,8 +23,15 @@ export default function GoalListItem(props) {
     numberOfTasks,
     selectedTime,
     selectedDateMY,
-    tasks
+    tasks,
+    onDelete
   } = props;
+
+  const handleDelete = () => {
+    // Call the onDelete function when the "Delete" button is pressed
+    onDelete(id);
+  };
+
   return (
     <View style={styles.card}>
       <TouchableOpacity
@@ -52,7 +59,7 @@ export default function GoalListItem(props) {
           color="#fff" // Icon color
         />
       </TouchableOpacity>
-      <TouchableOpacity style={styles.deleteButton}>
+      <TouchableOpacity style={styles.deleteButton} onPress={handleDelete}>
         <MaterialIcons
           name="delete"
           size={20}

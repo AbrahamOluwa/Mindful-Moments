@@ -5,12 +5,27 @@ import {
   TouchableOpacity,
   ScrollView,
   FlatList,
-  Dimensions
+  Dimensions,
 } from "react-native";
 import React, { useState, useEffect } from "react";
-import { getDocs, collection, query, where } from "firebase/firestore";
+import {
+  getDocs,
+  collection,
+  query,
+  orderBy,
+  deleteDoc,
+  doc,
+} from "firebase/firestore";
 import { auth, db } from "../firebaseConfig";
-import { HStack, Stack } from "native-base";
+import {
+  HStack,
+  Stack,
+  useToast,
+  Box,
+  Modal,
+  Center,
+  Button,
+} from "native-base";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { AntDesign } from "@expo/vector-icons";
 import GoalTabBar from "../components/goals/GoalTabBar";
@@ -24,9 +39,11 @@ export default function GoalsList({ navigation }) {
   const goalsCreated = route.params;
   const [activeTab, setActiveTab] = useState("all");
   const [goals, setGoals] = useState([]);
-  const [allGoals, setAllGoals] = useState(goalsCreated.goalsAlreadyCreated);
-  const [filteredGoals, setFilteredGoals] = useState(goalsCreated.goalsAlreadyCreated);
-  
+  const [allGoals, setAllGoals] = useState([]);
+  const [filteredGoals, setFilteredGoals] = useState([]);
+  const toast = useToast();
+  const [showModal, setShowModal] = useState(false);
+  const [goalToDelete, setGoalToDelete] = useState();
 
   // const fetchGoalsByStatus = async (status) => {
   //   try {
@@ -91,35 +108,38 @@ export default function GoalsList({ navigation }) {
     return formattedDate;
   }
 
-  // const fetchAllGoals = async () => {
-  //   try {
-  //     const userId = await getUserId();
-  //     const collectionRef = collection(
-  //       db,
-  //       "nonRegisteredUsers",
-  //       userId,
-  //       "goals"
-  //     );
-  //     const querySnapshot = await getDocs(collectionRef);
+  const fetchAllGoals = async () => {
+    try {
+      const userId = await getUserId();
+      const collectionRef = collection(
+        db,
+        "nonRegisteredUsers",
+        userId,
+        "goals"
+      );
 
-  //     const goals = querySnapshot.docs.map((doc) => {
-  //       const data = doc.data();
-  //       const dueDateMonthYear = data.dueDate ? formatDate(data.dueDate) : null;
+      const q = query(collectionRef, orderBy("dueDate", "asc"));
 
-  //       return {
-  //         id: doc.id,
-  //         ...data,
-  //         dueDateMonthYear: dueDateMonthYear,
-  //       };
-  //     });
+      const querySnapshot = await getDocs(q);
 
-  //     setAllGoals(goals);
-  //     // Initially set the filtered goals to all goals
-  //     setFilteredGoals(goals);
-  //   } catch (error) {
-  //     console.error(error);
-  //   }
-  // };
+      const goals = querySnapshot.docs.map((doc) => {
+        const data = doc.data();
+        const dueDateMonthYear = data.dueDate ? formatDate(data.dueDate) : null;
+
+        return {
+          id: doc.id,
+          ...data,
+          dueDateMonthYear: dueDateMonthYear,
+        };
+      });
+
+      setAllGoals(goals);
+      // Initially set the filtered goals to all goals
+      setFilteredGoals(goals);
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   // Function to filter goals based on activeTab
   const filterGoalsByStatus = (status) => {
@@ -147,8 +167,42 @@ export default function GoalsList({ navigation }) {
   // Group the filtered goals by month and year
   const groupedGoals = groupGoalsByMonthYear(filteredGoals);
 
+  const showDeleteConfirmationModal = (goalId) => {
+    setGoalToDelete(goalId);
+    setShowModal(true);
+  };
+
+  const handleDeleteGoal = async () => {
+    try {
+      const userId = await getUserId();
+      const goalRef = doc(db, "nonRegisteredUsers", userId, "goals", goalToDelete);
+
+      await deleteDoc(goalRef);
+
+      // Update the local state to remove the deleted goal
+      const updatedGoals = allGoals.filter((goal) => goal.id !== goalToDelete);
+      setAllGoals(updatedGoals);
+      setFilteredGoals(updatedGoals);
+      setShowModal(false);
+
+      toast.show({
+        render: () => {
+          return (
+            <Box bg="emerald.500" px="4" py="3" rounded="sm" mb={5}>
+              <Text style={{ fontFamily: "SoraMedium", color: "#fff" }}>
+                Goal deleted successfully!
+              </Text>
+            </Box>
+          );
+        },
+      });
+    } catch (error) {
+      console.error("Error deleting goal:", error);
+    }
+  };
+
   useEffect(() => {
-    //fetchAllGoals();
+    fetchAllGoals();
   }, []);
 
   useEffect(() => {
@@ -201,6 +255,7 @@ export default function GoalsList({ navigation }) {
                     selectedDays={goal.reminderSettings.selectedDays}
                     selectedTime={goal.reminderSettings.selectedTime}
                     selectedDateMY={goal.reminderSettings.selectedDate}
+                    onDelete={() => showDeleteConfirmationModal(goal.id)}
                   />
                 ))}
               </View>
@@ -208,6 +263,48 @@ export default function GoalsList({ navigation }) {
           />
         </View>
       </View>
+
+      <Center>
+        <Modal
+          isOpen={showModal}
+          onClose={() => setShowModal(false)}
+          _backdrop={{
+            _dark: {
+              bg: "coolGray.800",
+            },
+            bg: "black",
+          }}
+        >
+          <Modal.Content maxWidth="350" maxH="212">
+            <Modal.CloseButton />
+            <Modal.Header><Text style={{ fontFamily: "SoraSemiBold" , fontSize: 14}}>Confirm Delete</Text></Modal.Header>
+            <Modal.Body><Text style={{ fontFamily: "SoraRegular" , fontSize: 13}}>Are you sure you want to delete this goal?</Text></Modal.Body>
+            <Modal.Footer>
+              <Button.Group space={2}>
+                <Button
+                  variant="ghost"
+                  colorScheme="blueGray"
+                  onPress={() => {
+                    setShowModal(false);
+                  }}
+                >
+                  <Text style={{ fontFamily: "SoraRegular" , color: 'black'}}>Cancel</Text>
+                </Button>
+                <Button
+                  onPress={() => {
+                   // setShowModal(false);
+                    handleDeleteGoal();
+                  }}
+                  style={{backgroundColor: '#ff0e0e'}}
+                >
+                  <Text style={{ fontFamily: "SoraRegular" , color: '#fff'}}>Delete</Text>
+                  
+                </Button>
+              </Button.Group>
+            </Modal.Footer>
+          </Modal.Content>
+        </Modal>
+      </Center>
     </SafeAreaView>
   );
 }
