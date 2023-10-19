@@ -24,7 +24,8 @@ export default function GoalListItem(props) {
     selectedTime,
     selectedDateMY,
     tasks,
-    onDelete
+    onDelete,
+    //onUpdate
   } = props;
 
   const handleDelete = () => {
@@ -32,11 +33,16 @@ export default function GoalListItem(props) {
     onDelete(id);
   };
 
+  // const handleUpdateGoal = (updatedData) => {
+  //   onUpdate(id, updatedData);
+  //   // console.log('updated data', updatedData)
+  // };
+
   return (
     <View style={styles.card}>
       <TouchableOpacity
         style={styles.editButton}
-        onPress={() =>
+        onPress={() => {
           props.navigation.navigate("EditGoalScreen", {
             id,
             title,
@@ -49,8 +55,12 @@ export default function GoalListItem(props) {
             selectedDays,
             selectedTime,
             selectedDateMY,
-            tasks
+            tasks,
+            //onUpdate: handleUpdateGoal
           })
+        }
+          
+          
         }
       >
         <MaterialIcons

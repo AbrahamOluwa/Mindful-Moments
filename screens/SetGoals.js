@@ -22,13 +22,25 @@ import {
   getDoc,
   addDoc,
   serverTimestamp,
-  getDocs
+  getDocs,
 } from "firebase/firestore";
-import { Button, useToast, Box, Select, CheckIcon } from "native-base";
+import {
+  Button,
+  useToast,
+  Box,
+  Select,
+  CheckIcon,
+  Center,
+  Modal,
+} from "native-base";
 import { getUserId } from "../components/home/GetUserId";
 import { Calendar } from "react-native-calendars";
+import * as Animatable from "react-native-animatable";
+import { useDispatch } from 'react-redux';
+import { addGoalsAction } from "../redux/actions/goalActions";
 
 export default function SetGoals({ navigation }) {
+  const dispatch = useDispatch();
   const [goalTitle, setGoalTitle] = useState("");
   const [goalDescription, setGoalDescription] = useState("");
   const [category, setCategory] = useState("");
@@ -49,6 +61,7 @@ export default function SetGoals({ navigation }) {
   const [selectedDate, setSelectedDate] = useState(new Date().toDateString()); // Selected date for Monthly and Yearly
   const [showTimePicker, setShowTimePicker] = useState(false);
   const [goalsAlreadyCreated, setGoalsAlreadyCreated] = useState([]);
+  const [showModal, setShowModal] = useState(false);
 
   const handleTimeChange = (event, selected) => {
     if (event.type === "set") {
@@ -132,7 +145,7 @@ export default function SetGoals({ navigation }) {
         !dueDate ||
         !reminderDate ||
         !category ||
-        !priority
+        !priority || tasks.length === 0
       ) {
         setIsSubmitting(false);
         toast.show({
@@ -140,13 +153,13 @@ export default function SetGoals({ navigation }) {
             return (
               <Box bg="#ff0e0e" px="4" py="3" rounded="sm" mb={5}>
                 <Text style={{ fontFamily: "SoraMedium", color: "#fff" }}>
-                  Please fill all the required fields.
+                Please ensure all mandatory fields are completed and include tasks in your goals.
                 </Text>
               </Box>
             );
           },
         });
-        console.log("Please fill all the required fields.");
+        console.log("Please ensure all mandatory fields are completed and include tasks in your goals.");
         return;
       }
 
@@ -170,11 +183,13 @@ export default function SetGoals({ navigation }) {
         reminderSettings: {
           repeatOption: repeatOption, // "Daily", "Weekly", "Monthly", "Yearly"
           selectedDays: selectedDays, // Array of selected days (for Weekly)
-          selectedDate: repeatOption === 'Monthly' || repeatOption === 'Yearly' ? selectedDate : '', // Array of selected dates (for Monthly and Yearly)
-          selectedTime: repeatOption === 'Daily' ? selectedTime : '', // Time selected by the user (for Daily)
+          selectedDate:
+            repeatOption === "Monthly" || repeatOption === "Yearly"
+              ? selectedDate
+              : "", // Array of selected dates (for Monthly and Yearly)
+          selectedTime: repeatOption === "Daily" ? selectedTime : "", // Time selected by the user (for Daily)
         },
       };
-      
 
       const collectionRef = collection(
         db,
@@ -187,7 +202,7 @@ export default function SetGoals({ navigation }) {
 
       console.log("Goal saved successfully! Document ID:", collectionRef.id);
 
-      await GetAllGoals();
+      //dispatch(addGoalsAction(goals));
 
       //setIsSubmitting(false);
 
@@ -216,7 +231,6 @@ export default function SetGoals({ navigation }) {
       setReminderDate(new Date());
       setTasks([]);
       setNewTask("");
-
     } catch (error) {
       console.error("Error saving goal:", error);
     } finally {
@@ -229,7 +243,7 @@ export default function SetGoals({ navigation }) {
     // console.log(priority);
     // console.log(tasks);
     // console.log(dueDate);
-    // console.log(repeatOption); 
+    // console.log(repeatOption);
     // console.log(selectedDays)
     // console.log(repeatOption === 'Monthly' || repeatOption === 'Yearly' ? selectedDate : '',)
     // console.log(repeatOption === 'Daily' ? selectedTime : '')
@@ -237,38 +251,6 @@ export default function SetGoals({ navigation }) {
     //setIsSubmitting(false)
   };
 
-
-  const GetAllGoals = async () => {
-    try {
-      const userId = await getUserId();
-      const collectionRef = collection(
-        db,
-        "nonRegisteredUsers",
-        userId,
-        "goals"
-      );
-      const querySnapshot = await getDocs(collectionRef);
-
-      const goals = querySnapshot.docs.map((doc) => {
-        const data = doc.data();
-        const dueDateMonthYear = data.dueDate
-          ? formatDate(data.dueDate)
-          : null;
-
-        return {
-          id: doc.id,
-          ...data,
-          dueDateMonthYear: dueDateMonthYear,
-        };
-      });
-
-      setGoalsAlreadyCreated(goals);
-
-
-    } catch (error) {
-      console.error(error);
-    }
-  };
 
   const onDayPress = (day) => {
     // Clone the current selectedDays state to avoid mutating it directly
@@ -309,11 +291,46 @@ export default function SetGoals({ navigation }) {
     setSelectedDate(date);
   };
 
+  useEffect(() => {
+    // Check if the modal has been shown before
+    AsyncStorage.getItem("modalShown").then((value) => {
+      if (value !== "true") {
+        setShowModal(true); // Modal hasn't been shown, display it
+      }
+    });
+  }, []);
+
+  const handleInfoIconPress = () => {
+    setShowModal(true);
+    AsyncStorage.setItem("modalShown", "true");
+  };
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
       <View style={styles.container}>
-        <Text style={styles.heading}>Set Goal</Text>
+        <View
+          style={{
+            flexDirection: "row",
+            alignItems: "center",
+            justifyContent: "space-between",
+          }}
+        >
+          <Text style={styles.heading}>Set Goal</Text>
+          <TouchableOpacity onPress={handleInfoIconPress}>
+            <Animatable.View
+              animation="bounce"
+              iterationCount="infinite"
+              easing="linear"
+            >
+              <AntDesign
+                style={{ marginTop: -20 }}
+                name="infocirlceo"
+                size={24}
+                color="blue"
+              />
+            </Animatable.View>
+          </TouchableOpacity>
+        </View>
 
         <ScrollView showsVerticalScrollIndicator={false}>
           <View>
@@ -342,13 +359,6 @@ export default function SetGoals({ navigation }) {
               onChangeText={(text) => setGoalDescription(text)}
             />
           </View>
-
-          {/* <TextInput
-          style={styles.input}
-          placeholder="Due Date"
-          value={dueDate}
-          onChangeText={(text) => setDueDate(text)}
-        /> */}
 
           <View>
             <Text style={styles.label}>
@@ -386,7 +396,6 @@ export default function SetGoals({ navigation }) {
                 borderRadius: 8,
                 marginBottom: 20,
               }}
-              
             >
               <Select
                 selectedValue={category}
@@ -397,22 +406,40 @@ export default function SetGoals({ navigation }) {
                   bg: "teal.600",
                   endIcon: <CheckIcon size="5" />,
                 }}
-                variant='unstyled'
+                variant="unstyled"
                 mt={1}
                 shadow={2}
-                style={{fontSize: 14, fontFamily: "SoraMedium",}}
+                style={{ fontSize: 14, fontFamily: "SoraMedium" }}
                 onValueChange={(itemValue) => setCategory(itemValue)}
               >
                 <Select.Item label="General" value="General" />
-                <Select.Item label="Health and Fitness" value="Health and Fitness" />
-                <Select.Item label="Personal Development" value="Personal Development" />
+                <Select.Item
+                  label="Health and Fitness"
+                  value="Health and Fitness"
+                />
+                <Select.Item
+                  label="Personal Development"
+                  value="Personal Development"
+                />
                 <Select.Item label="Career and Work" value="Career and Work" />
-                <Select.Item label="Finance and Money" value="Finance and Money" />
+                <Select.Item
+                  label="Finance and Money"
+                  value="Finance and Money"
+                />
                 <Select.Item label="Education" value="Education" />
-                <Select.Item label="Travel and Adventure" value="Travel and Adventure" />
+                <Select.Item
+                  label="Travel and Adventure"
+                  value="Travel and Adventure"
+                />
                 <Select.Item label="Relationships" value="Relationships" />
-                <Select.Item label="Home and Lifestyle" value="Home and Lifestyle" />
-                <Select.Item label="Community and Social Impact" value="Community and Social Impact" />
+                <Select.Item
+                  label="Home and Lifestyle"
+                  value="Home and Lifestyle"
+                />
+                <Select.Item
+                  label="Community and Social Impact"
+                  value="Community and Social Impact"
+                />
                 <Select.Item label="Spirituality" value="Spirituality" />
               </Select>
             </View>
@@ -423,7 +450,6 @@ export default function SetGoals({ navigation }) {
               Priority <Text style={{ color: "red" }}>*</Text>
             </Text>
 
-            
             <View
               style={{
                 backgroundColor: "#fff",
@@ -440,12 +466,12 @@ export default function SetGoals({ navigation }) {
                 placeholder="Choose Priority"
                 _selectedItem={{
                   bg: "teal.600",
-                  endIcon: <CheckIcon size="5" />
+                  endIcon: <CheckIcon size="5" />,
                 }}
-                variant='unstyled'
+                variant="unstyled"
                 mt={1}
                 shadow={2}
-                style={{fontSize: 14,  fontFamily: "SoraMedium"}}
+                style={{ fontSize: 14, fontFamily: "SoraMedium" }}
                 onValueChange={(itemValue) => setPriority(itemValue)}
               >
                 <Select.Item label="Critical" value="Critical" />
@@ -454,67 +480,7 @@ export default function SetGoals({ navigation }) {
                 <Select.Item label="Low" value="Low" />
               </Select>
             </View>
-
-            {/* <Picker
-              style={styles.dropdown}
-              selectedValue={priority}
-              onValueChange={(value) => setPriority(value)}
-            >
-              <Picker.Item
-                label="Critical"
-                value="Critical"
-                style={styles.pickerItemStyle}
-              />
-              <Picker.Item
-                label="High"
-                value="High"
-                style={styles.pickerItemStyle}
-              />
-              <Picker.Item
-                label="Medium"
-                value="Medium"
-                style={styles.pickerItemStyle}
-              />
-              <Picker.Item
-                label="Low"
-                value="Low"
-                style={styles.pickerItemStyle}
-              />
-            </Picker> */}
           </View>
-
-          {/* <TextInput
-            style={styles.input}
-            placeholder="Priority"
-            value={priority}
-            onChangeText={(text) => setPriority(text)}
-          /> */}
-
-          {/* <Text style={styles.label}>
-            Set Reminder <Text style={{ color: "red" }}>*</Text>
-          </Text>
-          <Text style={styles.label}>
-            Select Days <Text style={{ color: "red" }}>*</Text>
-          </Text>
-          <Calendar
-            current={"2023-09-01"}
-            markedDates={selectedDays}
-            onDayPress={onDayPress}
-          /> */}
-
-          {/* <DateTimePicker
-            value={reminderDate}
-            mode="time" // Set the mode to 'time' for time picking
-            is24Hour={true} // Set to true if you want a 24-hour format
-            display="spinner" // Use 'spinner' display for a wheel-style picker
-            onChange={(event, selectedTime) => {
-              // Handle the selected time here
-              if (event.type === "set") {
-                setReminderDate(selectedTime);
-              }
-              // You can also handle the cancel event if needed
-            }}
-          /> */}
 
           <View>
             <Text style={styles.label}>
@@ -629,15 +595,6 @@ export default function SetGoals({ navigation }) {
             )}
           </View>
 
-          {/* <TouchableOpacity
-            style={styles.datePickerContainer}
-            onPress={showReminderDatePickerModal}
-          >
-            <AntDesign name="calendar" size={20} color="#888" />
-            <Text style={styles.datePickerText}>
-              {reminderDate.toDateString()}
-            </Text>
-          </TouchableOpacity> */}
           {showReminderDatePicker && (
             <DatePicker
               value={reminderDate}
@@ -696,6 +653,116 @@ export default function SetGoals({ navigation }) {
             </Button>
           )}
         </ScrollView>
+
+        {showModal && (
+          <Center>
+            <Modal
+              isOpen={showModal}
+              onClose={() => setShowModal(false)}
+              _backdrop={{
+                _dark: {
+                  bg: "coolGray.800",
+                },
+                bg: "warmGray.50",
+              }}
+              size="lg"
+            >
+              <Modal.Content maxWidth="350">
+                <Modal.CloseButton />
+                <Modal.Header>
+                  <Text style={styles.guideTitle}>
+                    Creating and Using Goals
+                  </Text>
+                </Modal.Header>
+                <Modal.Body>
+                  <Text style={styles.guideStep}>1. Set a Clear Title:</Text>
+                  <Text style={styles.guideText}>
+                    Start by giving your goal a clear and concise title. For
+                    example, "Learn a New Language."
+                  </Text>
+
+                  <Text style={styles.guideStep}>2. Add a Description:</Text>
+                  <Text style={styles.guideText}>
+                    Provide a brief description that outlines what you want to
+                    achieve with this goal, such as "Conversational fluency in
+                    Spanish."
+                  </Text>
+
+                  <Text style={styles.guideStep}>3. Set a Due Date:</Text>
+                  <Text style={styles.guideText}>
+                    Choose a due date to set a target for achieving your goal.
+                    For learning a new language, you can set a due date of "6
+                    months from today."
+                  </Text>
+
+                  <Text style={styles.guideStep}>4. Assign a Category:</Text>
+                  <Text style={styles.guideText}>
+                    Categorize your goal under a relevant category, like
+                    "Personal Development" or "Language Learning."
+                  </Text>
+
+                  <Text style={styles.guideStep}>5. Prioritize Your Goal:</Text>
+                  <Text style={styles.guideText}>
+                    Assign a priority level to highlight the importance of the
+                    goal. For our language learning goal, you can choose
+                    "Medium" to maintain a steady pace.
+                  </Text>
+
+                  <Text style={styles.guideStep}>6. Create a Reminder:</Text>
+                  <Text style={styles.guideText}>
+                    Set up reminders to receive notifications that keep you on
+                    track. You can create reminders like:
+                  </Text>
+                  <Text style={styles.guideTextBold}>
+                    - "Practice Spanish for 30 minutes today."
+                  </Text>
+                  <Text style={styles.guideTextBold}>
+                    - "Review vocabulary and practice speaking."
+                  </Text>
+
+                  <Text style={styles.guideStep}>7. Break It into Tasks:</Text>
+                  <Text style={styles.guideText}>
+                    Divide your language learning goal into smaller tasks to
+                    make it more manageable. Tasks might include:
+                  </Text>
+                  <Text style={styles.guideTextBold}>
+                    - "Learn 10 new words daily."
+                  </Text>
+                  <Text style={styles.guideTextBold}>
+                    - "Watch Spanish movies with subtitles for practice."
+                  </Text>
+                  <Text style={styles.guideTextBold}>
+                    - "Have a 15-minute conversation with a native speaker each
+                    week."
+                  </Text>
+                </Modal.Body>
+                <Modal.Footer>
+                  <Button.Group space={2}>
+                    {/* <Button
+                    variant="ghost"
+                    colorScheme="blueGray"
+                    onPress={() => {
+                      setShowModal(false);
+                    }}
+                  >
+                    Cancel
+                  </Button> */}
+                    <Button
+                      style={{ backgroundColor: "#5bc0de" }}
+                      onPress={() => {
+                        setShowModal(false);
+                      }}
+                    >
+                      <Text style={{ fontFamily: "SoraMedium", color: "#fff" }}>
+                        Cancel
+                      </Text>
+                    </Button>
+                  </Button.Group>
+                </Modal.Footer>
+              </Modal.Content>
+            </Modal>
+          </Center>
+        )}
       </View>
     </SafeAreaView>
   );
@@ -777,8 +844,9 @@ const styles = StyleSheet.create({
     fontFamily: "SoraMedium",
   },
   tasksContainer: {
-    maxHeight: 200,
+    maxHeight: 210,
     marginBottom: 20,
+    marginTop: 15,
   },
   taskRow: {
     flexDirection: "row",
@@ -848,5 +916,26 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     marginHorizontal: 4,
     fontFamily: "SoraRegular",
+  },
+  guideTitle: {
+    fontFamily: "SoraSemiBold",
+    fontSize: 16,
+    marginBottom: 10,
+    // textAlign: "center",
+  },
+  guideStep: {
+    fontFamily: "SoraSemiBold",
+    fontSize: 14,
+    marginTop: 10,
+  },
+  guideText: {
+    fontFamily: "SoraRegular",
+    fontSize: 12,
+    marginTop: 5,
+  },
+  guideTextBold: {
+    fontFamily: "SoraSemiBold",
+    fontSize: 12,
+    marginTop: 5,
   },
 });

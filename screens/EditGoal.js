@@ -31,6 +31,9 @@ import DateTimePicker from "@react-native-community/datetimepicker";
 import { getUserId } from "../components/home/GetUserId";
 import { Calendar } from "react-native-calendars";
 import Checkbox from "expo-checkbox";
+import { useGoalContext } from "../components/goals/GoalContext";
+import { useSelector, useDispatch } from 'react-redux';
+import { updateGoalAction } from "../redux/actions/goalActions";
 
 export default function EditGoal({navigation}) {
   const route = useRoute();
@@ -46,8 +49,10 @@ export default function EditGoal({navigation}) {
     selectedTime,
     selectedDateMY,
     tasks,
+   // onUpdate 
   } = route.params;
 
+  const dispatch = useDispatch();
   const [goalId, setGoalId] = useState(id);
   const [goalTitle, setGoalTitle] = useState(title);
   const [goalDescription, setGoalDescription] = useState(description);
@@ -196,7 +201,7 @@ export default function EditGoal({navigation}) {
         },
       };
 
-      console.log(goalData);
+      //console.log(goalData);
 
       const collectionRef = doc(
         db,
@@ -211,37 +216,66 @@ export default function EditGoal({navigation}) {
       console.log("Goal updated successfully! Document ID:", collectionRef.id);
 
       setIsSubmitting(false);
+
+     // onUpdate(goalData);
+
+     updateGoalRedux(goalId, goalData)
+
+      const tasksThatHasBeenMarkedAsComplete = goalTasks.filter(
+        (task) => task.completed === true
+      ).length;
+  
+      if (goalTasks.length === tasksThatHasBeenMarkedAsComplete) {
+        console.log("This goal has been achieved");
+        setShowModal(true);
+      } else {
+        toast.show({
+          render: () => {
+            return (
+              <Box bg="emerald.500" px="4" py="3" rounded="sm" mb={5}>
+                <Text style={{ fontFamily: "SoraMedium", color: "#fff" }}>
+                  Goal uploaded successfully!
+                </Text>
+              </Box>
+            );
+          },
+        });
+  
+        setTimeout(() => {
+          navigation.navigate("GoalsListScreen");
+        }, 2000);
+      }
     } catch (error) {
       console.error("Error saving goal:", error);
     }
-
-    const tasksThatHasBeenMarkedAsComplete = goalTasks.filter(
-      (task) => task.completed === true
-    ).length;
-
-    if (goalTasks.length === tasksThatHasBeenMarkedAsComplete) {
-      console.log("This goal has been achieved");
-      setShowModal(true);
-    } else {
-      toast.show({
-        render: () => {
-          return (
-            <Box bg="emerald.500" px="4" py="3" rounded="sm" mb={5}>
-              <Text style={{ fontFamily: "SoraMedium", color: "#fff" }}>
-                Goal uploaded successfully!
-              </Text>
-            </Box>
-          );
-        },
-      });
-
-      setTimeout(() => {
-        navigation.navigate("GoalsListScreen");
-      }, 2000);
-    }
-
   
   };
+
+  const updateGoalRedux = (goalId, updatedGoalData) => {
+    // Dispatch an action to update the goal in your state
+    dispatch(updateGoalAction(goalId, updatedGoalData));
+
+  };
+
+  // const handleUpdateGoal = (updatedGoalData) => {
+  //   const { updateGoal } = useGoalContext();
+  //   updateGoal(updatedGoalData);
+  //   // ...
+  
+  //   // This function should only set the navigation options
+  //   navigation.setOptions({
+  //     headerRight: () => (
+  //       <TouchableOpacity
+  //         onPress={() => {
+  //           // This is correct: Call handleUpdateGoal when the user clicks the "Save" button
+  //           handleUpdateGoal(updatedGoalData);
+  //         }}
+  //       >
+  //         <Text>Save</Text>
+  //       </TouchableOpacity>
+  //     ),
+  //   });
+  // };
 
   return (
     <SafeAreaView style={{ flex: 1 }}>

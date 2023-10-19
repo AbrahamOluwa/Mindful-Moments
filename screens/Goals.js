@@ -13,7 +13,7 @@ import { Button, Icon } from "native-base";
 import { Ionicons } from "@expo/vector-icons";
 import { FontAwesome } from "@expo/vector-icons";
 import { getUserId } from "../components/home/GetUserId";
-import { getDocs, collection, query, where } from "firebase/firestore";
+import { getDocs, collection, query, limit } from "firebase/firestore";
 import { db } from "../firebaseConfig";
 
 export default function Goals({ navigation }) {
@@ -23,17 +23,8 @@ export default function Goals({ navigation }) {
   const [isFetching, setIsFetching] = useState(true);
   const [goalsAlreadyCreated, setGoalsAlreadyCreated] = useState();
 
-  const formatDate = (timestamp) => {
-    const date = timestamp.toDate();
-    return date.toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
-  };
 
   useEffect(() => {
-    // Check if the user has any gratitude moments in the database
     const checkGoals = async () => {
       try {
         const userId = await getUserId();
@@ -43,26 +34,16 @@ export default function Goals({ navigation }) {
           userId,
           "goals"
         );
-        const querySnapshot = await getDocs(collectionRef);
 
-        if (!querySnapshot.empty) {
+        const q = query(collectionRef, limit(1));
+
+        const querySnapshot = await getDocs(q);
+        const hasGoals = !querySnapshot.empty;
+
+        if (hasGoals) {
           console.log("Document data exist");
           setIsFetching(false);
           setHasGoals(true);
-          const goals = querySnapshot.docs.map((doc) => {
-            const data = doc.data();
-            const dueDateMonthYear = data.dueDate
-              ? formatDate(data.dueDate)
-              : null;
-
-            return {
-              id: doc.id,
-              ...data,
-              dueDateMonthYear: dueDateMonthYear,
-            };
-          });
-
-          setGoalsAlreadyCreated(goals);
         } else {
           console.log("No such document!");
           setIsFetching(false);
@@ -74,8 +55,53 @@ export default function Goals({ navigation }) {
     };
 
     checkGoals();
-    // console.log(hasGratitudeMoments);
   }, []);
+
+  // useEffect(() => {
+  //   // Check if the user has any gratitude moments in the database
+  //   const checkGoals = async () => {
+  //     try {
+  //       const userId = await getUserId();
+  //       const collectionRef = collection(
+  //         db,
+  //         "nonRegisteredUsers",
+  //         userId,
+  //         "goals"
+  //       );
+
+  //       const querySnapshot = await getDocs(collectionRef);
+
+  //       if (!querySnapshot.empty) {
+  //         console.log("Document data exist");
+  //         setIsFetching(false);
+  //         setHasGoals(true);
+  //         const goals = querySnapshot.docs.map((doc) => {
+  //           const data = doc.data();
+  //           const dueDateMonthYear = data.dueDate
+  //             ? formatDate(data.dueDate)
+  //             : null;
+
+  //           return {
+  //             id: doc.id,
+  //             ...data,
+  //             dueDateMonthYear: dueDateMonthYear,
+  //           };
+  //         });
+
+  //         setGoalsAlreadyCreated(goals);
+  //       } else {
+  //         console.log("No such document!");
+  //         setIsFetching(false);
+  //         setHasGoals(false);
+  //       }
+  //     } catch (error) {
+  //       console.error(error);
+  //     }
+  //   };
+
+  //   checkGoals();
+  //   // console.log(hasGratitudeMoments);
+  // }, []);
 
   return (
     <SafeAreaView style={{}}>
@@ -91,22 +117,6 @@ export default function Goals({ navigation }) {
         }}
         resizeMode="contain"
       />
-
-      {/* <View style={{ marginTop: 10 }}>
-        <Text
-          style={{
-            textAlign: "center",
-            fontSize: 14,
-            marginBottom: 20,
-            paddingHorizontal: 20,
-            fontFamily: "SoraRegular",
-          }}
-        >
-          Get started on your journey to growth by setting and tracking your
-          goals. Create new goals to stay organized and motivated. Ready to see
-          your progress? Check out all your existing goals below.
-        </Text>
-      </View> */}
 
       {isFetching ? (
         <View
