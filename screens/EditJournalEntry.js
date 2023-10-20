@@ -20,12 +20,12 @@ import AntDesign from "@expo/vector-icons/AntDesign";
 
 export default function EditJournalEntry({ navigation }) {
   const route = useRoute();
-  const { entryId, title, content } = route.params;
-  const [selectedEntryId, setSelectedEntryId] = useState(entryId);
+  const { id, title, content } = route.params;
+  const [selectedEntryId, setSelectedEntryId] = useState(id);
   const [journalEntryTitle, setJournalEntryTitle] = useState(title);
   const [journalEntryContent, setJournalEntryContent] = useState(content);
   const toast = useToast();
-  const [loading, setLoading] = useState(true);
+  // const [loading, setLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleTitleChange = (text) => {
@@ -40,10 +40,10 @@ export default function EditJournalEntry({ navigation }) {
     // Set the initial content of the rich text editor
     setJournalEntryTitle(title);
     setJournalEntryContent(content);
-    setSelectedEntryId(entryId);
-    setTimeout(() => {
-      setLoading(false);
-    }, 2000);
+    setSelectedEntryId(id);
+    // setTimeout(() => {
+    //   setLoading(false);
+    // }, 2000);
   }, []);
 
   const getUserId = async () => {
@@ -121,7 +121,7 @@ export default function EditJournalEntry({ navigation }) {
     }
   };
 
-  const updateJournalEntry = async (entryId, updatedTitle, updatedContent) => {
+  const updateJournalEntry = async (selectedEntryId, updatedTitle, updatedContent) => {
     try {
       const userId = await getUserId();
 
@@ -130,7 +130,7 @@ export default function EditJournalEntry({ navigation }) {
         "nonRegisteredUsers",
         userId,
         "journal_entries",
-        entryId
+        selectedEntryId
       );
 
       // Update the journal entry fields
@@ -200,18 +200,6 @@ export default function EditJournalEntry({ navigation }) {
               <Text style={styles.header}>Journal Entries</Text>
             </Stack>
           </HStack>
-          {loading ? (
-            // Show the loader component while loading is true
-            <View
-              style={{
-                flex: 1,
-                justifyContent: "center",
-                alignItems: "center",
-              }}
-            >
-              <ActivityIndicator size="large" color="#EF798A" />
-            </View>
-          ) : (
             <View style={{ flex: 1 }}>
               <ScrollView>
                 <TextInput
@@ -260,7 +248,7 @@ export default function EditJournalEntry({ navigation }) {
                 </Button>
               )}
             </View>
-          )}
+        
         </View>
       </KeyboardAvoidingView>
     </SafeAreaView>

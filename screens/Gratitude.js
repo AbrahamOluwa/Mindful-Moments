@@ -15,7 +15,7 @@ import { AntDesign } from "@expo/vector-icons";
 import { FontAwesome } from "@expo/vector-icons";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { auth, db } from "../firebaseConfig";
-import { collection, getDocs, query, orderBy } from "firebase/firestore";
+import { collection, getDocs, query, limit } from "firebase/firestore";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { getUserId } from "../components/home/GetUserId";
 
@@ -35,11 +35,13 @@ export default function Gratitude({ navigation }) {
           db,
           "nonRegisteredUsers",
           userId,
-          '"gratitude_moments"'
+          'gratitude_moments'
         );
-        const querySnapshot = await getDocs(gratitudeMomentsRef);
+        const q = query(gratitudeMomentsRef, limit(1));
 
-        if (querySnapshot.empty) {
+        const querySnapshot = await getDocs(q);
+
+        if (!querySnapshot.empty) {
           console.log("Document data exist");
           setIsFetching(false);
           setHasGratitudeMoments(true);
@@ -48,15 +50,12 @@ export default function Gratitude({ navigation }) {
           setIsFetching(false);
           setHasGratitudeMoments(false);
         }
-
-        // setHasGratitudeMoments(!querySnapshot.empty); // Check if the query returned any documents
       } catch (error) {
         console.error("Error fetching gratitude moments:", error);
       }
     };
 
     checkGratitudeMoments();
-    // console.log(hasGratitudeMoments);
   }, []);
   return (
     <SafeAreaView style={{ flex: 1 }}>

@@ -15,7 +15,7 @@ import { AntDesign } from "@expo/vector-icons";
 import { FontAwesome } from "@expo/vector-icons";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth, db } from "../firebaseConfig";
-import { collection, getDocs } from "firebase/firestore";
+import { collection, getDocs, query, limit } from "firebase/firestore";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { getUserId } from "../components/home/GetUserId";
 
@@ -34,9 +34,12 @@ export default function Journal({ navigation }) {
           db,
           "nonRegisteredUsers",
           userId,
-          "'journal_entries'"
+          "journal_entries"
         );
-        const querySnapshot = await getDocs(journalsRef);
+
+        const q = query(journalsRef, limit(1));
+
+        const querySnapshot = await getDocs(q);
 
         if (!querySnapshot.empty) {
           console.log("Document data exist");
@@ -47,10 +50,8 @@ export default function Journal({ navigation }) {
           setIsFetching(false);
           setHasJournals(false);
         }
-
-        // setHasGratitudeMoments(!querySnapshot.empty); // Check if the query returned any documents
       } catch (error) {
-        console.error("Error fetching gratitude moments:", error);
+        console.error("Error fetching journals:", error);
       }
     };
 

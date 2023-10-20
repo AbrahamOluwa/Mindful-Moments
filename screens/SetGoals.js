@@ -36,7 +36,7 @@ import {
 import { getUserId } from "../components/home/GetUserId";
 import { Calendar } from "react-native-calendars";
 import * as Animatable from "react-native-animatable";
-import { useDispatch } from 'react-redux';
+import { useDispatch } from "react-redux";
 import { addGoalsAction } from "../redux/actions/goalActions";
 
 export default function SetGoals({ navigation }) {
@@ -145,7 +145,8 @@ export default function SetGoals({ navigation }) {
         !dueDate ||
         !reminderDate ||
         !category ||
-        !priority || tasks.length === 0
+        !priority ||
+        tasks.length === 0
       ) {
         setIsSubmitting(false);
         toast.show({
@@ -153,13 +154,16 @@ export default function SetGoals({ navigation }) {
             return (
               <Box bg="#ff0e0e" px="4" py="3" rounded="sm" mb={5}>
                 <Text style={{ fontFamily: "SoraMedium", color: "#fff" }}>
-                Please ensure all mandatory fields are completed and include tasks in your goals.
+                  Please ensure all mandatory fields are completed and include
+                  tasks in your goals.
                 </Text>
               </Box>
             );
           },
         });
-        console.log("Please ensure all mandatory fields are completed and include tasks in your goals.");
+        console.log(
+          "Please ensure all mandatory fields are completed and include tasks in your goals."
+        );
         return;
       }
 
@@ -250,7 +254,6 @@ export default function SetGoals({ navigation }) {
 
     //setIsSubmitting(false)
   };
-
 
   const onDayPress = (day) => {
     // Clone the current selectedDays state to avoid mutating it directly

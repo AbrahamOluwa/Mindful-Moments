@@ -5,7 +5,6 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   TextInput,
-  StyleSheet,
 } from "react-native";
 import React, { useEffect, useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -18,24 +17,13 @@ import {
   Input,
   Box,
   Fab,
-  Modal,
-  Button,
-  useToast
 } from "native-base";
 import { AntDesign } from "@expo/vector-icons";
 import { MaterialIcons } from "@expo/vector-icons";
 import { Ionicons } from "@expo/vector-icons";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { auth, db } from "../firebaseConfig";
-import {
-  collection,
-  getDocs,
-  query,
-  orderBy,
-  onSnapshot,
-  deleteDoc,
-  doc
-} from "firebase/firestore";
+import { collection, getDocs, query, orderBy, onSnapshot } from "firebase/firestore";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import ThoughtCard from "../components/thoughts/ThoughtCard.js";
 import { debounce } from "lodash";
@@ -67,14 +55,10 @@ const truncateContent = (content) => {
 
 export default function AllJournalEntries({ navigation }) {
   const [journalEntries, setJournalEntries] = useState([]);
-  // const auth = getAuth();
-  const toast = useToast();
+  const auth = getAuth();
   const [isFetching, setIsFetching] = useState(true);
   const [searchText, setSearchText] = useState("");
   const [filteredJournals, setFilteredJournals] = useState([]);
-  const [showModal, setShowModal] = useState(false);
-  const [journalToDelete, setJournalToDelete] = useState();
-  const [isLoading, setIsLoading] = useState(false);
 
   const fetchJournalEntries = async () => {
     try {
@@ -86,26 +70,50 @@ export default function AllJournalEntries({ navigation }) {
         "journal_entries"
       );
       const q = query(journalEntriesRef, orderBy("createdAt", "desc"));
-
-      // Set up a real-time listener using onSnapshot
-      const unsubscribe = onSnapshot(q, (querySnapshot) => {
-        const entries = [];
-        querySnapshot.forEach((doc) => {
-          entries.push({ id: doc.id, ...doc.data() });
-        });
-
-        // Update the state with the real-time data
-        setJournalEntries(entries);
-        setIsFetching(false);
+      const querySnapshot = await getDocs(q);
+      const entries = [];
+      querySnapshot.forEach((doc) => {
+        entries.push({ id: doc.id, ...doc.data() });
       });
-
-      // Use the unsubscribe function to stop the listener when needed
-      return unsubscribe;
+      setJournalEntries(entries);
+      setIsFetching(false);
     } catch (error) {
       console.error("Error fetching journal entries:", error);
       setIsFetching(false);
     }
   };
+
+
+  // const fetchJournalEntries = async () => {
+  //   try {
+  //     const userId = await getUserId();
+  //     const journalEntriesRef = collection(
+  //       db,
+  //       "nonRegisteredUsers",
+  //       userId,
+  //       "journal_entries"
+  //     );
+  //     const q = query(journalEntriesRef, orderBy("createdAt", "desc"));
+  
+  //     // Set up a real-time listener using onSnapshot
+  //     const unsubscribe = onSnapshot(q, (querySnapshot) => {
+  //       const entries = [];
+  //       querySnapshot.forEach((doc) => {
+  //         entries.push({ id: doc.id, ...doc.data() });
+  //       });
+  
+  //       // Update the state with the real-time data
+  //       setJournalEntries(entries);
+  //       setIsFetching(false);
+  //     });
+  
+  //     // Use the unsubscribe function to stop the listener when needed
+  //     return unsubscribe;
+  //   } catch (error) {
+  //     console.error("Error fetching journal entries:", error);
+  //     setIsFetching(false);
+  //   }
+  // };
 
   const filterJournals = (searchText) => {
     const filteredJournals = journalEntries.filter((journal) => {
@@ -121,6 +129,7 @@ export default function AllJournalEntries({ navigation }) {
     fetchJournalEntries();
   }, []);
 
+  
   useEffect(() => {
     filterJournals(searchText);
   }, [searchText]);
@@ -131,53 +140,7 @@ export default function AllJournalEntries({ navigation }) {
 
   const handleFabPress = () => {
     navigation.navigate("WriteJournalEntryScreen");
-    console.log("Fab pressed!");
-  };
-
-  const showDeleteConfirmationModal = (journalId) => {
-    setJournalToDelete(journalId);
-    setShowModal(true);
-  };
-
-
-  const handleDelete = async () => {
-    setIsLoading(true);
-    try {
-      const userId = await getUserId();
-      const jRef = doc(
-        db,
-        "nonRegisteredUsers",
-        userId,
-        "journal_entries",
-        journalToDelete
-      );
-
-     await deleteDoc(jRef);
-
-      // Update the local state to remove the deleted moment
-      const updatedJournal = journalEntries.filter((journal) => journal.id !== journalToDelete);
-      setJournalEntries(updatedJournal);
-    
-      setShowModal(false);
-      setIsLoading(false);
-
-      toast.show({
-        render: () => {
-          return (
-            <Box bg="emerald.500" px="4" py="3" rounded="sm" mb={5}>
-              <Text style={{ fontFamily: "SoraMedium", color: "#fff" }}>
-                Journal deleted successfully!
-              </Text>
-            </Box>
-          );
-        },
-      });
-    } catch (error) {
-      console.error("Error deleting journal:", error);
-    } finally {
-      // Hide the loading indicator
-      setIsLoading(false);
-    }
+    console.log('Fab pressed!');
   };
 
   return (
@@ -249,92 +212,44 @@ export default function AllJournalEntries({ navigation }) {
               {searchText === ""
                 ? // If there's no search text, show all journals
                   journalEntries.map((entry) => (
-                    <JournalCard
+                    // <Text key={entry.id}>{removeHtmlTags(entry.content)}</Text>
+                    <TouchableOpacity
                       key={entry.id}
-                      id={entry.id}
-                      title={entry.title}
-                      content={entry.content}
-                      createdAt={entry.createdAt}
-                      navigation={navigation}
-                      onDelete={() => showDeleteConfirmationModal(entry.id)}
-                    />
+                      onPress={() =>
+                        navigateToEditJournalEntry(
+                          entry.id,
+                          entry.title,
+                          entry.content
+                        )
+                      }
+                    >
+                      <JournalCard
+                        title={entry.title}
+                        content={entry.content}
+                        createdAt={entry.createdAt}
+                      />
+                    </TouchableOpacity>
                   ))
                 : // If there's search text, show the filtered journals
                   filteredJournals.map((entry) => (
-                    <JournalCard
+                    <TouchableOpacity
                       key={entry.id}
-                      id={entry.id}
-                      title={entry.title}
-                      content={entry.content}
-                      createdAt={entry.createdAt}
-                      navigation={navigation}
-                      onDelete={() => showDeleteConfirmationModal(entry.id)}
-                    />
-
+                      onPress={() =>
+                        navigateToEditJournalEntry(
+                          entry.id,
+                          entry.title,
+                          entry.content
+                        )
+                      }
+                    >
+                      <JournalCard
+                        title={entry.title}
+                        content={entry.content}
+                        createdAt={entry.createdAt}
+                      />
+                    </TouchableOpacity>
                   ))}
             </View>
-
-            
-            <Center>
-              <Modal
-                isOpen={showModal}
-                onClose={() => setShowModal(false)}
-                _backdrop={{
-                  _dark: {
-                    bg: "coolGray.800",
-                  },
-                  bg: "black",
-                }}
-              >
-                <Modal.Content maxWidth="350" maxH="240">
-                  <Modal.CloseButton />
-                  <Modal.Header>
-                    <Text style={{ fontFamily: "SoraSemiBold", fontSize: 14 }}>
-                      Confirm Delete
-                    </Text>
-                  </Modal.Header>
-                  <Modal.Body>
-                    <Text style={{ fontFamily: "SoraRegular", fontSize: 13 }}>
-                      Are you sure you want to delete this journal?
-                    </Text>
-                  </Modal.Body>
-                  <Modal.Footer>
-                    <Button.Group space={2}>
-                      <Button
-                        variant="ghost"
-                        colorScheme="blueGray"
-                        onPress={() => {
-                          setShowModal(false);
-                        }}
-                      >
-                        <Text
-                          style={{ fontFamily: "SoraRegular", color: "black" }}
-                        >
-                          Cancel
-                        </Text>
-                      </Button>
-
-                      {isLoading ? (
-                        <ActivityIndicator size="large" color="#0000ff" />
-                      ) : (
-                        <Button
-                          onPress={() => {
-                            handleDelete();
-                          }}
-                          style={{ backgroundColor: "#ff0e0e" }}
-                        >
-                          <Text
-                            style={{ fontFamily: "SoraRegular", color: "#fff" }}
-                          >
-                            Delete
-                          </Text>
-                        </Button>
-                      )}
-                    </Button.Group>
-                  </Modal.Footer>
-                </Modal.Content>
-              </Modal>
-            </Center>
           </View>
         </ScrollView>
       )}
@@ -353,12 +268,6 @@ export default function AllJournalEntries({ navigation }) {
 }
 
 const JournalCard = (props) => {
-  const { id, title, content, createdAt, navigation, onDelete } = props;
-
-  const handleDelete = () => {
-    onDelete(id);
-  };
-
   return (
     <View
       style={{
@@ -370,7 +279,7 @@ const JournalCard = (props) => {
         style={{
           backgroundColor: "#FBF2FD",
           borderRadius: 8,
-          width: "49%",
+          width: "35%",
           padding: 7,
           justifyContent: "flex-start",
           marginLeft: 12,
@@ -382,10 +291,8 @@ const JournalCard = (props) => {
           </Stack>
 
           <Stack>
-            <Text
-              style={{ fontFamily: "SoraRegular", fontSize: 12, marginLeft: 4 }}
-            >
-              {formatDate(createdAt)}
+            <Text style={{ fontFamily: "SoraRegular", fontSize: 12, marginLeft: 4 }}>
+              {formatDate(props.createdAt)}
             </Text>
           </Stack>
         </HStack>
@@ -405,56 +312,16 @@ const JournalCard = (props) => {
             marginRight: 12,
             width: "90%",
             marginTop: 10,
-            position: "relative",
           }}
         >
-          <TouchableOpacity
-            style={styles.editButton}
-            onPress={() =>
-              navigation.navigate("EditJournalEntryScreen", {
-                id,
-                title,
-                content,
-              })
-            }
-          >
-            <MaterialIcons name="edit" size={20} color="#fff" />
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.deleteButton} onPress={handleDelete}>
-            <MaterialIcons
-              name="delete"
-              size={20}
-              color="#fff" // Icon color
-            />
-          </TouchableOpacity>
-
-          <Text style={{ fontFamily: "SoraSemiBold", fontSize: 15, maxWidth: "80%" }}>
-            {removeHtmlTags(title)}
+          <Text style={{ fontFamily: "SoraSemiBold", fontSize: 15 }}>
+            {removeHtmlTags(props.title)}
           </Text>
-          <Text style={{ fontFamily: "SoraRegular", fontSize: 13, maxWidth: "90%", marginTop: 8 }}>
-            {truncateContent(removeHtmlTags(content))}
+          <Text style={{ fontFamily: "SoraRegular", fontSize: 12 }}>
+            {truncateContent(removeHtmlTags(props.content))}
           </Text>
         </View>
       </View>
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  editButton: {
-    position: "absolute",
-    top: 5,
-    right: 48, // Adjust the position
-    backgroundColor: "#EF798A",
-    padding: 10, // Adjust the padding
-    borderRadius: 20, // Make it a circle
-  },
-  deleteButton: {
-    position: "absolute",
-    top: 5,
-    right: 4,
-    backgroundColor: "#FF5733", // Customize the delete button color
-    padding: 10, // Adjust the padding
-    borderRadius: 20, // Make it a circle
-  },
-});

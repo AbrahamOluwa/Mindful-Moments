@@ -21,14 +21,14 @@ import AntDesign from "@expo/vector-icons/AntDesign";
 
 export default function EditGratitudeMoment({ navigation }) {
   const route = useRoute();
-  const { entryId, title, moment } = route.params;
-  const [selectedEntryId, setSelectedEntryId] = useState(entryId);
+  const { id, title, moment } = route.params;
+  const [selectedEntryId, setSelectedEntryId] = useState(id);
   const [gratitudeMomentTitle, setGratitudeMomentTitle] = useState(title);
   const [gratitudeMomentContent, setGratitudeMomentContent] = useState(moment);
   const titleEditorRef = useRef();
   const momentEditorRef = useRef();
   const toast = useToast();
-  const [loading, setLoading] = useState(true);
+  //const [loading, setLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleTitleChange = (text) => {
@@ -47,10 +47,10 @@ export default function EditGratitudeMoment({ navigation }) {
     // Set the initial content of the rich text editor
     setGratitudeMomentTitle(title);
     setGratitudeMomentContent(moment);
-    setSelectedEntryId(entryId);
-    setTimeout(() => {
-      setLoading(false);
-    }, 2000);
+    setSelectedEntryId(id);
+    // setTimeout(() => {
+    //   setLoading(false);
+    // }, 2000);
   }, []);
 
   const getUserId = async () => {
@@ -129,7 +129,7 @@ export default function EditGratitudeMoment({ navigation }) {
   };
 
   const updateGratitudeEntry = async (
-    entryId,
+    id,
     updatedTitle,
     updatedContent
   ) => {
@@ -141,7 +141,7 @@ export default function EditGratitudeMoment({ navigation }) {
         "nonRegisteredUsers",
         userId,
         "gratitude_moments",
-        entryId
+        id
       );
 
       // Update the journal entry fields
@@ -211,18 +211,7 @@ export default function EditGratitudeMoment({ navigation }) {
               <Text style={styles.header}>Gratitude Entries</Text>
             </Stack>
           </HStack>
-          {loading ? (
-            // Show the loader component while loading is true
-            <View
-              style={{
-                flex: 1,
-                justifyContent: "center",
-                alignItems: "center",
-              }}
-            >
-              <ActivityIndicator size="large" color="#EF798A" />
-            </View>
-          ) : (
+         
             <View style={{ flex: 1 }}>
               <ScrollView>
                 <TextInput
@@ -273,7 +262,7 @@ export default function EditGratitudeMoment({ navigation }) {
                 </Button>
               )}
             </View>
-          )}
+          
         </View>
       </KeyboardAvoidingView>
     </SafeAreaView>
