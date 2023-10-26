@@ -1,5 +1,5 @@
 import { View, Text, ScrollView, TouchableOpacity } from "react-native";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Box,
   HStack,
@@ -9,6 +9,8 @@ import {
   Stack,
   Heading,
 } from "native-base";
+import { db } from "../firebaseConfig";
+import { collection, getDocs, limit, query, onSnapshot, orderBy } from "firebase/firestore";
 import Categories from "../components/home/Categories";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
@@ -114,8 +116,70 @@ const hotTopicsItems = [
 ];
 
 export default function Articles() {
-  const [categories, setCategories] = useState(articles);
+  const [categories, setCategories] = useState([]);
+  const [hotArticles, setHotArticles] = useState([]);
+  const [topics, setTopics] = useState([]);
+  const [articleContent, setArticleContent] = useState([]);
+
   const navigation = useNavigation();
+  // const [loading, setLoading] = useState(true);
+
+  const getArticleCategories = async () => {
+    try {
+      const querySnapshot = await getDocs(collection(db, "article_categories"));
+      const cat = [];
+      querySnapshot.forEach((doc) => {
+        cat.push({id: doc.id, ...doc.data()});
+      });
+      setCategories(cat);
+      // setLoading(false); // Set loading to false after fetching quotes
+    } catch (error) {
+      console.error(error);
+      // setLoading(false); // Set loading to false after fetching quotes
+    }
+  };
+
+  const getHotArticles = async () => {
+    try {
+      const entryRef = collection(db, "article_topics");
+
+      const a = query(entryRef, orderBy("createdAt", "desc"), limit(5));
+
+      const unsubscribe = onSnapshot(a, (querySnapshot) => {
+        const hotEntries = [];
+        querySnapshot.forEach((doc) => {
+          hotEntries.push({ id: doc.id, ...doc.data() });
+        });
+
+       
+        setHotArticles(hotEntries);
+        //console.log('hot', hotEntries)
+        //setIsFetching(false);
+      });
+
+      return unsubscribe;
+    } catch (error) {
+      console.error("Error fetching hot articles:", error);
+      //setIsFetching(false);
+    }
+  };
+
+  const loadTopicContent = async (topicId) => {
+    const snapshot = await db.collection('article_content')
+      .where('topic_id', '==', `/article_topics/${topicId}`)
+      .get();
+  
+    const content = snapshot.docs.map((doc) => {
+      return { id: doc.id, ...doc.data() };
+    });
+  
+    return content;
+  };
+
+  useEffect(() => {
+    getArticleCategories();
+    getHotArticles();
+  }, []);
 
   return (
     <View>
@@ -162,12 +226,12 @@ export default function Articles() {
 
         <View style={{ flex: 1, marginTop: 20 }}>
           <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-            {hotTopicsItems.map((item, index) => {
+            {hotArticles.map((item, index) => {
               return <Pill key={index} data={item} index={index} />;
             })}
           </ScrollView>
         </View>
-        <View style={{ marginTop: -55 }}>
+        {/* <View style={{ marginTop: -55 }}>
           <HStack space={1}>
             <Text
               style={{
@@ -188,15 +252,15 @@ export default function Articles() {
               }}
             />
           </HStack>
-        </View>
+        </View> */}
 
-        <View style={{ flex: 1, marginTop: 20 }}>
+        {/* <View style={{ flex: 1, marginTop: 20 }}>
           <ScrollView horizontal showsHorizontalScrollIndicator={false}>
             {hotTopicsItems.map((item, index) => {
               return <Pill key={index} data={item} index={index} />;
             })}
           </ScrollView>
-        </View>
+        </View> */}
 
         <View style={{ flex: 1, marginTop: 20 }}>
           <TouchableOpacity
@@ -256,7 +320,7 @@ const Pill = (props) => {
           <AspectRatio w="100%" ratio={16 / 9}>
             <Image
               source={{
-                uri: "https://www.holidify.com/images/cmsuploads/compressed/Bangalore_citycover_20190613234056.jpg",
+                uri: props.data.imageUrl,
               }}
               alt="image"
             />
@@ -264,7 +328,7 @@ const Pill = (props) => {
         </Box>
         <Stack p="4" space={3}>
           <Stack space={2}>
-            <Text size="md" ml="-1" style={{ fontFamily: "SoraMedium" }}>
+            <Text size="sm" ml="-1" style={{ fontFamily: "SoraMedium", fontSize: 13 }}>
               {props.data.title}
             </Text>
           </Stack>

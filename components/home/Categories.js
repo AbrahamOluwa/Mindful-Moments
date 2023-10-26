@@ -77,7 +77,7 @@ export default function Categories({ navigation, ...props }) {
                   onPress={() => {
                     if(props.nameOfParentScreen === "Articles") {
                       const selectedCategory = props.categories[index];
-                      console.log('selected category', selectedCategory)
+                      // console.log('selected category', selectedCategory)
                       navigation.navigate('TopicsScreen', {selectedCategory})
                     } else if(props.nameOfParentScreen === "Meditations") {
                       console.log('pressed');
@@ -94,7 +94,7 @@ export default function Categories({ navigation, ...props }) {
                       fontSize: 13,
                     }}
                   >
-                    {item.category}
+                    {item.name}
                   </Text>
                 </TouchableOpacity>
               </Box>

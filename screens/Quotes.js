@@ -34,7 +34,7 @@ export default function Quotes() {
 
   useEffect(() => {
     getAllQuotes();
-  }, [quotesData]);
+  }, []);
 
   const quotes = [
     {

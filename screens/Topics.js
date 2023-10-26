@@ -1,5 +1,5 @@
 import { View, Text, TouchableOpacity, ScrollView } from "react-native";
-import React, { useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import {
@@ -11,13 +11,104 @@ import {
   Stack,
   Heading,
 } from "native-base";
+import { db } from "../firebaseConfig";
+import {
+  collection,
+  doc,
+  query,
+  where,
+  getDocs,
+  getDoc,
+  ref,
+} from "firebase/firestore";
 
 export default function Topics({ route, navigation }) {
   const { selectedCategory } = route.params;
+  const [topics, setTopics] = useState([]);
+  const [selectedCategoryId, setSelectedCategoryId] = useState(selectedCategory.id)
 
-  // useEffect(() => {
-  //   console.log(route.params);
-  // }, []);
+
+  const getTopicsForCategory = async (categoryId) => {
+    // Reference to the 'article_categories' collection
+    const categoriesCollection = collection(db, "article_categories");
+  
+    try {
+      // Create a reference to the specific category document
+      const categoryDoc = doc(categoriesCollection, categoryId);
+  
+      const categorySnap = await getDoc(categoryDoc);
+  
+      if (categorySnap.exists()) {
+        // Reference to the 'article_topics' collection
+        const topicsCollection = collection(db, "article_topics");
+  
+        // Create a query to filter topics based on the category reference
+        const queryForCategory = query(
+          topicsCollection,
+          where("category_id", "==", categoryDoc)
+        );
+  
+        // Execute the query to get topics related to the specified category
+        const querySnapshot = await getDocs(queryForCategory);
+  
+        const topics = querySnapshot.docs.map((doc) => doc.data());
+        console.log('real_topics', topics)
+        return topics;
+      } else {
+        console.log("Category document not found");
+        return [];
+      }
+    } catch (error) {
+      console.error("Error getting category or topics:", error);
+      return [];
+    }
+  };
+
+  const fetchTopics = async () => {
+    const categoriesCollection = collection(db, "article_categories");
+
+    try {
+      const categoryDoc = doc(categoriesCollection, selectedCategoryId);
+      const categorySnap = await getDoc(categoryDoc);
+
+      if (categorySnap.exists()) {
+        const topicsCollection = collection(db, "article_topics");
+        const queryForCategory = query(
+          topicsCollection,
+          where("category_id", "==", categoryDoc)
+        );
+
+        const querySnapshot = await getDocs(queryForCategory);
+        const topicsData = [];
+
+        querySnapshot.forEach((doc) => {
+          // Push each topic's data into the topicsData array
+          topicsData.push({ id: doc.id, ...doc.data() });
+        });
+
+        setTopics(topicsData); // Set topics state variable
+
+      } else {
+        console.log("Category document not found");
+      }
+    } catch (error) {
+      console.error("Error getting category or topics:", error);
+    }
+  };
+  
+  
+  
+
+  useEffect(() => {
+    //const categoryId = selectedCategory.id; // Replace with the actual category ID
+    // getTopicsForCategory(categoryId).then((topics) => {
+    //   console.log("Topics related to the category:", topics);
+    // });
+
+    fetchTopics();
+
+    
+  }, []);
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
@@ -35,13 +126,13 @@ export default function Topics({ route, navigation }) {
 
         <Stack>
           <Text style={{ fontFamily: "SoraSemiBold", fontSize: 20 }}>
-            {selectedCategory.category}
+            {selectedCategory.name}
           </Text>
         </Stack>
       </HStack>
 
       <ScrollView>
-        {selectedCategory.topics.map((item, index) => {
+        {topics.map((item, index) => {
           return (
             <Pill
               key={index}
@@ -89,7 +180,7 @@ const Pill = (props) => {
             <AspectRatio w="100%" ratio={16 / 9}>
               <Image
                 source={{
-                  uri: "https://www.holidify.com/images/cmsuploads/compressed/Bangalore_citycover_20190613234056.jpg",
+                  uri: props.data.imageUrl
                 }}
                 alt="image"
               />
@@ -100,7 +191,7 @@ const Pill = (props) => {
               <Text
                 size="md"
                 ml="-1"
-                style={{ fontFamily: "SoraMedium", fontSize: 16 }}
+                style={{ fontFamily: "SoraMedium", fontSize: 14 }}
               >
                 {props.data.title}
               </Text>
