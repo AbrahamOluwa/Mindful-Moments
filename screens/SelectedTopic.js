@@ -7,69 +7,126 @@ import {
   ScrollView,
   ImageBackground,
   StyleSheet,
-  Pressable
+  Pressable,
+  ActivityIndicator,
 } from "react-native";
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Box, HStack, AspectRatio, Center, Stack, Heading } from "native-base";
 import AntDesign from "@expo/vector-icons/AntDesign";
+import { db } from "../firebaseConfig";
+import {
+  collection,
+  doc,
+  query,
+  where,
+  getDocs,
+  getDoc,
+} from "firebase/firestore";
+import { FlatList } from "react-native";
 import Swiper from "react-native-swiper";
 import Card from "../components/home/Card";
 
 const { width } = Dimensions.get("screen");
 
-export default function SelectedTopic({ navigation }) {
- 
-  const renderCards = () => {
-    const cards = [];
-    for (let i = 0; i <= 10; i++) {
-      cards.push(
-        <View key={i} style={styles.card}>
-          <Text style={styles.cardTitle}>Card {i}</Text>
-        </View>
-      );
+export default function SelectedTopic({ route, navigation }) {
+  const [selectedTopicId, setSelectedTopicId] = useState(route.params);
+  const [articleContents, setArticleContents] = useState({});
+  const [loading, setLoading] = useState(true);
+
+  // const fetchContents = async () => {
+  //   const topicsCollection = collection(db, "article_topics");
+
+  //   try {
+  //     const topicDoc = doc(topicsCollection, selectedTopicId);
+  //     const topicSnap = await getDoc(topicDoc);
+
+  //     if (topicSnap.exists()) {
+  //       const topicsCollection = collection(db, "article_contents");
+  //       const queryForTopic = query(
+  //         topicsCollection,
+  //         where("topic_id", "==", topicDoc)
+  //       );
+
+  //       const querySnapshot = await getDocs(queryForTopic);
+  //       const contentData = [];
+
+  //       querySnapshot.forEach((doc) => {
+  //         // Push each topic's data into the topicsData array
+  //         contentData.push({ id: doc.id, ...doc.data() });
+  //       });
+
+  //       console.log(contentData);
+
+  //       setArticleContents(contentData); // Set topics state variable
+  //       //setLoading(false);
+  //     } else {
+  //       console.log("Topic document not found");
+  //       //setLoading(false);
+  //     }
+  //   } catch (error) {
+  //     console.log("Error getting contents for the articles:", error);
+  //     //setLoading(false);
+  //   }
+  // };
+
+  const fetchContents = async () => {
+    const topicsCollection = collection(db, "article_topics");
+
+    try {
+      const topicDoc = doc(topicsCollection, selectedTopicId);
+      const topicSnap = await getDoc(topicDoc);
+
+      if (topicSnap.exists()) {
+        const contentsCollection = collection(db, "article_contents");
+        const queryForTopic = query(
+          contentsCollection,
+          where("topic_id", "==", topicDoc)
+        );
+
+        const querySnapshot = await getDocs(queryForTopic);
+
+        if (!querySnapshot.empty) {
+          const doc = querySnapshot.docs[0];
+          const contentData = { id: doc.id, ...doc.data() };
+
+          // console.log("a", contentData);
+
+          setArticleContents(contentData);
+          setLoading(false);
+        } else {
+          console.log("No content found for the topic");
+          setLoading(false);
+        }
+      } else {
+        console.log("Topic document not found");
+        setLoading(false);
+      }
+    } catch (error) {
+      console.log("Error getting contents for the articles:", error);
+      // setLoading(false);
     }
-    return cards;
   };
 
-  const data = [
-    { id: "1", title: "Unconditional Self-Acceptance" },
-    { id: "2", title: "Identifying Your Strengths" },
-    { id: "3", title: "Self-Compassion" },
-    { id: "4", title: "Challenging Negative Self-Talk" },
-    { id: "5", title: "Setting Healthy Boundaries" },
-    { id: "6", title: "Setting Healthy Boundaries" },
-    // Add more cards as needed
-  ];
-
-
-  const [focusedCardIndex, setFocusedCardIndex] = useState(0);
-  const scrollViewRef = useRef(null);
-
-  const handleScroll = (event) => {
-    const { contentOffset, layoutMeasurement } = event.nativeEvent;
-    const screenWidth = layoutMeasurement.width;
-    const focusedIndex = Math.round(contentOffset.x / screenWidth);
-    setFocusedCardIndex(focusedIndex);
-  };
-
-  const scrollToCard = (index) => {
-    const screenWidth = Dimensions.get("window").width;
-    scrollViewRef.current.scrollTo({ x: index * screenWidth, animated: true });
-  };
-
+  useEffect(() => {
+    fetchContents();
+  }, []);
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
-      <ScrollView>
-        <ImageBackground
-          source={require("../assets/images/g3.png")}
+      {loading ? (
+        <View
           style={{
-            //width: "100%",
-            height: 200,
+            flex: 1,
+            justifyContent: "center",
+            alignItems: "center",
+            marginTop: 10,
           }}
-          resizeMode="contain"
         >
+          <ActivityIndicator size="large" color="purple" />
+        </View>
+      ) : (
+        <ScrollView>
           <HStack space={15} p={2}>
             <Stack>
               <TouchableOpacity
@@ -90,247 +147,147 @@ export default function SelectedTopic({ navigation }) {
               </Text>
             </Stack> */}
           </HStack>
-        </ImageBackground>
 
-        <View style={{ marginLeft: 20, marginTop: 30 }}>
-          <View>
-            <Text style={{ fontFamily: "SoraSemiBold", fontSize: 20 }}>
-              Title of the Topic
-            </Text>
-            <Text
-              style={{
-                fontFamily: "SoraSemiBold",
-                fontSize: 18,
-                marginTop: 20,
-              }}
-            >
-              Introduction:{" "}
-            </Text>
-            <Text
-              style={{
-                fontFamily: "SoraRegular",
-                marginTop: 5,
-                alignItems: "center",
-                justifyContent: "center",
-                fontSize: 12,
-              }}
-            >
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut
-              lobortis hendrerit dolor, quis blandit tellus rhoncus vitae.
-              Pellentesque commodo vitae erat ac consequat. Cras porttitor
-              vehicula euismod. Vivamus et neque nisi. Proin eu posuere velit.
-              Aliquam accumsan vehicula diam id finibus. Aenean commodo, neque
-              id commodo suscipit, erat risus commodo mauris, nec dignissim
-              tellus orci nec mauris. Vivamus pharetra lectus sit amet magna
-              posuere, a dapibus ipsum vulputate. Donec rhoncus lacus molestie
-              ornare porttitor. Sed consectetur non sem quis pharetra. Donec vel
-              nulla dictum, gravida nunc eu, luctus enim. Donec vitae tellus
-              fringilla leo accumsan aliquam. Nunc eu ultricies felis.
-            </Text>
-          </View>
+          <View style={{ marginLeft: 20, marginTop: 10 }}>
+            <View>
+              <Text style={{ fontFamily: "SoraSemiBold", fontSize: 17 }}>
+                Topic: {articleContents.title}
+              </Text>
+              <View>
+                <Text style={styles.contentHeader}>Introduction: </Text>
+                <Text style={styles.contentText}>
+                  {articleContents.introduction}
+                </Text>
+              </View>
+              <View>
+                {articleContents.sections.map((section, sectionIndex) => {
+                  const sectionNumber = sectionIndex + 1;
+                  return (
+                    <View key={sectionIndex}>
+                      <Text style={styles.contentHeader}>
+                        {`Section ${sectionNumber}: ${section.title}`}
+                      </Text>
+                      <Text style={styles.contentText}>{section.content}</Text>
 
-          <View>
-            <Text
-              style={{
-                fontFamily: "SoraSemiBold",
-                fontSize: 18,
-                marginTop: 20,
-              }}
-            >
-              Sub Topics:{" "}
-            </Text>
-       
-
-            <View style={styles.container}>
-              <ScrollView
-                horizontal
-                ref={scrollViewRef}
-                onScroll={handleScroll}
-                scrollEventThrottle={16}
-              >
-                <View style={styles.slide}>
-                  {data.map((card, index) => (
-                    <Pressable key={index} onPress={() => {
-                      navigation.navigate("SelectedSubtopicScreen")
-                    }}>
-                    <View
-                      
-                      style={[
-                        styles.card,
-                        focusedCardIndex === index && styles.focusedCard,
-                      ]}
-                    >
-                      <Text style={styles.cardTitle}>{card.title}</Text>
+                      {section.subSections.map(
+                        (subsection, subSectionIndex) => {
+                          const subSectionNumber = subSectionIndex + 1;
+                          return (
+                            <View key={subSectionIndex}>
+                              <Text style={styles.contentSubHeader}>
+                                {" "}
+                                {`${sectionNumber}.${subSectionNumber} : ${subsection.title}`}
+                              </Text>
+                              <Text style={styles.contentText}>
+                                {subsection.content}
+                              </Text>
+                            </View>
+                          );
+                        }
+                      )}
                     </View>
-                    </Pressable>
+                  );
+                })}
+              </View>
+
+              <View>
+                <Text style={styles.contentHeader}>
+                  {articleContents.howToPractice.header}
+                </Text>
+                {articleContents.howToPractice.steps.map((practice, index) => {
+                  return (
+                    <View>
+                      <Text style={styles.contentText}>{`${
+                        index + 1
+                      }. ${practice}`}</Text>
+                    </View>
+                  );
+                })}
+              </View>
+
+              {/* <View>
+              {articleContents.sections.map((section, sectionIndex) => (
+                <View key={sectionIndex}>
+                  <Text
+                    style={{
+                      fontFamily: "SoraSemiBold",
+                      fontSize: 15,
+                      marginTop: 20,
+                    }}
+                  >
+                    {section.title}
+                  </Text>
+                  <Text style={styles.contentText}>{section.content}</Text>
+
+                  {section.subSections.map((subsection, subSectionIndex) => (
+                    <View key={subSectionIndex}>
+                      <Text>{subsection.title}</Text>
+                      <Text>{subsection.content}</Text>
+                    </View>
                   ))}
                 </View>
-              </ScrollView>
+              ))}
+            </View> */}
+            </View>
 
-              <View style={styles.paginationContainer}>
-                {data.map((card, index) => (
-                  <View
-                    key={card.id}
-                    style={[
-                      styles.paginationDot,
-                      focusedCardIndex === index && styles.activeDot,
-                    ]}
-                    onTouchEnd={() => scrollToCard(index)}
-                  />
-                ))}
-              </View>
+            <View style={{ marginTop: 30 }}>
+              <Text
+                style={{
+                  fontFamily: "SoraSemiBold",
+                  fontSize: 18,
+                  marginTop: 20,
+                }}
+              >
+                Key Takeaways:{" "}
+              </Text>
+              <Text
+                style={{
+                  fontFamily: "SoraRegular",
+                  marginTop: 5,
+                  alignItems: "center",
+                  justifyContent: "center",
+                  fontSize: 12,
+                }}
+              >
+                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut
+                lobortis hendrerit dolor, quis blandit tellus rhoncus vitae.
+                Pellentesque commodo vitae erat ac consequat. Cras porttitor
+                vehicula euismod. Vivamus et neque nisi. Proin eu posuere velit.
+                Aliquam accumsan vehicula diam id finibus. Aenean commodo, neque
+                id commodo suscipit, erat risus commodo mauris, nec dignissim
+                tellus orci nec mauris. Vivamus pharetra lectus sit amet magna
+                posuere, a dapibus ipsum vulputate. Donec rhoncus lacus molestie
+                ornare porttitor. Sed consectetur non sem quis pharetra. Donec
+                vel nulla dictum, gravida nunc eu, luctus enim. Donec vitae
+                tellus fringilla leo accumsan aliquam. Nunc eu ultricies felis.
+              </Text>
             </View>
           </View>
-
-          <View style={{marginTop: 30}}>
-           
-            <Text
-              style={{
-                fontFamily: "SoraSemiBold",
-                fontSize: 18,
-                marginTop: 20,
-              }}
-            >
-              Key Takeaways:{" "}
-            </Text>
-            <Text
-              style={{
-                fontFamily: "SoraRegular",
-                marginTop: 5,
-                alignItems: "center",
-                justifyContent: "center",
-                fontSize: 12,
-              }}
-            >
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut
-              lobortis hendrerit dolor, quis blandit tellus rhoncus vitae.
-              Pellentesque commodo vitae erat ac consequat. Cras porttitor
-              vehicula euismod. Vivamus et neque nisi. Proin eu posuere velit.
-              Aliquam accumsan vehicula diam id finibus. Aenean commodo, neque
-              id commodo suscipit, erat risus commodo mauris, nec dignissim
-              tellus orci nec mauris. Vivamus pharetra lectus sit amet magna
-              posuere, a dapibus ipsum vulputate. Donec rhoncus lacus molestie
-              ornare porttitor. Sed consectetur non sem quis pharetra. Donec vel
-              nulla dictum, gravida nunc eu, luctus enim. Donec vitae tellus
-              fringilla leo accumsan aliquam. Nunc eu ultricies felis.
-            </Text>
-          </View>
-        </View>
-      </ScrollView>
+        </ScrollView>
+      )}
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  // container: {
-  //   flex: 1,
-  //   //   backgroundColor: 'lightgray',
-  //   // width: width,
-  //   width: 250, // Adjust the width to reduce or increase the size
-  //   height: 150,
-  //   alignItems: "center",
-  //   justifyContent: "center",
-  // },
-  // swiperContainer: {
-  //   height: 250,
-  //   marginBottom: 16,
-  // },
-  // swiperDot: {
-  //   backgroundColor: "rgba(0, 0, 0, 0.2)",
-  //   width: 8,
-  //   height: 8,
-  //   borderRadius: 4,
-  //   marginLeft: 3,
-  //   marginRight: 3,
-  //   marginTop: 3,
-  //   marginBottom: 3,
-  // },
-  // swiperActiveDot: {
-  //   backgroundColor: "#000",
-  //   width: 12,
-  //   height: 12,
-  //   borderRadius: 6,
-  //   marginLeft: 3,
-  //   marginRight: 3,
-  //   marginTop: 3,
-  //   marginBottom: 3,
-  // },
+  contentHeader: {
+    fontFamily: "SoraSemiBold",
+    fontSize: 15,
+    marginTop: 20,
+  },
 
-  // container: {
-  //   flex: 1,
-  // },
-  // swiperContainer: {
-  //   flex: 1,
-  // },
-  // slide: {
-  //   flexDirection: "row",
-  //   alignItems: "center",
-  //   justifyContent: "flex-start",
-  //   paddingHorizontal: 100,
-  // },
-  // card: {
-  //   backgroundColor: "red",
-  //   borderRadius: 8,
-  //   padding: 16,
-  //   marginHorizontal: 8,
-  //   width: 150,
-  //   height: 110,
-  //   justifyContent: "center",
-  //   alignItems: "center",
-  // },
-  // cardTitle: {
-  //   fontSize: 16,
-  //   fontWeight: "bold",
-  //   color: "#fff",
-  // },
+  contentSubHeader: {
+    fontFamily: "SoraSemiBold",
+    fontSize: 13,
+    marginTop: 20,
+  },
 
-  container: {
-    flex: 1,
-    marginTop: 8,
-  },
-  slide: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "flex-start",
-    // paddingHorizontal: 16,
-    paddingHorizontal: 2,
-  },
-  card: {
-    backgroundColor: "red",
-    borderRadius: 8,
-    padding: 16,
-    marginHorizontal: 3,
-    marginBottom: 8,
-    width: Dimensions.get("window").width - 32,
-    height: 80,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  focusedCard: {
-    backgroundColor: "blue",
-    borderWidth: 2,
-    borderColor: "white",
-    height: 100,
-  },
-  cardTitle: {
-    fontSize: 16,
-    fontWeight: "bold",
+  contentText: {
     fontFamily: "SoraRegular",
-    color: "#fff",
-  },
-  paginationContainer: {
-    flexDirection: "row",
+    marginTop: 5,
+    alignItems: "center",
     justifyContent: "center",
-    marginTop: 8,
-  },
-  paginationDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: "gray",
-    marginHorizontal: 4,
-  },
-  activeDot: {
-    backgroundColor: "blue",
+    fontSize: 12,
+    maxWidth: "92%",
   },
 });

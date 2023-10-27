@@ -33,7 +33,8 @@ import EditJournalEntry from "./screens/EditJournalEntry.js";
 import EditGratitudeMoment from "./screens/EditGratitudeMoment.js";
 import UploadCourses from "./screens/UploadCourses.js";
 import EditGoal from "./screens/EditGoal.js";
-
+import NetworkStatusChecker from "./components/NetworkStatusChecker";
+import UploadArticles from "./screens/UploadArticles.js";
 // import TrackPlayer from 'react-native-track-player';
 
 const newColorTheme = {
@@ -76,6 +77,7 @@ export default function App() {
         <Text>Open up App.js to start working on your app!</Text>
         <StatusBar style="auto" />
       </View> */}
+        <NetworkStatusChecker />
 
         <NavigationContainer onLayout={onLayoutRootView}>
           <Stack.Navigator screenOptions={{ headerShown: false }}>
@@ -130,6 +132,7 @@ export default function App() {
               component={UserAuthentication}
             />
             <Stack.Screen name="UploadCourseScreen" component={UploadCourses} />
+            <Stack.Screen name="UploadArticlesScreen" component={UploadArticles} />
           </Stack.Navigator>
         </NavigationContainer>
       </NativeBaseProvider>

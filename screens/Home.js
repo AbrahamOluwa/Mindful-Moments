@@ -115,7 +115,7 @@ export default function Home() {
 
   return (
     <>
-      <SafeAreaView style={{ marginTop: 22 }}>
+      <SafeAreaView style={{ marginTop: 0 }}>
         <Box alignItems="center">
           <Box
             width="90%"

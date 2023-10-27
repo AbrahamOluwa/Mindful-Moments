@@ -1,4 +1,10 @@
-import { View, Text, TouchableOpacity, ScrollView } from "react-native";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  ScrollView,
+  ActivityIndicator,
+} from "react-native";
 import React, { useState, useEffect } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import AntDesign from "@expo/vector-icons/AntDesign";
@@ -19,40 +25,41 @@ import {
   where,
   getDocs,
   getDoc,
-  ref,
 } from "firebase/firestore";
 
 export default function Topics({ route, navigation }) {
   const { selectedCategory } = route.params;
   const [topics, setTopics] = useState([]);
-  const [selectedCategoryId, setSelectedCategoryId] = useState(selectedCategory.id)
-
+  const [selectedCategoryId, setSelectedCategoryId] = useState(
+    selectedCategory.id
+  );
+  const [loading, setLoading] = useState(true);
 
   const getTopicsForCategory = async (categoryId) => {
     // Reference to the 'article_categories' collection
     const categoriesCollection = collection(db, "article_categories");
-  
+
     try {
       // Create a reference to the specific category document
       const categoryDoc = doc(categoriesCollection, categoryId);
-  
+
       const categorySnap = await getDoc(categoryDoc);
-  
+
       if (categorySnap.exists()) {
         // Reference to the 'article_topics' collection
         const topicsCollection = collection(db, "article_topics");
-  
+
         // Create a query to filter topics based on the category reference
         const queryForCategory = query(
           topicsCollection,
           where("category_id", "==", categoryDoc)
         );
-  
+
         // Execute the query to get topics related to the specified category
         const querySnapshot = await getDocs(queryForCategory);
-  
+
         const topics = querySnapshot.docs.map((doc) => doc.data());
-        console.log('real_topics', topics)
+        console.log("real_topics", topics);
         return topics;
       } else {
         console.log("Category document not found");
@@ -87,17 +94,16 @@ export default function Topics({ route, navigation }) {
         });
 
         setTopics(topicsData); // Set topics state variable
-
+        setLoading(false);
       } else {
         console.log("Category document not found");
+        setLoading(false);
       }
     } catch (error) {
-      console.error("Error getting category or topics:", error);
+      console.log("Error getting category or topics:", error);
+      setLoading(false);
     }
   };
-  
-  
-  
 
   useEffect(() => {
     //const categoryId = selectedCategory.id; // Replace with the actual category ID
@@ -106,43 +112,58 @@ export default function Topics({ route, navigation }) {
     // });
 
     fetchTopics();
-
-    
   }, []);
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
-      <HStack space={15} p={2}>
-        <Stack>
-          <TouchableOpacity onPress={() => navigation.navigate("HomeScreen")}>
-            <AntDesign
-              name="arrowleft"
-              size={30}
-              color="black"
-              // style={{ marginTop: 0 }}
-            />
-          </TouchableOpacity>
-        </Stack>
+      {loading ? (
+        <View
+          style={{
+            flex: 1,
+            justifyContent: "center",
+            alignItems: "center",
+            marginTop: 20,
+          }}
+        >
+          <ActivityIndicator size="large" color="purple" />
+        </View>
+      ) : (
+        <View style={{marginTop: 0}}>
+          <HStack space={15} pl={2}>
+            <Stack>
+              <TouchableOpacity
+                onPress={() => navigation.navigate("HomeScreen")}
+              >
+                <AntDesign
+                  name="arrowleft"
+                  size={30}
+                  color="black"
+                  // style={{ marginTop: 0 }}
+                />
+              </TouchableOpacity>
+            </Stack>
 
-        <Stack>
-          <Text style={{ fontFamily: "SoraSemiBold", fontSize: 20 }}>
-            {selectedCategory.name}
-          </Text>
-        </Stack>
-      </HStack>
+            <Stack>
+              <Text style={{ fontFamily: "SoraSemiBold", fontSize: 20 }}>
+                {selectedCategory.name}
+              </Text>
+            </Stack>
+          </HStack>
 
-      <ScrollView>
-        {topics.map((item, index) => {
-          return (
-            <Pill
-              key={index}
-              data={item}
-              index={index}
-              navigation={navigation}
-            />
-          );
-        })}
-      </ScrollView>
+          <ScrollView>
+            {topics.map((item, index) => {
+              return (
+                <Pill
+                  key={index}
+                  data={item}
+                  index={index}
+                  navigation={navigation}
+                />
+              );
+            })}
+          </ScrollView>
+        </View>
+      )}
     </SafeAreaView>
   );
 }
@@ -150,7 +171,7 @@ export default function Topics({ route, navigation }) {
 const Pill = (props) => {
   return (
     <TouchableOpacity
-      onPress={() => props.navigation.navigate("SelectedTopicScreen")}
+      onPress={() => props.navigation.navigate("SelectedTopicScreen", props.data.id)}
     >
       <Box
         key={props.index}
@@ -180,7 +201,7 @@ const Pill = (props) => {
             <AspectRatio w="100%" ratio={16 / 9}>
               <Image
                 source={{
-                  uri: props.data.imageUrl
+                  uri: props.data.imageUrl,
                 }}
                 alt="image"
               />

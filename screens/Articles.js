@@ -1,4 +1,10 @@
-import { View, Text, ScrollView, TouchableOpacity } from "react-native";
+import {
+  View,
+  Text,
+  ScrollView,
+  TouchableOpacity,
+  ActivityIndicator,
+} from "react-native";
 import React, { useState, useEffect } from "react";
 import {
   Box,
@@ -10,7 +16,14 @@ import {
   Heading,
 } from "native-base";
 import { db } from "../firebaseConfig";
-import { collection, getDocs, limit, query, onSnapshot, orderBy } from "firebase/firestore";
+import {
+  collection,
+  getDocs,
+  limit,
+  query,
+  onSnapshot,
+  orderBy,
+} from "firebase/firestore";
 import Categories from "../components/home/Categories";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
@@ -118,8 +131,7 @@ const hotTopicsItems = [
 export default function Articles() {
   const [categories, setCategories] = useState([]);
   const [hotArticles, setHotArticles] = useState([]);
-  const [topics, setTopics] = useState([]);
-  const [articleContent, setArticleContent] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   const navigation = useNavigation();
   // const [loading, setLoading] = useState(true);
@@ -129,13 +141,13 @@ export default function Articles() {
       const querySnapshot = await getDocs(collection(db, "article_categories"));
       const cat = [];
       querySnapshot.forEach((doc) => {
-        cat.push({id: doc.id, ...doc.data()});
+        cat.push({ id: doc.id, ...doc.data() });
       });
       setCategories(cat);
-      // setLoading(false); // Set loading to false after fetching quotes
+      setLoading(false);
     } catch (error) {
       console.error(error);
-      // setLoading(false); // Set loading to false after fetching quotes
+      setLoading(false);
     }
   };
 
@@ -151,29 +163,15 @@ export default function Articles() {
           hotEntries.push({ id: doc.id, ...doc.data() });
         });
 
-       
         setHotArticles(hotEntries);
-        //console.log('hot', hotEntries)
-        //setIsFetching(false);
+        setLoading(false);
       });
 
       return unsubscribe;
     } catch (error) {
       console.error("Error fetching hot articles:", error);
-      //setIsFetching(false);
+      setLoading(false);
     }
-  };
-
-  const loadTopicContent = async (topicId) => {
-    const snapshot = await db.collection('article_content')
-      .where('topic_id', '==', `/article_topics/${topicId}`)
-      .get();
-  
-    const content = snapshot.docs.map((doc) => {
-      return { id: doc.id, ...doc.data() };
-    });
-  
-    return content;
   };
 
   useEffect(() => {
@@ -183,55 +181,59 @@ export default function Articles() {
 
   return (
     <View>
-      <ScrollView>
-        <Text
-          style={{
-            fontFamily: "SoraSemiBold",
-            marginLeft: 10,
-            fontSize: 25,
-            // fontWeight: 'bold'
-          }}
-        >
-          Search By Categories
-        </Text>
+      {loading ? (
+        // Show the loader component while loading is true
+        <ActivityIndicator size="large" color="purple" />
+      ) : (
+        <ScrollView>
+          <Text
+            style={{
+              fontFamily: "SoraSemiBold",
+              marginLeft: 10,
+              fontSize: 25,
+              // fontWeight: 'bold'
+            }}
+          >
+            Search By Categories
+          </Text>
 
-        <Categories
-          categories={categories}
-          navigation={navigation}
-          nameOfParentScreen={nameOfParentScreen}
-        />
+          <Categories
+            categories={categories}
+            navigation={navigation}
+            nameOfParentScreen={nameOfParentScreen}
+          />
 
-        <View style={{ flex: 1, marginTop: 20 }}>
-          <HStack space={1}>
-            <Text
-              style={{
-                fontFamily: "SoraSemiBold",
-                marginLeft: 10,
-                fontSize: 20,
-              }}
-            >
-              Hot
-            </Text>
+          <View style={{ flex: 1, marginTop: 20 }}>
+            <HStack space={1}>
+              <Text
+                style={{
+                  fontFamily: "SoraSemiBold",
+                  marginLeft: 10,
+                  fontSize: 20,
+                }}
+              >
+                Hot
+              </Text>
 
-            <MaterialIcons
-              name="local-fire-department"
-              size={24}
-              color="#e25822"
-              style={{
-                marginTop: 4,
-              }}
-            />
-          </HStack>
-        </View>
+              <MaterialIcons
+                name="local-fire-department"
+                size={24}
+                color="#e25822"
+                style={{
+                  marginTop: 4,
+                }}
+              />
+            </HStack>
+          </View>
 
-        <View style={{ flex: 1, marginTop: 20 }}>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-            {hotArticles.map((item, index) => {
-              return <Pill key={index} data={item} index={index} />;
-            })}
-          </ScrollView>
-        </View>
-        {/* <View style={{ marginTop: -55 }}>
+          <View style={{ flex: 1, marginTop: 20 }}>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+              {hotArticles.map((item, index) => {
+                return <Pill key={index} data={item} index={index} navigation={navigation} />;
+              })}
+            </ScrollView>
+          </View>
+          {/* <View style={{ marginTop: -55 }}>
           <HStack space={1}>
             <Text
               style={{
@@ -254,7 +256,7 @@ export default function Articles() {
           </HStack>
         </View> */}
 
-        {/* <View style={{ flex: 1, marginTop: 20 }}>
+          {/* <View style={{ flex: 1, marginTop: 20 }}>
           <ScrollView horizontal showsHorizontalScrollIndicator={false}>
             {hotTopicsItems.map((item, index) => {
               return <Pill key={index} data={item} index={index} />;
@@ -262,36 +264,40 @@ export default function Articles() {
           </ScrollView>
         </View> */}
 
-        <View style={{ flex: 1, marginTop: 20 }}>
-          <TouchableOpacity
-            style={{
-              backgroundColor: "#613F75",
-              paddingVertical: 10,
-              paddingHorizontal: 15,
-              borderRadius: 5,
-              justifyContent: "center",
-              alignItems: "center",
-            }}
-            onPress={() => navigation.navigate("UploadCourseScreen")}
-          >
-            <Text
+          <View style={{ flex: 1, marginTop: 20 }}>
+            <TouchableOpacity
               style={{
-                color: "white",
-                fontSize: 18,
-                fontFamily: "SoraSemiBold",
+                backgroundColor: "#613F75",
+                paddingVertical: 10,
+                paddingHorizontal: 15,
+                borderRadius: 5,
+                justifyContent: "center",
+                alignItems: "center",
               }}
+              onPress={() => navigation.navigate("UploadArticlesScreen")}
             >
-              Upload Course
-            </Text>
-          </TouchableOpacity>
-        </View>
-      </ScrollView>
+              <Text
+                style={{
+                  color: "white",
+                  fontSize: 18,
+                  fontFamily: "SoraSemiBold",
+                }}
+              >
+                Upload Article Content
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </ScrollView>
+      )}
     </View>
   );
 }
 
 const Pill = (props) => {
   return (
+    <TouchableOpacity
+      onPress={() => props.navigation.navigate("SelectedTopicScreen", props.data.id)}
+    >
     <Box
       key={props.index}
       alignItems="center"
@@ -328,12 +334,17 @@ const Pill = (props) => {
         </Box>
         <Stack p="4" space={3}>
           <Stack space={2}>
-            <Text size="sm" ml="-1" style={{ fontFamily: "SoraMedium", fontSize: 13 }}>
+            <Text
+              size="sm"
+              ml="-1"
+              style={{ fontFamily: "SoraMedium", fontSize: 13 }}
+            >
               {props.data.title}
             </Text>
           </Stack>
         </Stack>
       </Box>
     </Box>
+    </TouchableOpacity>
   );
 };
