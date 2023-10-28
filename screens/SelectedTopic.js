@@ -127,7 +127,7 @@ export default function SelectedTopic({ route, navigation }) {
         </View>
       ) : (
         <ScrollView>
-          <HStack space={15} p={2}>
+          <HStack space={15}>
             <Stack>
               <TouchableOpacity
                 onPress={() => navigation.navigate("HomeScreen")}
@@ -196,7 +196,7 @@ export default function SelectedTopic({ route, navigation }) {
                 </Text>
                 {articleContents.howToPractice.steps.map((practice, index) => {
                   return (
-                    <View>
+                    <View key={index}>
                       <Text style={styles.contentText}>{`${
                         index + 1
                       }. ${practice}`}</Text>
@@ -205,63 +205,62 @@ export default function SelectedTopic({ route, navigation }) {
                 })}
               </View>
 
-              {/* <View>
-              {articleContents.sections.map((section, sectionIndex) => (
-                <View key={sectionIndex}>
-                  <Text
-                    style={{
-                      fontFamily: "SoraSemiBold",
-                      fontSize: 15,
-                      marginTop: 20,
-                    }}
-                  >
-                    {section.title}
-                  </Text>
-                  <Text style={styles.contentText}>{section.content}</Text>
+              <View>
+                <Text style={styles.contentHeader}>Exercises</Text>
 
-                  {section.subSections.map((subsection, subSectionIndex) => (
-                    <View key={subSectionIndex}>
-                      <Text>{subsection.title}</Text>
-                      <Text>{subsection.content}</Text>
+                {articleContents.exercises.map((exercise, index) => {
+                  return (
+                    <View key={index}>
+                      <Text style={styles.contentText}>{`${
+                        index + 1
+                      }. ${exercise}`}</Text>
                     </View>
-                  ))}
-                </View>
-              ))}
-            </View> */}
+                  );
+                })}
+              </View>
+
+              <View>
+                <Text style={styles.contentHeader}>Goal Ideas</Text>
+
+                <Text style={styles.contentSubHeader}>
+                  {articleContents.goalIdeas.content}
+                </Text>
+                {articleContents.goalIdeas.ideas.map((idea, index) => {
+                  return (
+                    <View key={index}>
+                      <Text style={styles.contentText}>{`${
+                        index + 1
+                      }. ${idea}`}</Text>
+                    </View>
+                  );
+                })}
+              </View>
+
+              <View>
+                <Text style={styles.contentHeader}>Summary</Text>
+
+                <Text style={styles.contentText}>{articleContents.summary}</Text>
+
+              </View>
+
+
+              <View>
+                <Text style={styles.contentHeader}>Key Takeaways</Text>
+
+                {articleContents.keyTakeaways.map((takeaway, index) => {
+                  return (
+                    <View key={index}>
+                      <Text style={styles.contentText}>{`${
+                        index + 1
+                      }. ${takeaway}`}</Text>
+                    </View>
+                  );
+                })}
+              </View>
+
             </View>
 
-            <View style={{ marginTop: 30 }}>
-              <Text
-                style={{
-                  fontFamily: "SoraSemiBold",
-                  fontSize: 18,
-                  marginTop: 20,
-                }}
-              >
-                Key Takeaways:{" "}
-              </Text>
-              <Text
-                style={{
-                  fontFamily: "SoraRegular",
-                  marginTop: 5,
-                  alignItems: "center",
-                  justifyContent: "center",
-                  fontSize: 12,
-                }}
-              >
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut
-                lobortis hendrerit dolor, quis blandit tellus rhoncus vitae.
-                Pellentesque commodo vitae erat ac consequat. Cras porttitor
-                vehicula euismod. Vivamus et neque nisi. Proin eu posuere velit.
-                Aliquam accumsan vehicula diam id finibus. Aenean commodo, neque
-                id commodo suscipit, erat risus commodo mauris, nec dignissim
-                tellus orci nec mauris. Vivamus pharetra lectus sit amet magna
-                posuere, a dapibus ipsum vulputate. Donec rhoncus lacus molestie
-                ornare porttitor. Sed consectetur non sem quis pharetra. Donec
-                vel nulla dictum, gravida nunc eu, luctus enim. Donec vitae
-                tellus fringilla leo accumsan aliquam. Nunc eu ultricies felis.
-              </Text>
-            </View>
+          
           </View>
         </ScrollView>
       )}

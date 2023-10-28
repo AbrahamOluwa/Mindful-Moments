@@ -132,6 +132,7 @@ export default function Articles() {
   const [categories, setCategories] = useState([]);
   const [hotArticles, setHotArticles] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [isLoadingCategory, setIsLoadingCategory] = useState(true);
 
   const navigation = useNavigation();
   // const [loading, setLoading] = useState(true);
@@ -144,10 +145,10 @@ export default function Articles() {
         cat.push({ id: doc.id, ...doc.data() });
       });
       setCategories(cat);
-      setLoading(false);
+      setIsLoadingCategory(false);
     } catch (error) {
       console.error(error);
-      setLoading(false);
+      setIsLoadingCategory(false);
     }
   };
 
@@ -181,7 +182,7 @@ export default function Articles() {
 
   return (
     <View>
-      {loading ? (
+      {isLoadingCategory && loading ? (
         // Show the loader component while loading is true
         <ActivityIndicator size="large" color="purple" />
       ) : (
@@ -227,9 +228,23 @@ export default function Articles() {
           </View>
 
           <View style={{ flex: 1, marginTop: 20 }}>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={{
+                paddingHorizontal: 10, // Add horizontal padding to the content
+                flexDirection: "row", // Make the ScrollView scroll horizontally
+              }}
+            >
               {hotArticles.map((item, index) => {
-                return <Pill key={index} data={item} index={index} navigation={navigation} />;
+                return (
+                  <Pill
+                    key={index}
+                    data={item}
+                    index={index}
+                    navigation={navigation}
+                  />
+                );
               })}
             </ScrollView>
           </View>
@@ -264,7 +279,7 @@ export default function Articles() {
           </ScrollView>
         </View> */}
 
-          <View style={{ flex: 1, marginTop: 20 }}>
+          {/* <View style={{ flex: 1, marginTop: 20 }}>
             <TouchableOpacity
               style={{
                 backgroundColor: "#613F75",
@@ -286,7 +301,7 @@ export default function Articles() {
                 Upload Article Content
               </Text>
             </TouchableOpacity>
-          </View>
+          </View> */}
         </ScrollView>
       )}
     </View>
@@ -296,34 +311,23 @@ export default function Articles() {
 const Pill = (props) => {
   return (
     <TouchableOpacity
-      onPress={() => props.navigation.navigate("SelectedTopicScreen", props.data.id)}
-    >
-    <Box
-      key={props.index}
-      alignItems="center"
-      w="80%"
-      maxW="250"
-      style={{ marginLeft: -10, height: 300, paddingHorizontal: 14 }}
+      onPress={() =>
+        props.navigation.navigate("SelectedTopicScreen", props.data.id)
+      }
     >
       <Box
-        rounded="lg"
+        key={props.index}
+        width="90%" // Limit the width to 90% of the parent container
+        maxWidth={300} // Set a maximum width to avoid covering the whole screen
+        height={280} // Set a fixed height for all pills
+        borderWidth={3}
+        borderColor="gray.200"
+        borderRadius={10}
         overflow="hidden"
-        borderColor="coolGray.200"
-        borderWidth="1"
-        _dark={{
-          borderColor: "coolGray.600",
-          backgroundColor: "gray.700",
-        }}
-        _web={{
-          shadow: 2,
-          borderWidth: 0,
-        }}
-        _light={{
-          backgroundColor: "gray.50",
-        }}
+        marginLeft={props.data.index === 0 ? 10 : 0}// Adjust the horizontal spacing between pills
       >
         <Box>
-          <AspectRatio w="100%" ratio={16 / 9}>
+          <AspectRatio ratio={16 / 9}>
             <Image
               source={{
                 uri: props.data.imageUrl,
@@ -332,19 +336,15 @@ const Pill = (props) => {
             />
           </AspectRatio>
         </Box>
-        <Stack p="4" space={3}>
-          <Stack space={2}>
-            <Text
-              size="sm"
-              ml="-1"
-              style={{ fontFamily: "SoraMedium", fontSize: 13 }}
-            >
-              {props.data.title}
-            </Text>
-          </Stack>
+        <Stack p={4} space={3}>
+          <Text
+            noOfLines={2} // Limit the title to 2 lines
+            style={{ fontFamily: "SoraMedium", fontSize: 13 }}
+          >
+            {props.data.title}
+          </Text>
         </Stack>
       </Box>
-    </Box>
     </TouchableOpacity>
   );
 };
