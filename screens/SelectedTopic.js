@@ -34,6 +34,23 @@ export default function SelectedTopic({ route, navigation }) {
   const [articleContents, setArticleContents] = useState({});
   const [loading, setLoading] = useState(true);
 
+  const removeHtmlTags = (htmlString) => {
+    return htmlString.replace(/\\n/g, "\n");
+  };
+  const boldenTextBeforeColon = (text) => {
+    const parts = text.split(":");
+    if (parts.length === 2) {
+      return (
+        <Text>
+          <Text style={{ fontFamily: "SoraSemiBold" }}>{parts[0]}:</Text>
+          {parts[1]}
+        </Text>
+      );
+    } else {
+      return text; // If there's no colon, return the original text
+    }
+  };
+
   // const fetchContents = async () => {
   //   const topicsCollection = collection(db, "article_topics");
 
@@ -90,8 +107,6 @@ export default function SelectedTopic({ route, navigation }) {
           const doc = querySnapshot.docs[0];
           const contentData = { id: doc.id, ...doc.data() };
 
-          // console.log("a", contentData);
-
           setArticleContents(contentData);
           setLoading(false);
         } else {
@@ -103,7 +118,7 @@ export default function SelectedTopic({ route, navigation }) {
         setLoading(false);
       }
     } catch (error) {
-      console.log("Error getting contents for the articles:", error);
+      console.log("Error getting contents for the articles:", error.message);
       // setLoading(false);
     }
   };
@@ -167,7 +182,11 @@ export default function SelectedTopic({ route, navigation }) {
                       <Text style={styles.contentHeader}>
                         {`Section ${sectionNumber}: ${section.title}`}
                       </Text>
-                      <Text style={styles.contentText}>{section.content}</Text>
+                      {section.content && (
+                        <Text style={styles.contentText}>
+                          {section.content}
+                        </Text>
+                      )}
 
                       {section.subSections.map(
                         (subsection, subSectionIndex) => {
@@ -179,7 +198,7 @@ export default function SelectedTopic({ route, navigation }) {
                                 {`${sectionNumber}.${subSectionNumber} : ${subsection.title}`}
                               </Text>
                               <Text style={styles.contentText}>
-                                {subsection.content}
+                                {removeHtmlTags(subsection.content)}
                               </Text>
                             </View>
                           );
@@ -194,12 +213,19 @@ export default function SelectedTopic({ route, navigation }) {
                 <Text style={styles.contentHeader}>
                   {articleContents.howToPractice.header}
                 </Text>
+                {articleContents.howToPractice.content && (
+                  <Text style={styles.contentText}>
+                    {articleContents.howToPractice.content}
+                  </Text>
+                )}
+
+               
                 {articleContents.howToPractice.steps.map((practice, index) => {
                   return (
                     <View key={index}>
-                      <Text style={styles.contentText}>{`${
-                        index + 1
-                      }. ${practice}`}</Text>
+                      <Text style={styles.contentText}>
+                        {index + 1}. {boldenTextBeforeColon(practice)}
+                      </Text>
                     </View>
                   );
                 })}
@@ -211,9 +237,12 @@ export default function SelectedTopic({ route, navigation }) {
                 {articleContents.exercises.map((exercise, index) => {
                   return (
                     <View key={index}>
-                      <Text style={styles.contentText}>{`${
+                      <Text style={styles.contentText}>
+                        {index + 1}. {boldenTextBeforeColon(exercise)}
+                      </Text>
+                      {/* <Text style={styles.contentText}>{`${
                         index + 1
-                      }. ${exercise}`}</Text>
+                      }. ${exercise}`}</Text> */}
                     </View>
                   );
                 })}
@@ -228,9 +257,12 @@ export default function SelectedTopic({ route, navigation }) {
                 {articleContents.goalIdeas.ideas.map((idea, index) => {
                   return (
                     <View key={index}>
-                      <Text style={styles.contentText}>{`${
+                      <Text style={styles.contentText}>
+                        {index + 1}. {boldenTextBeforeColon(idea)}
+                      </Text>
+                      {/* <Text style={styles.contentText}>{`${
                         index + 1
-                      }. ${idea}`}</Text>
+                      }. ${idea}`}</Text> */}
                     </View>
                   );
                 })}
@@ -239,10 +271,10 @@ export default function SelectedTopic({ route, navigation }) {
               <View>
                 <Text style={styles.contentHeader}>Summary</Text>
 
-                <Text style={styles.contentText}>{articleContents.summary}</Text>
-
+                <Text style={styles.contentText}>
+                  {articleContents.summary}
+                </Text>
               </View>
-
 
               <View>
                 <Text style={styles.contentHeader}>Key Takeaways</Text>
@@ -257,10 +289,7 @@ export default function SelectedTopic({ route, navigation }) {
                   );
                 })}
               </View>
-
             </View>
-
-          
           </View>
         </ScrollView>
       )}

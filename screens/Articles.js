@@ -279,7 +279,7 @@ export default function Articles() {
           </ScrollView>
         </View> */}
 
-          {/* <View style={{ flex: 1, marginTop: 20 }}>
+          <View style={{ flex: 1, marginTop: 20 }}>
             <TouchableOpacity
               style={{
                 backgroundColor: "#613F75",
@@ -301,7 +301,7 @@ export default function Articles() {
                 Upload Article Content
               </Text>
             </TouchableOpacity>
-          </View> */}
+          </View>
         </ScrollView>
       )}
     </View>
