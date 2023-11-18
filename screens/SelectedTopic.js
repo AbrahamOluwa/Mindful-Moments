@@ -200,6 +200,26 @@ export default function SelectedTopic({ route, navigation }) {
                               <Text style={styles.contentText}>
                                 {removeHtmlTags(subsection.content)}
                               </Text>
+
+                              {subsection.examples &&
+                                subsection.examples.map((example, index) => (
+                                  <View key={index}>
+                                    <Text style={styles.contentSubHeader}>
+                                      {example.title}
+                                    </Text>
+                                    <Text style={styles.contentText}>
+                                      {example.content}
+                                    </Text>
+                                   
+
+                                    {example.steps &&
+                                      example.steps.map((step, index) => (
+                                        <View key={index}>
+                                          <Text style={styles.contentText}>{boldenTextBeforeColon(step)}</Text>
+                                        </View>
+                                      ))}
+                                  </View>
+                                ))}
                             </View>
                           );
                         }
@@ -219,7 +239,6 @@ export default function SelectedTopic({ route, navigation }) {
                   </Text>
                 )}
 
-               
                 {articleContents.howToPractice.steps.map((practice, index) => {
                   return (
                     <View key={index}>
@@ -229,6 +248,11 @@ export default function SelectedTopic({ route, navigation }) {
                     </View>
                   );
                 })}
+              </View>
+
+              <View>
+                <Text style={styles.contentHeader}>Quotes and Insights</Text>
+                <Text style={styles.contentText}>{articleContents.quotesAndInsights}</Text>
               </View>
 
               <View>

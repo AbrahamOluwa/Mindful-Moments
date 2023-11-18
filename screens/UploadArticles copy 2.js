@@ -22,7 +22,7 @@ export default function UploadArticles() {
       setIsSubmitting(true);
       // Example article data
       const articleData = {
-        topic_id: doc(db, "article_topics", "4ii0IxaAh7DteHUaC9qu"),
+        topic_id: doc(db, "article_topics", "gTdZvXc1n3TQsWDWgWkK"),
         shortQuote: '"Confidence is not "They will like me." Confidence is "I will be fine if they dont." - Unknown',
         title:
           "Building Self-Confidence: The Path to Growth, Self-Awareness, and Resilience",
@@ -64,64 +64,121 @@ export default function UploadArticles() {
             ],
           },
           {
-            title: "The Resilience of Self-Confidence",
+            title: "The Art of Goal Setting",
             content:
               "",
             subSections: [
               {
-                title: "Facing Rejection",
+                title: "S.M.A.R.T. Goals",
                 content:
-                  "Self-confident individuals are more resilient in the face of rejection. They view rejection as a stepping stone to growth rather than a personal failure."
+                  "Goal setting becomes more effective when you use the S.M.A.R.T. criteria as a guideline. S.M.A.R.T. stands for Specific, Measurable, Achievable, Relevant, and Time-bound. Let's break down what each component means and provide examples to help you start setting meaningful goals:",
+                  examples: [
+                    {
+                      title: 'Specific',
+                      content:
+                        'Your goal should be clear and specific, leaving no room for ambiguity. It answers the questions: What, why, and how?\n\nExample: Instead of "I want to get fit," make it "I want to lose 15 pounds by following a balanced diet and exercising regularly to improve my overall health."',
+                    },
+                    {
+                      title: 'Measurable',
+                      content:
+                        'A measurable goal allows you to track your progress and know when you\'ve achieved it. It includes quantifiable criteria.\n\nExample: Instead of "I want to save money," make it "I want to save $1,000 by the end of six months by setting aside $167 per month."',
+                    },
+                    {
+                      title: 'Achievable',
+                      content:
+                        'An achievable goal is realistic and attainable. While it should stretch your abilities, it should still be possible to reach.\n\nExample: If you\'re starting a new fitness routine, it\'s more achievable to aim for a 5% increase in strength in three months rather than aiming to become a bodybuilder.',
+                    },
+                    {
+                      title: 'Relevant',
+                      content:
+                        'Your goal should be relevant to your values, desires, and long-term objectives. It should make sense in the broader context of your life.\n\nExample: If you\'re passionate about environmental conservation, a relevant goal might be "I want to reduce my household waste by 50% within six months by practicing recycling and composting."',
+                    },
+                    {
+                      title: 'Time-bound',
+                      content:
+                        'A time-bound goal has a set timeframe for completion. This adds urgency and helps prevent procrastination.\n\nExample: Instead of "I want to write a book," make it "I want to complete the first draft of my novel within one year by writing at least 500 words every day."',
+                    },
+                  ],
               },
               {
-                title: "Navigating Challenges",
+                title: "Embracing Resilience",
                 content:
-                  "Confidence equips you to tackle life's challenges with resilience. You're more likely to persevere, adapt, and bounce back from setbacks.\n\nSarah faced numerous setbacks in her career. Her unwavering self-confidence and belief in her abilities eventually led her to success.",
+                  "Goal pursuit often involves setbacks and obstacles. Resilience, the ability to bounce back from adversity, is a valuable trait cultivated through goal setting.",
               },
             ],
           },
-        
-          
+          {
+            title: "Achieving Your Goals",
+            content:
+              "",
+            subSections: [
+              {
+                title: "Break It Down",
+                content:
+                  "Mindfulness aids in making conscious decisions. By staying present and attuned to your values, you can make choices that resonate with your authentic self, leading to a more purposeful life.",
+                  examples: [
+                    {
+                      title: 'Example: Goal - To write and publish a book within one year.',
+                      content:
+                        'Breaking It Down:',
+                        steps: [
+                          "Outline Your Book (Month 1): Start by outlining your book's chapters, main ideas, and structure. Set a deadline to complete the outline within the first month.",
+                          "Set Writing Targets (Months 2-11): Divide the writing process into monthly or weekly targets. For instance, aim to write 10,000 words each month, or 2,500 words per week. Adjust these targets based on your writing pace and other commitments.",
+                          "Edit and Revise (Months 9-12): Allocate the last few months for thorough editing and revision. Review each chapter, seek feedback from beta readers, and polish your manuscript.",
+                          "Design and Formatting (Month 11-12): Plan the book's cover design and interior formatting. You might hire professionals or do it yourself if you have design skills.",
+                          "Publish and Promote (Month 12): Publish your book through a self-publishing platform or seek a publisher. Promote your book through social media, author websites, or book launches."
+
+                        ]
+                    },
+                    // {
+                    //   title: 'Example 2: Goal - To run a marathon in six months.',
+                    //   content:
+                    //     'Breaking It Down:\n1. Assess Current Fitness (Week 1): Begin with assessing your current fitness level. Measure your endurance, pace, and any existing injuries...\n2. Create a Training Plan (Week 2): Develop a six-month training plan...',
+                    // },
+                  ],
+              },
+              
+            ],
+          },
           // Repeat similar structure for other sections
         ],
         howToPractice: {
-          header: "How to Start Building Self-Confidence",
-          content: "To begin your journey of building self-confidence, follow these steps:",
+          header: "How to Start Goal Setting for Personal Growth",
+          content: "To embark on your journey of goal setting for growth, self-awareness, and resilience, follow these steps:",
           steps: [
-            "Positive Affirmations: Start your day with positive affirmations to set a confident tone.",
-            "Self-Reflection: Reflect on your strengths and areas for growth.",
-            "Set Achievable Goals: Start with small goals and gradually challenge yourself.",
-            "Practice Self-Compassion: Treat yourself with kindness and understanding.",
+            "Self-Reflection: Assess your values, desires, and priorities to identify meaningful goals.",
+            "S.M.A.R.T. Goals: Apply the S.M.A.R.T. framework to make your goals specific, measurable, achievable, relevant, and time-bound.",
+            "Growth-Oriented Goals: Select goals that challenge you and align with your personal growth aspirations.",
             "Resilience Building: Embrace setbacks as opportunities for growth and resilience development.",
+            "Progress Tracking: Break your goals into manageable steps and monitor your progress regularly.",
           ]
         },
 
         quotesAndInsights:
-          '"The way to develop self-confidence is to do the thing you fear and get a record of successful experiences behind you." - William Jennings Bryan',
+          '"Setting goals is the first step in turning the invisible into the visible." - Tony Robbins',
 
         exercises: [
-          "Positive Affirmation Routine: Incorporate positive affirmations into your daily routine.",
-          "Incremental Goal Setting: Set and achieve small goals regularly to build confidence.",
-          "Failure Reflection: Analyze setbacks, extract lessons, and use them as opportunities for growth.",
+          "Goal Journal: Start a journal to record your goals, progress, and setbacks.",
+          "Self-Reflection: Spend time in self-reflection to understand your values and desires, guiding your goal setting.",
+          "S.M.A.R.T. Goal Setting: Practice setting S.M.A.R.T. goals for various aspects of your life.",
         ],
 
         goalIdeas: {
           content: "Here are some goal ideas to consider:",
           ideas: [
-            "Public Speaking: Set a goal to speak in public, whether it's a small group or a larger audience.",
-            "Skill Development: Choose a skill you've always wanted to learn, and set milestones for mastering it.",
-            "Networking: Challenge yourself to expand your professional network by attending events or reaching out to new contacts.",
-            "Fitness Achievement: Set a fitness goal that challenges you physically, such as running a certain distance or mastering a new workout routine.",
-            "Creative Expression: Explore a creative endeavor, whether it's writing, painting, or playing a musical instrument. Share your creations with others."
+            "Skill Mastery for Career Advancement: Acquire a new skill or certification to advance in your career. For instance, you can set a goal like, I will obtain a professional certification within the next year to advance in my career.",
+            "Continuous Learning for Personal Growth: Commit to lifelong learning and personal development through a goal like, I will read one non-fiction book every month to broaden my knowledge and perspective.",
+            "Strengthening Relationships: Focus on enhancing your relationships and social connections with a goal like, I will spend quality time with my loved ones by organizing a monthly family night.",
+            "Self-Reflection and Gratitude Practice: Cultivate self-awareness and gratitude by setting a goal like, I will journal about my thoughts and feelings for 20 minutes each day to gain insight into my inner self and practice gratitude."
           ],
         },
         summary:
-          "Building self-confidence is a transformative journey that aligns with personal growth, self-awareness, and resilience. By setting achievable goals, and practicing self-compassion, you unlock the door to authentic self-confidence and personal development.",
+          "This article provides insights into the importance of goal setting and achievement in personal development, emphasizing values like growth, self-awareness, and resilience. It includes relatable stories, practical exercises, and guidance on how to start setting meaningful goals, ultimately serving as a roadmap to becoming your best self.",
 
         keyTakeaways: [
-          "Self-confidence fosters personal growth and resilience.",
-          "Building self-confidence involves setting achievable goals, and practicing self-compassion.",
-          "Confident individuals view rejection as a growth opportunity.",
+          "Goals serve as milestones in personal growth, fostering self-awareness and resilience.",
+          "S.M.A.R.T. goals ensure clarity and attainability in goal setting",
+          "Embracing setbacks and celebrating progress are integral to goal achievement.",
         ],
         userFeedback: [],
         relatedContent: [],

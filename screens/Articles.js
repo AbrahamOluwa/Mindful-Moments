@@ -175,6 +175,44 @@ export default function Articles() {
     }
   };
 
+  // const get = async () => {
+  //   try {
+  //     const [hotArticlesQuery, categoriesQuery] = await Promise.all([
+  //       getDocs(collection(db, "article_topics")),
+  //       getDocs(collection(db, "article_categories")),
+  //     ]);
+
+  //     const articles = [];
+  //     hotArticlesQuery.forEach((doc) => {
+  //       const articlesData = doc.data();
+  //       const categoryReference = articlesData.category;
+  //       const categoryId = categoryReference.id;
+  //       // console.log("Meditation ID:", doc.id);
+  //       // console.log("Category ID:", categoryId);
+
+  //       const category = categoriesQuery.docs.find(
+  //         (categoryDoc) => categoryDoc.id === categoryId
+  //       );
+
+  //       const categoryData = category ? category.data() : null;
+
+  //       articles.push({
+  //         id: doc.id,
+  //         ...articlesData,
+  //         category: categoryData, // Add the category data to each meditation
+  //       });
+  //     });
+
+  //     setHotArticles(articles);
+  //     setLoading(false);
+  //     return meditations;
+  //   } catch (error) {
+  //     console.error("Error fetching meditations:", error);
+  //     setLoading(false);
+  //     return [];
+  //   }
+  // };
+
   useEffect(() => {
     getArticleCategories();
     getHotArticles();
