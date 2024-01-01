@@ -22,61 +22,76 @@ export default function UploadArticles() {
       setIsSubmitting(true);
       // Example article data
       const articleData = {
-        topic_id: doc(db, "article_topics", "4ii0IxaAh7DteHUaC9qu"),
-        shortQuote: '"Confidence is not "They will like me." Confidence is "I will be fine if they dont." - Unknown',
+        topic_id: doc(db, "article_topics", "GOPlzziUYnPW6YkMs5PP"),
+        shortQuote: '"Success is not about climbing up the ladder; it is about how satisfied you feel at each step." - Sheryl Sandberg',
         title:
-          "Building Self-Confidence: The Path to Growth, Self-Awareness, and Resilience",
+          "Work-Life Balance Tips: Cultivating Efficiency, Harmony, and Integrity",
         introduction:
-          "Self-confidence is the cornerstone of personal development, enabling you to embrace challenges, express your true self, and navigate life with resilience. In this article, we delve into the art of building self-confidence, emphasizing the values of growth, self-awareness, and resilience. Discover how fostering self-confidence can be your key to personal transformation.",
+          "In a world that never sleeps, achieving work-life balance is an art worth mastering. This article explores valuable tips to foster work-life balance, highlighting the significance of efficiency, balance, and integrity in creating a fulfilling and sustainable lifestyle.",
         sections: [
           {
-            title: "The Significance of Self-Confidence",
+            title: "The Essence of Work-Life Balance",
             content:
               "",
             subSections: [
               {
-                title: "Fostering Growth",
+                title: "Embracing Efficiency",
                 content:
-                   "Self-confidence is a catalyst for personal growth. It empowers you to step out of your comfort zone, take risks, and continuously improve yourself.\n\nMeet Chris, who once struggled with public speaking. Through self-confidence-building practices, he transformed into a fearless and influential speaker."
+                   "Work-life balance begins with efficiency. Streamlining your work processes allows you to achieve more in less time, providing space for personal pursuits.\n\nMeet Alex, a professional juggling a demanding job and family life. By implementing efficient time management strategies, he transformed stress into a sense of balance."
               },
               {
-                title: "Deepening Self-Awareness",
+                title: "Nurturing Harmony",
                 content:
-                  "Building self-confidence requires self-awareness. Understanding your strengths and areas for growth is essential for developing authentic confidence.",
+                  "Harmony is the key to work-life balance. It involves integrating professional and personal elements seamlessly, allowing each to enhance the other.",
               },
             ],
           },
           {
-            title: "Strategies for Building Self-Confidence",
+            title: "Strategies for Work-Life Balance",
             content:
               "",
             subSections: [
               {
-                title: "Set Achievable Goals",
+                title: "Set Clear Boundaries",
                 content:
-                  "Begin by setting small, achievable goals. As you accomplish them, your confidence grows. Gradually challenge yourself with more significant goals."
+                  "Define clear boundaries between work and personal time. Establish specific work hours and adhere to them to prevent work from encroaching on your personal life."
               },
               {
-                title: "Cultivate Self-Compassion",
+                title: "Prioritize Self-Care",
                 content:
-                  "Practice self-compassion by treating yourself with the same kindness and understanding you offer to a friend facing challenges.",
+                  "Make self-care a non-negotiable priority. Allocate time for activities that nourish your well-being, such as exercise, relaxation, and hobbies.\n\nEmily, a professional feeling overwhelmed, rediscovered her passion for painting. Integrating art into her routine became a cornerstone of her work-life balance.",
+              },
+              {
+                title: "Leverage Technology Mindfully",
+                content:
+                  "While technology can enhance efficiency, use it mindfully. Set designated times for checking emails and messages to avoid constant digital interruptions.",
               },
             ],
           },
           {
-            title: "The Resilience of Self-Confidence",
+            title: "The Integrity of Work-Life Balance",
             content:
               "",
             subSections: [
               {
-                title: "Facing Rejection",
+                title: "Aligning with Values",
                 content:
-                  "Self-confident individuals are more resilient in the face of rejection. They view rejection as a stepping stone to growth rather than a personal failure."
+                  "Work-life balance is not just about time management; it's about aligning your actions with your values. Integrity in balancing work and life leads to a more meaningful existence."
               },
               {
-                title: "Navigating Challenges",
+                title: "Communicate Effectively",
                 content:
-                  "Confidence equips you to tackle life's challenges with resilience. You're more likely to persevere, adapt, and bounce back from setbacks.\n\nSarah faced numerous setbacks in her career. Her unwavering self-confidence and belief in her abilities eventually led her to success.",
+                  "Maintain open communication with colleagues and family members. Clearly express your boundaries and expectations to foster understanding and support.\n\nSarah, a dedicated professional and mother, emphasized open communication with her team and family. This transparency allowed her to navigate responsibilities with integrity.",
+              },
+              {
+                title: "Uphold Professional Integrity",
+                content:
+                  "Maintain integrity in your professional life by delivering quality work, meeting commitments, and communicating transparently with colleagues.",
+              },
+              {
+                title: "Personal Integrity",
+                content:
+                  "Honor personal commitments and uphold the promises you make to yourself and others. This builds trust and contributes to a fulfilling life.\n\nEmily, a professional with a busy schedule, emphasized personal integrity by keeping promises to her family, fostering a strong bond",
               },
             ],
           },
@@ -85,43 +100,42 @@ export default function UploadArticles() {
           // Repeat similar structure for other sections
         ],
         howToPractice: {
-          header: "How to Start Building Self-Confidence",
-          content: "To begin your journey of building self-confidence, follow these steps:",
+          header: "How to Start with Work-Life Balance",
+          content: "To initiate a journey toward work-life balance, consider the following:",
           steps: [
-            "Positive Affirmations: Start your day with positive affirmations to set a confident tone.",
-            "Self-Reflection: Reflect on your strengths and areas for growth.",
-            "Set Achievable Goals: Start with small goals and gradually challenge yourself.",
-            "Practice Self-Compassion: Treat yourself with kindness and understanding.",
-            "Resilience Building: Embrace setbacks as opportunities for growth and resilience development.",
+            "Efficiency Audit: Evaluate your work processes and identify areas for improvement.",
+            "Mindful Boundaries: Set clear boundaries for work and personal time.",
+            "Values Alignment: Reflect on your core values and ensure your actions align with them.",
           ]
         },
 
         quotesAndInsights:
-          '"The way to develop self-confidence is to do the thing you fear and get a record of successful experiences behind you." - William Jennings Bryan',
+          '"Balance, peace, and joy are the fruit of a successful life. It starts with recognizing your talents and finding ways to serve others by using them." - Thomas Kinkade',
 
         exercises: [
-          "Positive Affirmation Routine: Incorporate positive affirmations into your daily routine.",
-          "Incremental Goal Setting: Set and achieve small goals regularly to build confidence.",
-          "Failure Reflection: Analyze setbacks, extract lessons, and use them as opportunities for growth.",
+          "Prioritization Exercise: Identify three high-priority tasks for the day.",
+          "Time Blocking Activity: Plan your day using time blocks for various activities.",
+          "Goal Setting: Set a realistic and achievable goal for the week.",
+          "Integrity Reflection: Reflect on how your work aligns with your values. Identify areas for improvement.",
         ],
 
         goalIdeas: {
           content: "Here are some goal ideas to consider:",
           ideas: [
-            "Public Speaking: Set a goal to speak in public, whether it's a small group or a larger audience.",
-            "Skill Development: Choose a skill you've always wanted to learn, and set milestones for mastering it.",
-            "Networking: Challenge yourself to expand your professional network by attending events or reaching out to new contacts.",
-            "Fitness Achievement: Set a fitness goal that challenges you physically, such as running a certain distance or mastering a new workout routine.",
-            "Creative Expression: Explore a creative endeavor, whether it's writing, painting, or playing a musical instrument. Share your creations with others."
+            "Digital Detox Day: Dedicate a day to disconnect from electronic devices and focus on analog activities for a rejuvenating break.",
+            "Mindful Breaks: Incorporate short mindfulness breaks throughout the day to refresh your mind and maintain focus.",
+            "Single-Tasking Challenge: Choose a day to focus on one task at a time, avoiding multitasking to enhance efficiency.",
+            "Weekend Unplugging: Designate weekends for a digital detox, allowing yourself to recharge and enjoy offline activities.",
+            "Delegate Responsibilities: Identify tasks that can be delegated to others, promoting a more balanced workload.",
           ],
         },
         summary:
-          "Building self-confidence is a transformative journey that aligns with personal growth, self-awareness, and resilience. By setting achievable goals, and practicing self-compassion, you unlock the door to authentic self-confidence and personal development.",
+          "Stress-free productivity is not about doing more; it's about doing what matters with efficiency, balance, and integrity. By implementing strategies like task prioritization, time blocking, and setting realistic goals, you can navigate life with a sense of ease and accomplishment.",
 
         keyTakeaways: [
-          "Self-confidence fosters personal growth and resilience.",
-          "Building self-confidence involves setting achievable goals, and practicing self-compassion.",
-          "Confident individuals view rejection as a growth opportunity.",
+          "Stress-free productivity emphasizes efficiency, balance, and integrity.",
+          "Prioritization, time blocking, and realistic goal-setting are key strategies for stress-free productivity.",
+          "Maintaining integrity involves being honest with commitments and avoiding overcommitment.",
         ],
         userFeedback: [],
         relatedContent: [],

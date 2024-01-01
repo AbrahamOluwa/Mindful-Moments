@@ -156,7 +156,7 @@ export default function Articles() {
     try {
       const entryRef = collection(db, "article_topics");
 
-      const a = query(entryRef, orderBy("createdAt", "desc"), limit(5));
+      const a = query(entryRef, orderBy("createdAt", "desc"), limit(7));
 
       const unsubscribe = onSnapshot(a, (querySnapshot) => {
         const hotEntries = [];
@@ -317,7 +317,7 @@ export default function Articles() {
           </ScrollView>
         </View> */}
 
-          <View style={{ flex: 1, marginTop: 20 }}>
+          {/* <View style={{ flex: 1, marginTop: 20 }}>
             <TouchableOpacity
               style={{
                 backgroundColor: "#613F75",
@@ -339,7 +339,7 @@ export default function Articles() {
                 Upload Article Content
               </Text>
             </TouchableOpacity>
-          </View>
+          </View> */}
         </ScrollView>
       )}
     </View>

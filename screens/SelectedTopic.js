@@ -9,6 +9,8 @@ import {
   StyleSheet,
   Pressable,
   ActivityIndicator,
+  Share,
+  Button
 } from "react-native";
 import React, { useState, useRef, useEffect } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -37,6 +39,7 @@ export default function SelectedTopic({ route, navigation }) {
   const removeHtmlTags = (htmlString) => {
     return htmlString.replace(/\\n/g, "\n");
   };
+  
   const boldenTextBeforeColon = (text) => {
     const parts = text.split(":");
     if (parts.length === 2) {
@@ -126,6 +129,28 @@ export default function SelectedTopic({ route, navigation }) {
   useEffect(() => {
     fetchContents();
   }, []);
+
+  const shareArticle = async () => {
+    try {
+      const result = await Share.share({
+        message:
+          'React Native | A framework for building native apps using React',
+      });
+      if (result.action === Share.sharedAction) {
+        if (result.activityType) {
+          // shared with activity type of result.activityType
+          console.log('shared with activity type of: ', result.activityType)
+        } else {
+          // shared
+          console.log('shared')
+        }
+      } else if (result.action === Share.dismissedAction) {
+        // dismissed
+      }
+    } catch (error) {
+      console.log(error.message);
+    }
+  };
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
@@ -315,6 +340,8 @@ export default function SelectedTopic({ route, navigation }) {
               </View>
             </View>
           </View>
+
+          {/* <Button title="Share Article" onPress={shareArticle} /> */}
         </ScrollView>
       )}
     </SafeAreaView>
