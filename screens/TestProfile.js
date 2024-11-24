@@ -1,6 +1,7 @@
 import React from "react";
 import { View, Text, StyleSheet, TouchableOpacity, Image } from "react-native";
-import { Card, Icon, Divider } from "react-native-elements";
+// import { Card, Icon, Divider } from "react-native-elements";
+import { Card, Icon, Divider } from "@rneui/themed";
 import { useNavigation } from "@react-navigation/native";
 
 export default function TestProfile() {

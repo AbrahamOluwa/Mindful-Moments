@@ -6,10 +6,16 @@
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
+    "newArchEnabled": true,
     "splash": {
       "image": "./assets/newsplash3.png",
       "resizeMode": "cover",
       "backgroundColor": "#ffffff"
+    },
+    "doctor": {
+      "reactNativeDirectoryCheck": {
+        "exclude": ["react-redux"]
+      }
     },
     "assetBundlePatterns": [
       "**/*"
@@ -17,7 +23,9 @@
     "ios": {
       "supportsTablet": true,
       "infoPlist": {
-        "UIBackgroundModes": ["fetch"]
+        "UIBackgroundModes": [
+          "fetch"
+        ]
       }
     },
     "android": {
@@ -25,9 +33,12 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "permissions": ["ACCESS_NETWORK_STATE"]
+      "permissions": [
+        "ACCESS_NETWORK_STATE"
+      ]
     },
     "web": {
+      "bundler": "metro",
       "favicon": "./assets/favicon.png"
     },
     "extra": {
@@ -40,6 +51,9 @@
     },
     "updates": {
       "url": "https://u.expo.dev/9b44e73c-e4d7-4cb5-8cb7-6e65f3ff7a65"
-    }
+    },
+    "plugins": [
+      "expo-font"
+    ]
   }
 }

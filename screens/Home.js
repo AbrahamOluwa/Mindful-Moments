@@ -10,7 +10,7 @@ import React, { useState, useEffect } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Tabs from "../components/home/Tabs";
 import { Box, Center, useColorModeValue } from "native-base";
-import { TabView, SceneMap } from "react-native-tab-view";
+// import { TabView, SceneMap } from "react-native-tab-view";
 import Quotes from "./Quotes.js";
 import Articles from "./Articles.js";
 import { auth, db } from "../firebaseConfig";
@@ -133,8 +133,7 @@ export default function Home() {
             // bg="#E9967A"
           >
             <Text style={{ fontFamily: "SoraRegular", color: "white" }}>
-              You are a Child of God, a priceless part of His Kingdom, which He
-              created as part of Him. Nothing else exists and ONLY this is real.
+             Live. Be Happy
             </Text>
           </Box>
         </Box>

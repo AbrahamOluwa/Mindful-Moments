@@ -2,6 +2,8 @@ import { StatusBar } from "expo-status-bar";
 import { StyleSheet, Text, View } from "react-native";
 import { Provider } from "react-redux";
 import { NativeBaseProvider, extendTheme } from "native-base";
+// import { GluestackUIProvider } from "@gluestack-ui/themed";
+// import { config } from "@gluestack-ui/config";
 import store from "./redux/store";
 import Home from "./screens/Home";
 import { useCallback } from "react";
@@ -35,6 +37,9 @@ import UploadCourses from "./screens/UploadCourses.js";
 import EditGoal from "./screens/EditGoal.js";
 // import NetworkStatusChecker from "./components/NetworkStatusChecker";
 import UploadArticles from "./screens/UploadArticles.js";
+import SignUp from "./screens/SignUp.js";
+import NewHome from "./screens/NewHome.js"
+import NewMeditation from "./screens/NewMeditation.js"
 // import TrackPlayer from 'react-native-track-player';
 
 const newColorTheme = {
@@ -58,6 +63,10 @@ export default function App() {
     SoraRegular: require("./assets/fonts/Sora/Sora-Regular.ttf"),
     SoraSemiBold: require("./assets/fonts/Sora/Sora-SemiBold.ttf"),
     PassionOneRegular: require("./assets/fonts/Passion_One/PassionOne-Regular.ttf"),
+    PoppinsRegular: require("./assets/fonts/Poppins/Poppins-Regular.ttf"),
+    PoppinsMedium: require("./assets/fonts/Poppins/Poppins-Medium.ttf"),
+    PoppinsSemiBold: require("./assets/fonts/Poppins/Poppins-SemiBold.ttf"),
+    RobotoSlabRegular: require("./assets/fonts/Roboto_Slab/static/RobotoSlab-Regular.ttf"),
   });
 
   const onLayoutRootView = useCallback(async () => {
@@ -73,6 +82,7 @@ export default function App() {
   return (
     <Provider store={store}>
       <NativeBaseProvider theme={theme}>
+      {/* <GluestackUIProvider config={config}> */}
         {/* <View style={styles.container}>
         <Text>Open up App.js to start working on your app!</Text>
         <StatusBar style="auto" />
@@ -133,8 +143,13 @@ export default function App() {
             />
             <Stack.Screen name="UploadCourseScreen" component={UploadCourses} />
             <Stack.Screen name="UploadArticlesScreen" component={UploadArticles} />
+            <Stack.Screen name="SignUpScreen" component={SignUp} />
+            <Stack.Screen name="NewHomeScreen" component={NewHome} />
+            <Stack.Screen name="NewMeditationScreen" component={NewMeditation} />
           </Stack.Navigator>
         </NavigationContainer>
+
+        {/* </GluestackUIProvider> */}
       </NativeBaseProvider>
     </Provider>
   );

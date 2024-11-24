@@ -8,7 +8,8 @@ import {
 } from "react-native";
 import React from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Card, Icon, Divider } from "react-native-elements";
+// import { Card, Icon, Divider } from "react-native-elements";
+import { Card, Icon, Divider } from "@rneui/themed";
 import { useNavigation } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
 import { FontAwesome5 } from "@expo/vector-icons";
@@ -123,7 +124,7 @@ export default function Settings() {
           <View style={styles.cardContainer}>
             <Card title="Profile" containerStyle={styles.profileCard}>
               <TouchableOpacity
-                onPress={() => handleNavigation("UserAuthenticationScreen")}
+                onPress={() => handleNavigation("SignUpScreen")}
               >
                 <View style={styles.itemRow}>
                   <Ionicons name="person-circle" size={24} color="#EF798A" />
