@@ -40,6 +40,7 @@ import UploadArticles from "./screens/UploadArticles.js";
 import SignUp from "./screens/SignUp.js";
 import NewHome from "./screens/NewHome.js"
 import NewMeditation from "./screens/NewMeditation.js"
+import NewThoughts from "./screens/NewThoughts.js"
 // import TrackPlayer from 'react-native-track-player';
 
 const newColorTheme = {
@@ -146,6 +147,7 @@ export default function App() {
             <Stack.Screen name="SignUpScreen" component={SignUp} />
             <Stack.Screen name="NewHomeScreen" component={NewHome} />
             <Stack.Screen name="NewMeditationScreen" component={NewMeditation} />
+            <Stack.Screen name="NewThoughtsScreen" component={NewThoughts} />
           </Stack.Navigator>
         </NavigationContainer>
 

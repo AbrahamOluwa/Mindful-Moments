@@ -263,7 +263,7 @@ const getMoodColor = (mood) => {
     case "Calm":
       return "#90CAF9"; // Light blue for calm
     case "Focused":
-      return "#FFEB3B"; // Yellow for focused
+      return "#FB8C00"; // Yellow for focused
     case "Energized":
       return "#FF5722"; // Red for energized
     default:

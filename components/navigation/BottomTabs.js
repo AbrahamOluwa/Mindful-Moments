@@ -7,7 +7,8 @@ import Home from "../../screens/NewHome";
 // import Meditations from "../../screens/Meditations";
 import Meditations from "../../screens/NewMeditation";
 import Goals from "../../screens/Goals";
-import Thoughts from "../../screens/Thoughts";
+// import Thoughts from "../../screens/Thoughts";
+import Thoughts from "../../screens/NewThoughts";
 import Settings from "../../screens/Settings";
 import TestProfile from "../../screens/TestProfile.js";
 
@@ -37,7 +38,7 @@ export default function BottomTabs() {
         },
         tabBarActiveTintColor: "#EF798A",  //e75874
         tabBarInactiveTintColor: "gray",
-        tabBarLabelStyle: { fontSize: 11.5, fontFamily: "SoraRegular" },
+        tabBarLabelStyle: { fontSize: 11.5, fontFamily: "PoppinsRegular" },
       })}
     >
       <Tab.Screen name="Home" component={Home} />
