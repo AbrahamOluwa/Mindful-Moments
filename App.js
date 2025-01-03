@@ -41,6 +41,8 @@ import SignUp from "./screens/SignUp.js";
 import NewHome from "./screens/NewHome.js"
 import NewMeditation from "./screens/NewMeditation.js"
 import NewThoughts from "./screens/NewThoughts.js"
+import Paths from "./screens/Paths.js";
+import SignIn from "./screens/SignIn.js";
 // import TrackPlayer from 'react-native-track-player';
 
 const newColorTheme = {
@@ -68,6 +70,7 @@ export default function App() {
     PoppinsMedium: require("./assets/fonts/Poppins/Poppins-Medium.ttf"),
     PoppinsSemiBold: require("./assets/fonts/Poppins/Poppins-SemiBold.ttf"),
     RobotoSlabRegular: require("./assets/fonts/Roboto_Slab/static/RobotoSlab-Regular.ttf"),
+    RobotoSlabSemiBold: require("./assets/fonts/Roboto_Slab/static/RobotoSlab-SemiBold.ttf"),
   });
 
   const onLayoutRootView = useCallback(async () => {
@@ -148,6 +151,8 @@ export default function App() {
             <Stack.Screen name="NewHomeScreen" component={NewHome} />
             <Stack.Screen name="NewMeditationScreen" component={NewMeditation} />
             <Stack.Screen name="NewThoughtsScreen" component={NewThoughts} />
+            <Stack.Screen name="PathsScreen" component={Paths} />
+            <Stack.Screen name="SignInScreen" component={SignIn} />
           </Stack.Navigator>
         </NavigationContainer>
 

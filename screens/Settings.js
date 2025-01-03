@@ -124,7 +124,7 @@ export default function Settings() {
           <View style={styles.cardContainer}>
             <Card title="Profile" containerStyle={styles.profileCard}>
               <TouchableOpacity
-                onPress={() => handleNavigation("CreateAccount")}
+                onPress={() => handleNavigation("SignUpScreen")}
               >
                 <View style={styles.itemRow}>
                   <Ionicons name="person-circle" size={24} color="#EF798A" />

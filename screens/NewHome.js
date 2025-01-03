@@ -23,6 +23,8 @@ import { LinearGradient } from "expo-linear-gradient";
 import MaterialIcons from "react-native-vector-icons/MaterialIcons";
 import FontAwesome from "react-native-vector-icons/FontAwesome";
 import FontAwesome5 from "react-native-vector-icons/FontAwesome5";
+import EmptyState from "../components/home/EmptyState";
+
 
 export default function NewHome() {
   // Get greeting based on time of day
@@ -179,59 +181,77 @@ export default function NewHome() {
         {/* Goals Section */}
         <View>
           <Text style={styles.sectionTitle}>Your Goals</Text>
-          <View style={styles.cardContainer}>
-            {goals.map((goal, index) => (
-              <Card
-                key={index}
-                style={[
-                  styles.card,
-                  {
-                    backgroundColor:
-                      goal.progress === 100 ? "#4CAF50" : "#EF798A",
-                  },
-                ]}
-              >
-                <Text style={styles.goalTitle}>{goal.title}</Text>
-                <Progress
-                  style={styles.progressBar}
-                  value={goal.progress}
-                  color={goal.isCompleted ? "#4CAF50" : "#EF798A"}
-                />
-                <Text style={styles.goalDeadline}>
-                  {goal.isCompleted
-                    ? `Completed on: ${goal.deadline}`
-                    : `Deadline: ${goal.deadline}`}
-                </Text>
-                <Button style={styles.viewButton}>
-                  <Text style={styles.viewButtonText}>View Goal</Text>
-                </Button>
-              </Card>
-            ))}
-          </View>
+          {goals.length < 0 ? (
+            <View style={styles.cardContainer}>
+              {goals.map((goal, index) => (
+                <Card
+                  key={index}
+                  style={[
+                    styles.card,
+                    {
+                      backgroundColor:
+                        goal.progress === 100 ? "#4CAF50" : "#EF798A",
+                    },
+                  ]}
+                >
+                  <Text style={styles.goalTitle}>{goal.title}</Text>
+                  <Progress
+                    style={styles.progressBar}
+                    value={goal.progress}
+                    color={goal.isCompleted ? "#4CAF50" : "#EF798A"}
+                  />
+                  <Text style={styles.goalDeadline}>
+                    {goal.isCompleted
+                      ? `Completed on: ${goal.deadline}`
+                      : `Deadline: ${goal.deadline}`}
+                  </Text>
+                  <Button style={styles.viewButton}>
+                    <Text style={styles.viewButtonText}>View Goal</Text>
+                  </Button>
+                </Card>
+              ))}
+            </View>
+          ) : (
+            <EmptyState
+              title="No Goals Yet"
+              description="Set your first goal to start making progress on what matters most."
+              buttonText="Set a New Goal"
+              onPress={() => console.log("Navigate to set goal")}
+            />
+          )}
         </View>
 
         {/* Resources Section Tied to Goals */}
         <View style={styles.sectionContainer}>
           <Text style={styles.sectionTitle}>Resources for Your Goals</Text>
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={styles.horizontalScroll}
-          >
-            {resources.map((resource, index) => (
-              <Card key={index} style={styles.resourceCard}>
-                <Image
-                  source={{ uri: "https://via.placeholder.com/150" }}
-                  style={styles.resourceImage}
-                />
-                <Text style={styles.resourceTitle}>{resource.title}</Text>
-                <Button style={styles.viewButton}>
-                  <Text style={styles.viewButtonText}>Read More</Text>
-                </Button>
-              </Card>
-            ))}
-            <View style={styles.spacer} />
-          </ScrollView>
+          {resources.length < 0 ? (
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={styles.horizontalScroll}
+            >
+              {resources.map((resource, index) => (
+                <Card key={index} style={styles.resourceCard}>
+                  <Image
+                    source={{ uri: "https://via.placeholder.com/150" }}
+                    style={styles.resourceImage}
+                  />
+                  <Text style={styles.resourceTitle}>{resource.title}</Text>
+                  <Button style={styles.viewButton}>
+                    <Text style={styles.viewButtonText}>Read More</Text>
+                  </Button>
+                </Card>
+              ))}
+              <View style={styles.spacer} />
+            </ScrollView>
+          ) : (
+            <EmptyState
+              title="Explore resources."
+              description="Browse through resources that can help you achieve your goals."
+              buttonText="Explore Resources"
+              onPress={() => console.log("Navigate to resources")}
+            />
+          )}
         </View>
 
         {/* Started Resources Section */}
@@ -239,24 +259,33 @@ export default function NewHome() {
           <Text style={styles.sectionTitle}>
             Started Reading for Your Goals
           </Text>
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={styles.horizontalScroll}
-          >
-            {startedResources.map((resource, index) => (
-              <Card key={index} style={styles.startedResourceCard}>
-                <Image
-                  source={{ uri: "https://via.placeholder.com/150" }}
-                  style={styles.resourceImage}
-                />
-                <Text style={styles.resourceTitle}>{resource.title}</Text>
-                <Button style={styles.viewButton}>
-                  <Text style={styles.viewButtonText}>Continue Reading</Text>
-                </Button>
-              </Card>
-            ))}
-          </ScrollView>
+          {startedResources.length < 0 ? (
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={styles.horizontalScroll}
+            >
+              {startedResources.map((resource, index) => (
+                <Card key={index} style={styles.startedResourceCard}>
+                  <Image
+                    source={{ uri: "https://via.placeholder.com/150" }}
+                    style={styles.resourceImage}
+                  />
+                  <Text style={styles.resourceTitle}>{resource.title}</Text>
+                  <Button style={styles.viewButton}>
+                    <Text style={styles.viewButtonText}>Continue Reading</Text>
+                  </Button>
+                </Card>
+              ))}
+            </ScrollView>
+          ) : (
+            <EmptyState
+              title="No Resources Started"
+              description="Browse through resources that can help you achieve your goals."
+              buttonText="Explore Resources"
+              onPress={() => console.log("Navigate to resources")}
+            />
+          )}
         </View>
 
         {/* Meditation Section Tied to Mindfulness Goals */}
@@ -292,7 +321,7 @@ export default function NewHome() {
 
         {/* Journals Section Tied to Goal Reflection */}
         <Text style={styles.sectionTitle}>Reflect on Your Journey</Text>
-        <View style={styles.journalCard}>
+        {/* <View style={styles.journalCard}>
           <Text style={styles.journalTitle}>
             My Journey Towards Mindfulness
           </Text>
@@ -301,13 +330,18 @@ export default function NewHome() {
           </Button>
         </View>
         <View style={styles.journalCard}>
-          <Text style={styles.journalTitle}>
-            Things I am Grateful For
-          </Text>
+          <Text style={styles.journalTitle}>Things I am Grateful For</Text>
           <Button style={styles.viewButton}>
             <Text style={styles.viewButtonText}>Read Moments</Text>
           </Button>
-        </View>
+        </View> */}
+
+        <EmptyState
+          title="No Journal Entries"
+          description="Reflect on your journey by writing your first journal entry."
+          buttonText="Log Your First Thought"
+          onPress={() => console.log("Navigate to journaling")}
+        />
 
         {/* Call-to-Action Buttons for New Goals */}
         <View style={styles.ctaContainer}>

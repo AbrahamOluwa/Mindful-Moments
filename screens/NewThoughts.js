@@ -106,6 +106,9 @@ export default function NewThoughts({ navigation }) {
         <Text style={styles.dailyPromptText}>
           What are you grateful for right now?
         </Text>
+        <TouchableOpacity style={styles.startReflectionButton}>
+            <Text style={styles.reflectionButtonText}>Start a Reflection</Text>
+          </TouchableOpacity>
       </View>
 
       {/* Mood Tracker */}
@@ -255,6 +258,18 @@ const styles = StyleSheet.create({
     color: "#333",
     color: "#fff",
     marginTop: 8,
+    fontFamily: "PoppinsRegular",
+  },
+  startReflectionButton: {
+    marginTop: 10,
+    alignSelf: "center",
+    backgroundColor: "#ffffff",
+    padding: 10,
+    borderRadius: 5,
+  },
+  reflectionButtonText: {
+    fontSize: 14,
+    color: "#9D50BB",
     fontFamily: "PoppinsRegular",
   },
   moodTracker: {

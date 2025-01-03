@@ -4,12 +4,13 @@ import Ionicons from "@expo/vector-icons/Ionicons";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 // import Home from "../../screens/Home";
 import Home from "../../screens/NewHome";
-// import Meditations from "../../screens/Meditations";
+//import Meditations from "../../screens/Meditations";
 import Meditations from "../../screens/NewMeditation";
 import Goals from "../../screens/Goals";
 // import Thoughts from "../../screens/Thoughts";
 import Thoughts from "../../screens/NewThoughts";
 import Settings from "../../screens/Settings";
+import Paths from "../../screens/Paths"
 import TestProfile from "../../screens/TestProfile.js";
 
 export default function BottomTabs() {
@@ -44,7 +45,7 @@ export default function BottomTabs() {
       <Tab.Screen name="Home" component={Home} />
       <Tab.Screen name="Meditate" component={Meditations} />
       <Tab.Screen name="Thoughts" component={Thoughts} />
-      <Tab.Screen name="Goals" component={Goals} />
+      <Tab.Screen name="Goals" component={Paths} />
       <Tab.Screen name="Settings" component={Settings} />
       {/* <Tab.Screen name="Settings" component={TestProfile} /> */}
     </Tab.Navigator>
