@@ -8,6 +8,7 @@ import {
   StyleSheet,
   Image,
   ScrollView,
+  ActivityIndicator 
 } from "react-native";
 import { Checkbox } from "native-base";
 import { Formik } from "formik";
@@ -18,26 +19,41 @@ import { Picker } from "@react-native-picker/picker";
 import { LinearGradient } from "expo-linear-gradient";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import { auth, db } from "../firebaseConfig";
-import { doc, setDoc, serverTimestamp } from "firebase/firestore";
+import { doc, setDoc, serverTimestamp, collection, query, where, getDocs } from "firebase/firestore";
 import { createUserWithEmailAndPassword, getAuth } from "firebase/auth";
+import { useToast, Box } from "native-base";
 
 const SignUp = ({ navigation }) => {
-  const [isTermsAccepted, setIsTermsAccepted] = useState(false);
+  // const [isTermsAccepted, setIsTermsAccepted] = useState(false);
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
+  const [isLoading, setIsLoading] = useState(false); // Track loading state
+  const [successMessage, setSuccessMessage] = useState(null); // For success messages
   const auth = getAuth();
+  const toast = useToast();
 
   const handleSignUp = async (credentials) => {
+    setIsLoading(true); // Start loader
+    setSuccessMessage(null); // Reset success message
+  
     try {
-      console.log("Attempting sign-up");
+      // Check if the username is already in use
+      const usernameQuery = await getDocs(
+        query(collection(db, "users"), where("username", "==", credentials.username))
+      );
+  
+      if (!usernameQuery.empty) {
+        throw { code: "auth/username-already-in-use", message: "The username is already taken." };
+      }
+  
+      // Proceed with account creation
       const userCredential = await createUserWithEmailAndPassword(
         auth,
         credentials.email,
         credentials.password
       );
+  
       const user = userCredential.user;
-
-      console.log("User created:", user.uid);
-
+  
       // Save user data to Firestore
       await setDoc(doc(db, "users", user.uid), {
         uid: user.uid,
@@ -48,11 +64,65 @@ const SignUp = ({ navigation }) => {
         phoneNumber: credentials.phone,
         createdAt: serverTimestamp(),
       });
-
-      alert("User created successfully!");
+  
+      setSuccessMessage("User created successfully!");
+  
+      toast.show({
+        placement: "bottom",
+        render: () => (
+          <Box bg="#198754" px="4" py="3" rounded="sm" mb={5}>
+            <Text style={{ fontFamily: "PoppinsRegular", color: "#fff" }}>
+              Account created successfully!
+            </Text>
+          </Box>
+        ),
+      });
+  
+      setIsLoading(false); // Stop loader
+  
+      setTimeout(() => {
+        navigation.navigate("SignInScreen");
+      }, 4000);
     } catch (error) {
-      console.error("Error creating user:", error.message);
-      alert(`Error creating user: ${error.message}`);
+      //console.error("Error creating user:", error.message);
+  
+      let errorMessage = "An error occurred. Please try again.";
+  
+      // Combine Firebase error codes and custom errors
+      switch (error.code) {
+        case "auth/email-already-in-use":
+          errorMessage = "The email address is already in use. Please use a different email.";
+          break;
+        case "auth/invalid-email":
+          errorMessage = "The email address is not valid. Please check and try again.";
+          break;
+        case "auth/weak-password":
+          errorMessage = "The password is too weak. Please choose a stronger password.";
+          break;
+        case "auth/username-already-in-use":
+          errorMessage = error.message; // Custom error message for username
+          break;
+        case "auth/network-request-failed":
+          errorMessage = "Network error. Please check your internet connection and try again.";
+          break;
+        default:
+          errorMessage = `Error creating user: ${error.message}`;
+      }
+  
+  
+      toast.show({
+        placement: "bottom",
+        render: () => (
+          <Box bg="#db4437" px="4" py="3" rounded="sm" mb={5}>
+            <Text style={{ fontFamily: "PoppinsRegular", color: "#fff" }}>
+              {errorMessage}
+            </Text>
+          </Box>
+        ),
+        duration: 5000,
+      });
+  
+      setIsLoading(false); // Stop loader
     }
   };
 
@@ -113,9 +183,10 @@ const SignUp = ({ navigation }) => {
           validationSchema={SignUpSchema}
           validateOnMount
           onSubmit={(values) => {
-            alert(
-              "Registration Successful: " + JSON.stringify(values, null, 2)
-            );
+            handleSignUp(values);
+            // alert(
+            //   "Registration Successful: " + JSON.stringify(values, null, 2)
+            // );
           }}
         >
           {({
@@ -175,8 +246,16 @@ const SignUp = ({ navigation }) => {
                   }
                   style={styles.picker}
                 >
-                  <Picker.Item label="Select Gender *" value="" />
-                  <Picker.Item label="Male" value="Male" />
+                  <Picker.Item
+                    label="Select Gender *"
+                    value=""
+                    fontFamily="PoppinsRegular"
+                  />
+                  <Picker.Item
+                    label="Male"
+                    value="Male"
+                    fontFamily="PoppinsRegular"
+                  />
                   <Picker.Item label="Female" value="Female" />
                   <Picker.Item label="Other" value="Other" />
                 </Picker>
@@ -241,13 +320,6 @@ const SignUp = ({ navigation }) => {
                   onChange={() => setFieldValue("terms", !values.terms)}
                   color={values.terms ? "#4CAF50" : undefined}
                 />
-
-                {/* <Checkbox
-                  accessibilityLabel="choose numbers"
-                  onChange={() => setFieldValue("terms", !values.terms)}
-                  onBlur={handleBlur("terms")}
-                  value={values.terms}
-                /> */}
                 <Text style={styles.termsText}>
                   I accept the Terms and Conditions *
                 </Text>
@@ -263,10 +335,18 @@ const SignUp = ({ navigation }) => {
                   { backgroundColor: isValid ? "#4CAF50" : "#ddd" },
                 ]}
                 onPress={handleSubmit}
-                disabled={!isValid}
+                disabled={!isValid || isLoading}
               >
-                <Text style={styles.buttonText}>Create Your Account</Text>
+
+                {isLoading ? (
+                    <ActivityIndicator size="large" color="#fff" />
+                ) : (
+                  <Text style={styles.buttonText}>Create Your Account</Text>
+                )}
               </TouchableOpacity>
+
+              {/* Success message */}
+              {/* s */}
 
               {/* Sign In Link */}
 
@@ -409,6 +489,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     backgroundColor: "#DB4437",
+    //backgroundColor: "#1E90FF",
     borderRadius: 8,
     padding: 12,
     marginBottom: 12,

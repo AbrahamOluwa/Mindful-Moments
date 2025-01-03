@@ -6,26 +6,139 @@ import {
   TouchableOpacity,
   StyleSheet,
   Alert,
+  ActivityIndicator
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { Formik } from "formik";
 import * as Yup from "yup";
 import { Ionicons, FontAwesome } from "@expo/vector-icons"; // Importing icons
+import { auth, db } from "../firebaseConfig";
+import { collection, query, where, getDocs } from "firebase/firestore";
+import { signInWithEmailAndPassword , getAuth } from "firebase/auth";
+import { useToast, Box } from "native-base";
 
 const SignIn = ({navigation}) => {
   const [passwordVisible, setPasswordVisible] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const auth = getAuth();
+  const toast = useToast();
+
 
   const SignInSchema = Yup.object().shape({
-    email: Yup.string()
-      .email("Invalid email address")
-      .required("Email is required"),
+    email: Yup.string().required("Email/Username is required"),
     password: Yup.string()
       .min(6, "Password must be at least 6 characters")
       .required("Password is required"),
   });
 
-  const handleSignIn = (values) => {
-    Alert.alert("Sign In", `Welcome back, ${values.email}!`);
+  // const handleSignIn = (values) => {
+  //   Alert.alert("Sign In", `Welcome back, ${values.email}!`);
+  // };
+
+  const isEmail = (input) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(input);
+  };
+
+  const handleSignIn = async (credentials) => {
+    setIsLoading(true);
+
+    try {
+      let email = credentials.email;
+
+      // Check if the input is not an email, then it's a username
+      if (!isEmail(email)) {
+       
+        const usersRef = collection(db, "users");
+        const q = query(usersRef, where("username", "==", email));
+        const querySnapshot = await getDocs(q);
+
+        if (querySnapshot.empty) {
+          throw new Error("User not found");
+        }
+
+        // Assume the first result is the correct one
+        const userData = querySnapshot.docs[0].data();
+        email = userData.email; // Get the email associated with the username
+        console.log('email', userData.email)
+      }
+
+      // Perform Firebase Authentication with the resolved email
+      const userCredential = await signInWithEmailAndPassword(
+        auth,
+        email,
+        credentials.password
+      );
+      const user = userCredential.user;
+
+      Alert.alert("Success", `Welcome back, ${user.email || user.displayName}!`);
+    } catch (error) {
+
+      switch (error.code || error.message) {
+        case "auth/user-not-found":
+        case "User not found":
+          // Alert.alert("Error", "No user found with this username or email.");
+          toast.show({
+            placement: "top",
+            render: () => {
+              return (
+                <Box bg="#db4437" px="4" py="3" rounded="sm" mb={5}>
+                  <Text style={{ fontFamily: "PoppinsRegular", color: "#fff" }}>
+                   No user found with this username or email.
+                  </Text>
+                </Box>
+              );
+            },
+          });
+          break;
+        case "auth/wrong-password":
+          // Alert.alert("Error", "Incorrect password.");
+          toast.show({
+            placement: "top",
+            render: () => {
+              return (
+                <Box bg="#db4437" px="4" py="3" rounded="sm" mb={5}>
+                  <Text style={{ fontFamily: "PoppinsRegular", color: "#fff" }}>
+                  Incorrect password
+                  </Text>
+                </Box>
+              );
+            },
+          });
+          break;
+        case "auth/invalid-email":
+          // Alert.alert("Error", "Invalid email address.");
+          toast.show({
+            placement: "top",
+            render: () => {
+              return (
+                <Box bg="#db4437" px="4" py="3" rounded="sm" mb={5}>
+                  <Text style={{ fontFamily: "PoppinsRegular", color: "#fff" }}>
+                  Invalid email address
+                  </Text>
+                </Box>
+              );
+            },
+          });
+          break;
+        default:
+          // Alert.alert("Error", "Failed to sign in. Please try again.");
+          toast.show({
+            placement: "top",
+            render: () => {
+              return (
+                <Box bg="#db4437" px="4" py="3" rounded="sm" mb={5}>
+                  <Text style={{ fontFamily: "PoppinsRegular", color: "#fff" }}>
+                  Failed to sign in. Please try again.
+                  </Text>
+                </Box>
+              );
+            },
+          });
+      }
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -35,7 +148,10 @@ const SignIn = ({navigation}) => {
       <Formik
         initialValues={{ email: "", password: "" }}
         validationSchema={SignInSchema}
-        onSubmit={handleSignIn}
+        // onSubmit={handleSignIn}
+        onSubmit={(values) => {
+          handleSignIn(values);
+        }}
       >
         {({
           handleChange,
@@ -95,7 +211,13 @@ const SignIn = ({navigation}) => {
                 onPress={handleSubmit}
                 disabled={!isValid}
               >
-                <Text style={styles.buttonText}>Sign In</Text>
+                {/* <Text style={styles.buttonText}>Sign In</Text> */}
+
+                {isLoading ? (
+                    <ActivityIndicator size="large" color="#fff" />
+                ) : (
+                  <Text style={styles.buttonText}>Sign In</Text>
+                )}
               </TouchableOpacity>
           </View>
         )}
