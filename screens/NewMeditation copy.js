@@ -12,125 +12,41 @@ import { Ionicons, FontAwesome5 } from "@expo/vector-icons";
 import { auth, db } from "../firebaseConfig";
 import { collection, getDocs, getDoc } from "firebase/firestore";
 
-export default function NewMeditation({navigation}) {
-  const [filterCategory, setFilterCategory] = useState("All");
-  const [filterMood, setFilterMood] = useState("All");
+export default function NewMeditation() {
+  const [filter, setFilter] = useState("All"); // Active filter
+  //   const [lastSession, setLastSession] = useState(null);
   const [meditationData, setMeditationData] = useState([]);
   const [isFetching, setIsFetching] = useState(true);
-  const [moods, setMoods] = useState([]);
-  const [categories, setCategories] = useState([]);
+  const filters = ["All", "Calm", "Focused", "Energized", "Happy"];
   const [lastSessions, setLastSessions] = useState([]);
-
-  // const getAllMeditations = async () => {
-  //   try {
-  //     setIsFetching(true);
-
-  //     // Fetch meditations and categories in parallel
-  //     const [meditationsQuery, categoriesQuery] = await Promise.all([
-  //       getDocs(collection(db, "meditations")),
-  //       getDocs(collection(db, "meditation_category")),
-  //     ]);
-
-  //     const meditations = [];
-  //     const uniqueMoods = new Set();
-
-  //     // Loop through meditations and resolve mood references
-  //     for (const docSnapshot of meditationsQuery.docs) {
-  //       const meditationData = docSnapshot.data();
-  //       const categoryReference = meditationData.category;
-  //       const categoryId = categoryReference.id;
-
-  //       // Resolve category name
-  //       const category = categoriesQuery.docs.find((categoryDoc) => categoryDoc.id === categoryId);
-  //       const categoryData = category ? category.data() : null;
-
-  //       // Resolve mood reference
-  //       let moodName = "Unknown";
-  //       if (meditationData.mood) {
-  //         const moodDoc = await getDoc(meditationData.mood); // Resolve the mood reference
-  //         if (moodDoc.exists()) {
-  //           moodName = moodDoc.data().name; // Get mood name
-  //           uniqueMoods.add(moodName); // Add mood name to unique moods
-  //         }
-  //       }
-
-  //       meditations.push({
-  //         id: docSnapshot.id,
-  //         ...meditationData,
-  //         category: categoryData,
-  //         mood: moodName, // Replace mood reference with resolved name
-  //       });
-  //     }
-
-  //     setMeditationData(meditations);
-  //     setCategories(categoriesQuery.docs.map((doc) => doc.data()));
-  //     setMoods(["All", ...uniqueMoods]); // Add "All" to unique moods
-  //     setIsFetching(false);
-  //   } catch (error) {
-  //     console.error("Error fetching meditations:", error);
-  //     setIsFetching(false);
-  //   }
-  // };
 
   const getAllMeditations = async () => {
     try {
-      setIsFetching(true);
-
-      // Fetch meditations, categories, and moods in parallel
-      const [meditationsQuery, categoriesQuery, moodsQuery] = await Promise.all(
-        [
-          getDocs(collection(db, "meditations")),
-          getDocs(collection(db, "meditation_category")),
-          getDocs(collection(db, "moods")), // Fetch moods collection
-        ]
-      );
+      const [meditationsQuery, categoriesQuery] = await Promise.all([
+        getDocs(collection(db, "meditations")),
+        getDocs(collection(db, "meditation_category")),
+      ]);
 
       const meditations = [];
-      const uniqueMoods = new Set();
-
-      // Create a map of mood IDs to mood data for quick lookup
-      const moodMap = moodsQuery.docs.reduce((acc, doc) => {
-        acc[doc.id] = doc.data();
-        return acc;
-      }, {});
-
-      // Loop through meditations and resolve references
-      for (const docSnapshot of meditationsQuery.docs) {
-        const meditationData = docSnapshot.data();
+      meditationsQuery.forEach((doc) => {
+        const meditationData = doc.data();
         const categoryReference = meditationData.category;
         const categoryId = categoryReference.id;
 
-        // Resolve category name
         const category = categoriesQuery.docs.find(
           (categoryDoc) => categoryDoc.id === categoryId
         );
+
         const categoryData = category ? category.data() : null;
 
-        // Resolve mood reference
-        let moodName = "Unknown";
-        let moodColor = "#ccc"; // Default color if not found
-        if (meditationData.mood) {
-          const moodId = meditationData.mood.id; // Get mood ID from reference
-          const moodData = moodMap[moodId];
-          if (moodData) {
-            moodName = moodData.name; // Get mood name
-            moodColor = moodData.color || "#ccc"; // Get mood color
-            uniqueMoods.add(moodName); // Add mood name to unique moods
-          }
-        }
-
         meditations.push({
-          id: docSnapshot.id,
+          id: doc.id,
           ...meditationData,
-          category: categoryData,
-          mood: moodName, // Replace mood reference with resolved name
-          moodColor, // Add mood color
+          category: categoryData, // Add category data
         });
-      }
+      });
 
       setMeditationData(meditations);
-      setCategories(categoriesQuery.docs.map((doc) => doc.data()));
-      setMoods(["All", ...uniqueMoods]); // Add "All" to unique moods
       setIsFetching(false);
     } catch (error) {
       console.error("Error fetching meditations:", error);
@@ -144,39 +60,21 @@ export default function NewMeditation({navigation}) {
 
   // Filtered session list
   const filteredSessions =
-    filterCategory === "All" && filterMood === "All"
+    filter === "All"
       ? meditationData
-      : meditationData.filter(
-          (session) =>
-            (filterCategory === "All" ||
-              session.category?.name === filterCategory) &&
-            (filterMood === "All" || session.mood === filterMood)
-        );
+      : meditationData.filter((session) => session.mood === filter);
 
   const handleSessionClick = (session) => {
+    // Update the lastSessions array to include the new session
     setLastSessions((prevSessions) => {
       const sessionExists = prevSessions.some((s) => s.id === session.id);
 
       if (!sessionExists) {
-        return [session, ...prevSessions].slice(0, 3);
+        return [session, ...prevSessions].slice(0, 3); // Keep only the last 3 sessions
       }
 
       const updatedSessions = prevSessions.filter((s) => s.id !== session.id);
       return [session, ...updatedSessions].slice(0, 3);
-    });
-  };
-
-  const navigateToMeditationPlayer = (
-    medidationId,
-    title,
-    description,
-    audioURL
-  ) => {
-    navigation.navigate("MeditationPlayerScreen", {
-      medidationId,
-      title,
-      description,
-      audioURL,
     });
   };
 
@@ -185,6 +83,9 @@ export default function NewMeditation({navigation}) {
     { id: "2", title: "Productivity Goal", session: "Focused Breathing" },
     // { id: "3", title: "Productivity Goal", session: "Focused Breathing" },
   ];
+
+ 
+
 
   return (
     <ScrollView style={styles.container}>
@@ -224,20 +125,12 @@ export default function NewMeditation({navigation}) {
                 style={styles.lastListenedCard}
                 onPress={() => handleSessionClick(item)}
               >
-                <Text
-                  style={styles.cardTitle}
-                  numberOfLines={2}
-                  ellipsizeMode="tail"
-                >
-                  {item.title}
-                </Text>
-                <Text style={styles.cardSubtitle} numberOfLines={1}>
-                  {item.description}
-                </Text>
+                <Text style={styles.cardTitle}>{item.title}</Text>
+                <Text style={styles.cardSubtitle}>{item.subtitle}</Text>
                 <View
                   style={[
                     styles.moodIndicator,
-                    { backgroundColor: item.moodColor },
+                    { backgroundColor: getMoodColor(item.mood) },
                   ]}
                 >
                   {/* <Ionicons name="pause" size={20} color="#fff" /> */}
@@ -248,11 +141,7 @@ export default function NewMeditation({navigation}) {
                   <Text style={styles.durationText}> {item.duration}</Text>
                 </View>
                 <View style={{ marginTop: 10 }}>
-                  <Ionicons
-                    name="play-circle-outline"
-                    size={35}
-                    color="#4CAF50"
-                  />
+                  <Ionicons name="play-circle-outline" size={35} color="#4CAF50" />
                 </View>
               </TouchableOpacity>
             ))}
@@ -266,58 +155,22 @@ export default function NewMeditation({navigation}) {
         </View>
       )}
 
-      {/* Category and Mood Filters */}
-      {/* <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginVertical: 10 }}>
-        <View style={{ flexDirection: "row" }}>
-          {categories.map((category) => (
-            <TouchableOpacity
-              key={category.name}
-              style={{
-                padding: 10,
-                margin: 5,
-                backgroundColor: filterCategory === category.name ? "#4CAF50" : "#ccc",
-                borderRadius: 20,
-              }}
-              onPress={() => setFilterCategory(category.name)}
-            >
-              <Text style={{ color: "#fff" }}>{category.name}</Text>
-            </TouchableOpacity>
-          ))}
-        </View>
-        <View style={{ flexDirection: "row" }}>
-          {moods.map((mood) => (
-            <TouchableOpacity
-              key={mood}
-              style={{
-                padding: 10,
-                margin: 5,
-                backgroundColor: filterMood === mood ? "#4CAF50" : "#ccc",
-                borderRadius: 20,
-              }}
-              onPress={() => setFilterMood(mood)}
-            >
-              <Text style={{ color: "#fff" }}>{mood}</Text>
-            </TouchableOpacity>
-          ))}
-        </View>
-      </ScrollView> */}
-
       {/* Filter Options */}
       <ScrollView horizontal showsHorizontalScrollIndicator={false}>
         <View style={styles.filterContainer}>
-          {moods.map((item) => (
+          {filters.map((item) => (
             <TouchableOpacity
               key={item}
               style={[
                 styles.filterButton,
-                filterMood === item && styles.filterButtonActive,
+                filter === item && styles.filterButtonActive,
               ]}
-              onPress={() => setFilterMood(item)}
+              onPress={() => setFilter(item)}
             >
               <Text
                 style={[
                   styles.filterText,
-                  filterMood === item && styles.filterTextActive,
+                  filter === item && styles.filterTextActive,
                 ]}
               >
                 {item}
@@ -334,35 +187,14 @@ export default function NewMeditation({navigation}) {
             <TouchableOpacity
               key={item.id}
               style={styles.card}
-              onPress={() => {
-                try {
-                  // Ensure both functions are called
-                  handleSessionClick(item); // Make sure this works and is not undefined
-                  navigateToMeditationPlayer(
-                    item.id,
-                    item.title,
-                    item.description,
-                    item.audioURL
-                  ); // Ensure this is defined
-                } catch (error) {
-                  console.error("Error handling session click or navigation:", error);
-                }
-              }}
+              onPress={() => handleSessionClick(item)}
             >
-              <Text
-                style={styles.cardTitle}
-                numberOfLines={2}
-                ellipsizeMode="tail"
-              >
-                {item.title}
-              </Text>
-              <Text style={styles.cardSubtitle} numberOfLines={1}>
-                {item.description}
-              </Text>
+              <Text style={styles.cardTitle}>{item.title}</Text>
+              <Text style={styles.cardSubtitle}>{item.subtitle}</Text>
               <View
                 style={[
                   styles.moodIndicator,
-                  { backgroundColor: item.moodColor },
+                  { backgroundColor: getMoodColor(item.mood) },
                 ]}
               >
                 <Text style={styles.moodText}>{item.mood}</Text>
@@ -373,11 +205,7 @@ export default function NewMeditation({navigation}) {
               </View>
 
               <View style={{ marginTop: 10 }}>
-                <Ionicons
-                  name="play-circle-outline"
-                  size={35}
-                  color="#4CAF50"
-                />
+                <Ionicons name="play-circle-outline" size={35} color="#4CAF50" />
               </View>
             </TouchableOpacity>
           ))}
@@ -487,15 +315,12 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
   },
   card: {
-    display: "flex",
-    flexDirection: "column",
-    justifyContent: "space-between", // Align items vertically
-    alignItems: "center",
-    padding: 20,
     flexBasis: "48%",
-    backgroundColor: "#ffcbf2",
-    borderRadius: 10,
     marginBottom: 15,
+    backgroundColor: "#ffcbf2", // Light purple color
+    borderRadius: 10,
+    padding: 20,
+    alignItems: "center",
     shadowColor: "#000",
     shadowOpacity: 0.1,
     shadowRadius: 5,
@@ -503,40 +328,18 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
 
-  // card: {
-  //   flexBasis: "48%",
-  //   marginBottom: 15,
-  //   backgroundColor: "#ffcbf2",
-  //   borderRadius: 10,
-  //   padding: 20,
-  //   alignItems: "center",
-  //   shadowColor: "#000",
-  //   shadowOpacity: 0.1,
-  //   shadowRadius: 5,
-  //   shadowOffset: { width: 0, height: 2 },
-  //   elevation: 3,
-  // },
-
   moodText: {
     fontSize: 14,
     color: "#777",
-    fontFamily: "PoppinsRegular",
+    fontFamily: "PoppinsRegular"
   },
 
   cardTitle: {
-    // fontSize: 15,
-    // fontWeight: "bold",
-    // color: "#333",
-    // marginBottom: 5,
-    // fontFamily: "PoppinsRegular",
-
     fontSize: 15,
     fontWeight: "bold",
     color: "#333",
     marginBottom: 5,
     fontFamily: "PoppinsRegular",
-    height: 50,
-    textAlign: "center",
   },
 
   cardSubtitle: {
@@ -544,23 +347,7 @@ const styles = StyleSheet.create({
     color: "#555",
     marginBottom: 10,
     fontFamily: "PoppinsMedium",
-    height: 30,
-    textAlign: "center",
-
-    // fontSize: 12,
-    // color: "#555",
-    // marginBottom: 10,
-    // fontFamily: "PoppinsMedium",
   },
-
-  // moodIndicator: {
-  //   width: 80,
-  //   height: 30,
-  //   borderRadius: 15,
-  //   justifyContent: "center",
-  //   alignItems: "center",
-  //   marginBottom: 10,
-  // },
 
   moodIndicator: {
     width: 80,
@@ -569,7 +356,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     marginBottom: 10,
-    alignSelf: "center",
   },
 
   moodText: {
@@ -636,7 +422,6 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     alignItems: "center",
     marginRight: 16,
-    width: 200
   },
 
   lastListenedText: {

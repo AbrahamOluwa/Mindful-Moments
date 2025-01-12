@@ -1,196 +1,224 @@
-import { View, Text, StyleSheet, TouchableOpacity, Image,Dimensions } from "react-native";
-import Slider from "@react-native-community/slider";
-import React, { useState, useEffect, useRef } from "react";
-import { SafeAreaView } from "react-native-safe-area-context";
+import React, { useEffect, useState } from "react";
+import {
+  View,
+  Text,
+  SafeAreaView,
+  Image,
+  TouchableOpacity,
+  StyleSheet,
+  ActivityIndicator,
+  Dimensions,
+  Animated
+} from "react-native";
+import { AntDesign, Ionicons  } from "@expo/vector-icons";
 import { Audio } from "expo-av";
-import { Feather } from '@expo/vector-icons'; 
-import { AntDesign } from '@expo/vector-icons';
-import { useRoute } from "@react-navigation/native";
-
+import { useFocusEffect } from "@react-navigation/native";
+import Slider from '@react-native-community/slider';
+import { useRoute } from '@react-navigation/native';
 
 const { width } = Dimensions.get("screen");
-export default function MeditationPlayer({ route }) { 
 
-  // const route = useRoute();
-  const { medidationId, title, description, audioURL } = route.params;
+export default function MeditationPlayer({ route, navigation }) {
+  const { meditationId, title, description, audioURL } = route.params;
+
   const [isPlaying, setIsPlaying] = useState(false);
   const [sound, setSound] = useState(null);
-  const [playbackStatus, setPlaybackStatus] = useState(null);
   const [positionMillis, setPositionMillis] = useState(0);
   const [durationMillis, setDurationMillis] = useState(0);
   const [sliderValue, setSliderValue] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
+  const scaleValue = new Animated.Value(1);
 
+  useFocusEffect(
+    React.useCallback(() => {
+      loadAudio();
 
-  useEffect(() => {
-    return () => {
-      if (sound) {
-        sound.unloadAsync();
-      }
-    };
-  }, []);
-
-  useEffect(() => {
-    return sound
-      ? () => {
-          //console.log("Unloading Sound");
+      return () => {
+        if (sound) {
           sound.unloadAsync();
         }
-      : undefined;
-  }, [sound]);
+      };
+    }, [audioURL])
+  );
 
   const handlePlaybackStatusUpdate = (status) => {
-    setPlaybackStatus(status);
     if (status) {
       setPositionMillis(status.positionMillis);
       setDurationMillis(status.durationMillis);
-      setSliderValue(status.positionMillis);
-    }
-  };
-
-  const togglePlayback = async () => {
-    try {
-      if (sound) {
-        if (isPlaying) {
-          await sound.pauseAsync();
-        } else {
-          await sound.playAsync();
-        }
-        setIsPlaying(!isPlaying);
-      }
-    } catch (error) {
-      console.log("Error toggling playback:", error);
-    }
-  };
-
-  const seekTo = async (position) => {
-    try {
-      if (sound && durationMillis) {
-        await sound.setPositionAsync(position);
-        setPositionMillis(position);
-        setSliderValue(position);
-      }
-    } catch (error) {
-      console.log("Error seeking audio:", error);
+      setSliderValue(status.positionMillis / status.durationMillis);
     }
   };
 
   const loadAudio = async () => {
+    setLoading(true);
+    setError(null);
     try {
-      const { sound } = await Audio.Sound.createAsync({
-        // uri: meditation.audioUrl,
+      const { sound: newSound } = await Audio.Sound.createAsync({
         uri: audioURL,
       });
-      // const { sound } = await Audio.Sound.createAsync(
-      //   require("../assets/audio/dyksen.mp3")
-      // );
-      setSound(sound);
-      sound.setOnPlaybackStatusUpdate(handlePlaybackStatusUpdate);
+      setSound(newSound);
+      newSound.setOnPlaybackStatusUpdate(handlePlaybackStatusUpdate);
+      setLoading(false);
     } catch (error) {
-      console.log("Error loading audio:", error);
+      console.error("Error loading audio:", error);
+      setError("Failed to load audio. Please try again later.");
+      setLoading(false);
     }
   };
 
-  useEffect(() => {
-    loadAudio();
-
-    return () => {
-      if (sound) {
-        sound.unloadAsync();
+  const togglePlayback = async () => {
+    if (!sound) return;
+    try {
+      if (isPlaying) {
+        await sound.pauseAsync();
+      } else {
+        await sound.playAsync();
       }
-    };
-  }, []);
+      setIsPlaying(!isPlaying);
+    } catch (error) {
+      console.error("Error toggling playback:", error);
+    }
+  };
 
+  const seekTo = async (value) => {
+    if (!sound) return;
+    const newPosition = value * durationMillis;
+    await sound.setPositionAsync(newPosition);
+  };
 
+  const formatTime = (milliseconds) => {
+    const seconds = Math.floor(milliseconds / 1000);
+    const minutes = Math.floor(seconds / 60);
+    const formattedMinutes = `${minutes}`.padStart(2, "0");
+    const formattedSeconds = `${seconds % 60}`.padStart(2, "0");
+    return `${formattedMinutes}:${formattedSeconds}`;
+  };
 
   return (
-    <SafeAreaView style={{}}>
-      <View style={styles.container}>
-        {/* <Text style={styles.title}>{meditation.title}</Text> */}
-        <Text style={styles.title}>{title}</Text>
-
-        <Image
-          source={require("../assets/images/meditation.png")}
-          style={styles.image}
-          resizeMode="cover"
-        />
-        <Slider
-          style={styles.progressBar}
-          minimumValue={0}
-          maximumValue={durationMillis}
-          value={sliderValue}
-          onValueChange={(value) => setSliderValue(value)}
-          onSlidingComplete={seekTo}
-          minimumTrackTintColor="#333"
-          maximumTrackTintColor="#FF69B4"
-          thumbTintColor="#333"
-        />
-        <View style={styles.timeContainer}>
-          <Text style={styles.timeText}>{formatTime(positionMillis)}</Text>
-          <Text style={styles.timeText}>{formatTime(durationMillis)}</Text>
+    <SafeAreaView style={styles.container}>
+      {loading ? (
+        <ActivityIndicator size="large" color="#FF7F9F" />
+      ) : error ? (
+        <Text style={styles.errorText}>{error}</Text>
+      ) : (
+        <View style={styles.card}>
+           <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
+            <Ionicons name="arrow-back" size={24} color="#333" />
+          </TouchableOpacity>
+          <Text style={styles.title}>{title}</Text>
+          <Image
+            source={require("../assets/images/meditation.png")}
+            style={styles.image}
+            resizeMode="cover"
+          />
+          <Text style={styles.description}>{description}</Text>
+          <Slider
+            style={styles.slider}
+            minimumValue={0}
+            maximumValue={1}
+            value={sliderValue}
+            onSlidingComplete={seekTo}
+            minimumTrackTintColor="#FF7F9F"
+            maximumTrackTintColor="#ccc"
+            thumbTintColor="#FF7F9F"
+          />
+          <View style={styles.timeContainer}>
+            <Text style={styles.timeText}>{formatTime(positionMillis)}</Text>
+            <Text style={styles.timeText}>{formatTime(durationMillis)}</Text>
+          </View>
+          <TouchableOpacity
+            style={styles.playButton}
+            onPress={togglePlayback}
+            disabled={loading || error}
+          >
+            <Animated.View style={{ transform: [{ scale: scaleValue }] }}>
+              <AntDesign
+                name={isPlaying ? "pausecircleo" : "playcircleo"}
+                size={75}
+                color={isPlaying ? "#FF7F9F" : "#333"}
+              />
+            </Animated.View>
+          </TouchableOpacity>
         </View>
-        <TouchableOpacity style={styles.playButton} onPress={togglePlayback}>
-          {/* <Text style={styles.playButtonText}>
-            {isPlaying ? "Pause" : "Play"}
-          </Text> */}
-
-          {/* <Feather name={isPlaying ? 'pause-circle' : 'play-circle'} size={70} color="#333" /> */}
-          <AntDesign name={isPlaying ? 'pausecircleo' : 'playcircleo'} size={70} color={isPlaying ? 'red' : 'blue'} />
-        </TouchableOpacity>
-      </View>
+      )}
     </SafeAreaView>
   );
 }
 
-const formatTime = (milliseconds) => {
-  const seconds = Math.floor(milliseconds / 1000);
-  const minutes = Math.floor(seconds / 60);
-  const formattedMinutes = `${minutes}`.padStart(2, "0");
-  const formattedSeconds = `${seconds % 60}`.padStart(2, "0");
-  return `${formattedMinutes}:${formattedSeconds}`;
-};
-
 const styles = StyleSheet.create({
   container: {
+    flex: 1,
+    backgroundColor: "#F7F7F7",
     justifyContent: "center",
     alignItems: "center",
-    padding: 16,
+  },
+  card: {
+    width: width * 0.9,
+    backgroundColor: "#fff",
+    borderRadius: 16,
+    padding: 20,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 5 },
+    shadowOpacity: 0.1,
+    shadowRadius: 10,
+    elevation: 5,
+  },
+  backButton: {
+    position: "absolute",
+    top: 15,
+    left: 20,
+    padding: 10,
+    zIndex: 10,
   },
   title: {
-    fontSize: 20,
-    marginBottom: 16,
-    fontFamily: "SoraSemiBold"
+    fontSize: 22,
+    fontWeight: "600",
+    textAlign: "center",
+    marginBottom: 10,
+    color: "#333",
+    fontFamily: "PoppinsSemiBold",
   },
-  progressBar: {
+  description: {
+    fontSize: 14,
+    color: "#555",
+    textAlign: "center",
+    marginBottom: 20,
+    fontFamily: "PoppinsRegular",
+  },
+  image: {
+    width: "100%",
+    height: 250,
+    borderRadius: 10,
+    marginBottom: 20,
+  },
+  slider: {
     width: "100%",
     height: 40,
+    marginVertical: 10,
   },
   timeContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
     width: "100%",
-    marginBottom: 8,
+    marginVertical: 10,
   },
   timeText: {
     fontSize: 14,
-    color: "#555",
-    fontFamily: "SoraRegular"
+    color: "#777",
+    fontFamily: "PoppinsRegular",
   },
-  // playButton: {
-  //   backgroundColor: "#333",
-  //   paddingVertical: 8,
-  //   borderRadius: 8,
-  //   marginTop: 16,
-  // },
-  // playButtonText: {
-  //   color: "#FFF",
-  //   fontWeight: "bold",
-  //   fontSize: 16,
-  // },
-  image: {
-    width: width,
-    height: 450,
-    borderRadius: 100,
-    marginBottom: 16,
+  playButton: {
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: 20,
+  },
+  errorText: {
+    fontSize: 18,
+    color: "red",
+    textAlign: "center",
+    padding: 20,
+    fontFamily: "PoppinsRegular",
   },
 });
