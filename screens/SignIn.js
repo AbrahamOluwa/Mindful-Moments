@@ -16,13 +16,14 @@ import { auth, db } from "../firebaseConfig";
 import { collection, query, where, getDocs } from "firebase/firestore";
 import { signInWithEmailAndPassword , getAuth } from "firebase/auth";
 import { useToast, Box } from "native-base";
+import { useAuth } from "../context/AuthContext";
 
 const SignIn = ({navigation}) => {
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const auth = getAuth();
   const toast = useToast();
-
+  const { setUser } = useAuth();
 
   const SignInSchema = Yup.object().shape({
     email: Yup.string().required("Email/Username is required"),
@@ -71,8 +72,12 @@ const SignIn = ({navigation}) => {
       );
       const user = userCredential.user;
 
-      Alert.alert("Success", `Welcome back, ${user.email || user.displayName}!`);
+      // Alert.alert("Success", `Welcome back, ${user.email || user.displayName}!`);
+      setUser({ uid: user.uid, email: user.email });
+
+      navigation.navigate("NewHomeScreen");
     } catch (error) {
+      console.log(error)
 
       switch (error.code || error.message) {
         case "auth/user-not-found":

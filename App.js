@@ -1,3 +1,4 @@
+import React, { useContext } from "react";
 import { StatusBar } from "expo-status-bar";
 import { StyleSheet, Text, View } from "react-native";
 import { Provider } from "react-redux";
@@ -38,11 +39,14 @@ import EditGoal from "./screens/EditGoal.js";
 // import NetworkStatusChecker from "./components/NetworkStatusChecker";
 import UploadArticles from "./screens/UploadArticles.js";
 import SignUp from "./screens/SignUp.js";
-import NewHome from "./screens/NewHome.js"
-import NewMeditation from "./screens/NewMeditation.js"
-import NewThoughts from "./screens/NewThoughts.js"
+import NewHome from "./screens/NewHome.js";
+import NewMeditation from "./screens/NewMeditation.js";
+import NewThoughts from "./screens/NewThoughts.js";
 import Paths from "./screens/Paths.js";
 import SignIn from "./screens/SignIn.js";
+import { AuthProvider } from "./context/AuthContext";
+import { AudioProvider, AudioContext } from "./context/AudioContext";
+import MinimizedPlayer from "./components/meditations/MinimizedPlayer";
 // import TrackPlayer from 'react-native-track-player';
 
 const newColorTheme = {
@@ -83,79 +87,99 @@ export default function App() {
     return null;
   }
 
+  // const { isMeditationPlaying } = React.useContext(AudioContext);
+
   return (
     <Provider store={store}>
       <NativeBaseProvider theme={theme}>
-      {/* <GluestackUIProvider config={config}> */}
+        {/* <GluestackUIProvider config={config}> */}
         {/* <View style={styles.container}>
         <Text>Open up App.js to start working on your app!</Text>
         <StatusBar style="auto" />
       </View> */}
         {/* <NetworkStatusChecker /> */}
-
-        <NavigationContainer onLayout={onLayoutRootView}>
-          <Stack.Navigator screenOptions={{ headerShown: false }}>
-            <Stack.Screen name="HomeScreen" component={BottomTabs} />
-            <Stack.Screen name="ArticlesScreen" component={Articles} />
-            <Stack.Screen name="TopicsScreen" component={Topics} />
-            <Stack.Screen name="GoalsScreen" component={Goals} />
-            <Stack.Screen
-              name="SelectedTopicScreen"
-              component={SelectedTopic}
-            />
-            <Stack.Screen
-              name="SelectedSubtopicScreen"
-              component={SelectedSubtopic}
-            />
-            <Stack.Screen name="MeditationsScreen" component={Meditations} />
-            <Stack.Screen
-              name="MeditationPlayerScreen"
-              component={MeditationPlayer}
-            />
-            <Stack.Screen name="JournalScreen" component={Journal} />
-            <Stack.Screen
-              name="WriteJournalEntryScreen"
-              component={WriteJournalEntry}
-            />
-            <Stack.Screen
-              name="AllJournalEntriesScreen"
-              component={AllJournalEntries}
-            />
-            <Stack.Screen
-              name="EditJournalEntryScreen"
-              component={EditJournalEntry}
-            />
-            <Stack.Screen name="GratitudeScreen" component={Gratitude} />
-            <Stack.Screen
-              name="RecordGratitudeMomentScreen"
-              component={RecordGratitudeMoment}
-            />
-            <Stack.Screen
-              name="AllGratitudeMomentsScreen"
-              component={AllGratitudeMoments}
-            />
-            <Stack.Screen
-              name="EditGratitudeMomentScreen"
-              component={EditGratitudeMoment}
-            />
-            <Stack.Screen name="SetGoalsScreen" component={SetGoals} />
-            <Stack.Screen name="GoalsListScreen" component={GoalsList} />
-            <Stack.Screen name="EditGoalScreen" component={EditGoal} />
-            <Stack.Screen
-              name="UserAuthenticationScreen"
-              component={UserAuthentication}
-            />
-            <Stack.Screen name="UploadCourseScreen" component={UploadCourses} />
-            <Stack.Screen name="UploadArticlesScreen" component={UploadArticles} />
-            <Stack.Screen name="SignUpScreen" component={SignUp} />
-            <Stack.Screen name="NewHomeScreen" component={NewHome} />
-            <Stack.Screen name="NewMeditationScreen" component={NewMeditation} />
-            <Stack.Screen name="NewThoughtsScreen" component={NewThoughts} />
-            <Stack.Screen name="PathsScreen" component={Paths} />
-            <Stack.Screen name="SignInScreen" component={SignIn} />
-          </Stack.Navigator>
-        </NavigationContainer>
-
+        <AuthProvider>
+          <AudioProvider>
+            <NavigationContainer onLayout={onLayoutRootView}>
+              <Stack.Navigator screenOptions={{ headerShown: false }}>
+                <Stack.Screen name="SignInScreen" component={SignIn} />
+                <Stack.Screen name="SignUpScreen" component={SignUp} />
+                <Stack.Screen name="HomeScreen" component={BottomTabs} />
+                <Stack.Screen name="ArticlesScreen" component={Articles} />
+                <Stack.Screen name="TopicsScreen" component={Topics} />
+                <Stack.Screen name="GoalsScreen" component={Goals} />
+                <Stack.Screen
+                  name="SelectedTopicScreen"
+                  component={SelectedTopic}
+                />
+                <Stack.Screen
+                  name="SelectedSubtopicScreen"
+                  component={SelectedSubtopic}
+                />
+                <Stack.Screen
+                  name="MeditationsScreen"
+                  component={Meditations}
+                />
+                <Stack.Screen
+                  name="MeditationPlayerScreen"
+                  component={MeditationPlayer}
+                />
+                <Stack.Screen name="JournalScreen" component={Journal} />
+                <Stack.Screen
+                  name="WriteJournalEntryScreen"
+                  component={WriteJournalEntry}
+                />
+                <Stack.Screen
+                  name="AllJournalEntriesScreen"
+                  component={AllJournalEntries}
+                />
+                <Stack.Screen
+                  name="EditJournalEntryScreen"
+                  component={EditJournalEntry}
+                />
+                <Stack.Screen name="GratitudeScreen" component={Gratitude} />
+                <Stack.Screen
+                  name="RecordGratitudeMomentScreen"
+                  component={RecordGratitudeMoment}
+                />
+                <Stack.Screen
+                  name="AllGratitudeMomentsScreen"
+                  component={AllGratitudeMoments}
+                />
+                <Stack.Screen
+                  name="EditGratitudeMomentScreen"
+                  component={EditGratitudeMoment}
+                />
+                <Stack.Screen name="SetGoalsScreen" component={SetGoals} />
+                <Stack.Screen name="GoalsListScreen" component={GoalsList} />
+                <Stack.Screen name="EditGoalScreen" component={EditGoal} />
+                <Stack.Screen
+                  name="UserAuthenticationScreen"
+                  component={UserAuthentication}
+                />
+                <Stack.Screen
+                  name="UploadCourseScreen"
+                  component={UploadCourses}
+                />
+                <Stack.Screen
+                  name="UploadArticlesScreen"
+                  component={UploadArticles}
+                />
+                <Stack.Screen name="NewHomeScreen" component={BottomTabs} />
+                <Stack.Screen
+                  name="NewMeditationScreen"
+                  component={NewMeditation}
+                />
+                <Stack.Screen
+                  name="NewThoughtsScreen"
+                  component={NewThoughts}
+                />
+                <Stack.Screen name="PathsScreen" component={Paths} />
+              </Stack.Navigator>
+              {/* <MinimizedPlayer /> */}
+            </NavigationContainer>
+          </AudioProvider>
+        </AuthProvider>
         {/* </GluestackUIProvider> */}
       </NativeBaseProvider>
     </Provider>

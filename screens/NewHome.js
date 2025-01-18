@@ -8,7 +8,7 @@ import {
   TouchableOpacity,
   Text,
 } from "react-native";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Box,
   VStack,
@@ -24,9 +24,13 @@ import MaterialIcons from "react-native-vector-icons/MaterialIcons";
 import FontAwesome from "react-native-vector-icons/FontAwesome";
 import FontAwesome5 from "react-native-vector-icons/FontAwesome5";
 import EmptyState from "../components/home/EmptyState";
+import { useAuth } from '../context/AuthContext';
+
 
 
 export default function NewHome() {
+
+  const { user } = useAuth(); 
   // Get greeting based on time of day
   const getGreeting = () => {
     const currentHour = new Date().getHours();
@@ -38,6 +42,14 @@ export default function NewHome() {
       return "Good Evening";
     }
   };
+
+  
+
+  // useEffect(async () => {
+  //   const userId = await getUserId();
+  //   console.log(userId);
+  // }, [])
+  
 
   // Sample data for goals and resources
   const goals = [
@@ -162,6 +174,7 @@ export default function NewHome() {
       <View style={styles.safeArea}>
         {/* Greeting Section */}
         <Text style={styles.greetingText}>{getGreeting()}, welcome back!</Text>
+        <Text style={styles.welcomeText}>Welcome, {user ? user.uid : 'User'}!</Text>
 
         {/* Beautiful Daily Inspiration Section */}
         <LinearGradient
@@ -181,7 +194,7 @@ export default function NewHome() {
         {/* Goals Section */}
         <View>
           <Text style={styles.sectionTitle}>Your Goals</Text>
-          {goals.length < 0 ? (
+          {goals.length > 0 ? (
             <View style={styles.cardContainer}>
               {goals.map((goal, index) => (
                 <Card
@@ -224,7 +237,7 @@ export default function NewHome() {
         {/* Resources Section Tied to Goals */}
         <View style={styles.sectionContainer}>
           <Text style={styles.sectionTitle}>Resources for Your Goals</Text>
-          {resources.length < 0 ? (
+          {resources.length > 0 ? (
             <ScrollView
               horizontal
               showsHorizontalScrollIndicator={false}
@@ -259,7 +272,7 @@ export default function NewHome() {
           <Text style={styles.sectionTitle}>
             Started Reading for Your Goals
           </Text>
-          {startedResources.length < 0 ? (
+          {startedResources.length > 0 ? (
             <ScrollView
               horizontal
               showsHorizontalScrollIndicator={false}
