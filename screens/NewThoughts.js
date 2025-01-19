@@ -8,12 +8,15 @@ import {
   StyleSheet,
   Modal,
   ActivityIndicator,
+  Alert 
 } from "react-native";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { MaterialIcons } from "@expo/vector-icons";
-import { useAuth } from '../context/AuthContext';
+import { LinearGradient } from "expo-linear-gradient";
+import { useAuth } from "../context/AuthContext";
 import { db } from "../firebaseConfig";
-import { collection, query, where, getDocs } from "firebase/firestore";
+import { collection, query, where, getDocs, deleteDoc, doc } from "firebase/firestore";
+import { useFocusEffect } from "@react-navigation/native";
 
 export default function NewThoughts({ navigation }) {
   const { user } = useAuth();
@@ -25,33 +28,101 @@ export default function NewThoughts({ navigation }) {
   const [journalEntries, setJournalEntries] = useState([]);
   const [gratitudeMoments, setGratitudeMoments] = useState([]);
 
-  useEffect(() => {
-    const fetchEntries = async () => {
-      if (!user) return;
+  // useEffect(() => {
+  //   const fetchEntries = async () => {
+  //     if (!user) return;
 
-      const userId = user.uid;
-      const journalQuery = query(collection(db, `users/${userId}/entries`), where("type", "==", "journal"));
-      const gratitudeQuery = query(collection(db, `users/${userId}/entries`), where("type", "==", "gratitude"));
+  //     const userId = user.uid;
+  //     const journalQuery = query(
+  //       collection(db, `users/${userId}/entries`),
+  //       where("type", "==", "journal")
+  //     );
+  //     const gratitudeQuery = query(
+  //       collection(db, `users/${userId}/entries`),
+  //       where("type", "==", "gratitude")
+  //     );
 
-      try {
-        const journalSnapshot = await getDocs(journalQuery);
-        const gratitudeSnapshot = await getDocs(gratitudeQuery);
+  //     try {
+  //       const journalSnapshot = await getDocs(journalQuery);
+  //       const gratitudeSnapshot = await getDocs(gratitudeQuery);
 
-        const journals = journalSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        const gratitudes = gratitudeSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+  //       const journals = journalSnapshot.docs.map((doc) => ({
+  //         id: doc.id,
+  //         ...doc.data(),
+  //         entryDate: formatDate(doc.data().createdAt),
+  //       }));
+  //       const gratitudes = gratitudeSnapshot.docs.map((doc) => ({
+  //         id: doc.id,
+  //         ...doc.data(),
+  //         entryDate: formatDate(doc.data().createdAt),
+  //       }));
 
-        setJournalEntries(journals);
-        setGratitudeMoments(gratitudes);
-      } catch (error) {
-        console.error("Error fetching entries: ", error);
-      } finally {
-        setLoading(false);
-      }
-    };
+  //       setJournalEntries(journals);
+  //       setGratitudeMoments(gratitudes);
+  //     } catch (error) {
+  //       console.error("Error fetching entries: ", error);
+  //     } finally {
+  //       setLoading(false);
+  //     }
+  //   };
 
-    fetchEntries();
-  }, [user]);
+  //   fetchEntries();
+  // }, [user]);
 
+   useFocusEffect(
+      useCallback(() => {
+        const fetchEntries = async () => {
+          if (!user) return;
+    
+          const userId = user.uid;
+          const journalQuery = query(
+            collection(db, `users/${userId}/entries`),
+            where("type", "==", "journal")
+          );
+          const gratitudeQuery = query(
+            collection(db, `users/${userId}/entries`),
+            where("type", "==", "gratitude")
+          );
+    
+          try {
+            const journalSnapshot = await getDocs(journalQuery);
+            const gratitudeSnapshot = await getDocs(gratitudeQuery);
+    
+            const journals = journalSnapshot.docs.map((doc) => ({
+              id: doc.id,
+              ...doc.data(),
+              entryDate: formatDate(doc.data().createdAt),
+            }));
+            const gratitudes = gratitudeSnapshot.docs.map((doc) => ({
+              id: doc.id,
+              ...doc.data(),
+              entryDate: formatDate(doc.data().createdAt),
+            }));
+    
+            setJournalEntries(journals);
+            setGratitudeMoments(gratitudes);
+          } catch (error) {
+            console.error("Error fetching entries: ", error);
+          } finally {
+            setLoading(false);
+          }
+        };
+    
+        fetchEntries();
+      }, [])
+    );
+
+  // Function to format the Firebase Timestamp to a readable date string
+  const formatDate = (timestamp) => {
+    if (!timestamp) return "";
+    const date = timestamp.toDate(); // Converts the Firebase Timestamp to a JavaScript Date object
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0"); // Months are zero-indexed
+    const day = String(date.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  };
+
+  // Filter entries based on the search term
   const filteredJournals = journalEntries.filter((item) =>
     item.content.toLowerCase().includes(searchTerm.toLowerCase())
   );
@@ -60,6 +131,7 @@ export default function NewThoughts({ navigation }) {
     item.content.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  // Calculate mood distribution
   const calculateMoodDistribution = (entries) => {
     const moodCount = {};
     entries.forEach((entry) => {
@@ -86,35 +158,114 @@ export default function NewThoughts({ navigation }) {
     navigation.navigate("EntryScreen", { type });
   };
 
+  // const navigateToEntryScreen = (entry) => {
+  //   setModalVisible(false);
+  //   navigation.navigate("EntryScreen", { type: entry.type, existingEntry: entry });
+  // };
+
+  // const handleEditEntry = (entry) => {
+  //   navigateToEntryScreen(entry);
+  // };
+
+  // const handleAddEntry = (type) => {
+  //   setModalVisible(false);
+  //   navigation.navigate("EntryScreen", { type });
+  // };
+
+  const handleEditEntry = (entry) => {
+    navigation.navigate("EntryScreen", {
+      type: entry.type,
+      existingEntry: entry,
+    });
+  };
+
+  const handleDeleteEntry = (entryId, type) => {
+    Alert.alert(
+      "Confirm Deletion",
+      "Are you sure you want to delete this entry?",
+      [
+        {
+          text: "Cancel",
+          style: "cancel",
+        },
+        {
+          text: "Delete",
+          style: "destructive",
+          onPress: async () => {
+            try {
+              const userId = user.uid;
+              const entryRef = doc(db, `users/${userId}/entries`, entryId);
+  
+              await deleteDoc(entryRef);
+  
+              // Update the local state
+              if (type === "journal") {
+                setJournalEntries((prevEntries) => prevEntries.filter((entry) => entry.id !== entryId));
+              } else if (type === "gratitude") {
+                setGratitudeMoments((prevEntries) => prevEntries.filter((entry) => entry.id !== entryId));
+              }
+  
+              // Optional: Provide feedback to the user
+              alert("Entry deleted successfully.");
+            } catch (error) {
+              console.error("Error deleting entry: ", error);
+              alert("Failed to delete entry.");
+            }
+          },
+        },
+      ],
+      { cancelable: true }
+    );
+  };
+
   const renderEntry = (item) => (
     <View
       key={item.id}
-      style={[styles.entryCard, { backgroundColor: getRandomColor() }]}
+      style={[
+        styles.entryCard,
+        item.type === "journal" ? styles.journalCard : styles.gratitudeCard,
+      ]}
     >
-      <Text style={styles.entryText}>{item.content}</Text>
+      <Text style={styles.entryText}>
+        {item.content.length > 50
+          ? item.content.substring(0, 40) + "..."
+          : item.content}
+      </Text>
       <Text style={styles.entryMood}>{item.mood}</Text>
-      <Text style={styles.entryTag}>{Array.isArray(item.tags) ? item.tags.join(", ") : ''}</Text>
-      <Text style={styles.entryDate}>{item.date}</Text>
+      <Text style={styles.entryTag}>
+        {Array.isArray(item.tags) ? item.tags.join(", ") : ""}
+      </Text>
+      <Text style={styles.entryDate}>{item.entryDate}</Text>
+      <View style={styles.entryActions}>
+        <LinearGradient
+          colors={["#4caf50", "#81c784"]}
+          style={styles.iconButton}
+        >
+          <TouchableOpacity onPress={() => handleEditEntry(item)}>
+            <MaterialIcons name="edit" size={20} color="white" />
+          </TouchableOpacity>
+        </LinearGradient>
+        <LinearGradient
+          colors={["#f44336", "#e57373"]}
+          style={styles.iconButton}
+        >
+          <TouchableOpacity
+            onPress={() => handleDeleteEntry(item.id, item.type)}
+          >
+            <MaterialIcons name="delete" size={20} color="white" />
+          </TouchableOpacity>
+        </LinearGradient>
+      </View>
     </View>
   );
-
-  // if (loading) {
-  //   return <ActivityIndicator size="large" color="#0000ff" />;
-  // }
 
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
-      <ActivityIndicator size="large" color="#0000ff" />
-    </View>
+        <ActivityIndicator size="large" color="#0000ff" />
+      </View>
     );
   }
-
-  // {loading && (
-  //   <View style={styles.loadingContainer}>
-  //     <ActivityIndicator size="large" color="#0000ff" />
-  //   </View>
-  // )}
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
@@ -176,7 +327,8 @@ export default function NewThoughts({ navigation }) {
             Total Gratitudes: {filteredGratitudeMoments.length}
           </Text>
           <Text style={styles.analyticsText}>
-            Mood Distribution: {Object.keys(moodDistribution).map((mood) => (
+            Mood Distribution:{" "}
+            {Object.keys(moodDistribution).map((mood) => (
               <Text key={mood}>
                 {mood}: {moodDistribution[mood]}{" "}
               </Text>
@@ -202,11 +354,15 @@ export default function NewThoughts({ navigation }) {
 
         {/* Entries Grid */}
         <View style={styles.entriesGrid}>
-          {activeTab === "journals" ? (
-            filteredJournals.map(renderEntry)
-          ) : (
-            filteredGratitudeMoments.map(renderEntry)
+          {activeTab === "journals" && filteredJournals.length === 0 && (
+            <Text style={styles.motivationalText}>Start your first journal entry to reflect on your day!</Text>
           )}
+          {activeTab === "gratitudes" && filteredGratitudeMoments.length === 0 && (
+            <Text style={styles.motivationalText}>Write your first gratitude moment to appreciate the little things!</Text>
+          )}
+          {activeTab === "journals"
+            ? filteredJournals.map(renderEntry)
+            : filteredGratitudeMoments.map(renderEntry)}
         </View>
 
         {/* Add New Entry Button */}
@@ -260,19 +416,6 @@ export default function NewThoughts({ navigation }) {
     </SafeAreaView>
   );
 }
-
-// Helper function to generate random background color
-const getRandomColor = () => {
-  const colors = [
-    "#A7C7E7",
-    "#89CFF0",
-    "#7EC8B8",
-    "#9ACD32",
-    "#B0E0E6",
-    "#ADD8E6",
-  ];
-  return colors[Math.floor(Math.random() * colors.length)];
-};
 
 const styles = StyleSheet.create({
   container: {
@@ -387,7 +530,7 @@ const styles = StyleSheet.create({
     fontFamily: "PoppinsSemiBold",
   },
   analyticsText: {
-    fontSize: 15,
+    fontSize: 14,
     color: "#333",
     marginTop: 8,
     fontFamily: "PoppinsRegular",
@@ -408,7 +551,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#EF798A",
   },
   tabText: {
-    fontSize: 18,
+    fontSize: 17,
     color: "#fff",
   },
   entriesGrid: {
@@ -422,9 +565,15 @@ const styles = StyleSheet.create({
     padding: 15,
     borderRadius: 8,
   },
+  journalCard: {
+    backgroundColor: "#A7C7E7",
+  },
+  gratitudeCard: {
+    backgroundColor: "#B0E0E6",
+  },
   entryText: {
-    fontSize: 15,
-    color: "#fff",
+    fontSize: 13,
+    color: "black",
     fontFamily: "PoppinsRegular",
   },
   entryMood: {
@@ -433,16 +582,17 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   entryTag: {
-    fontSize: 14,
-    color: "#fffbf0",
+    fontSize: 12,
+    color: "black",
     marginTop: 4,
     fontFamily: "PoppinsRegular",
   },
   entryDate: {
-    fontSize: 14,
-    color: "#fffbf0",
-    marginTop: 4,
+    fontSize: 12,
+    color: "black",
+    marginTop: 5,
     fontFamily: "PoppinsRegular",
+    marginBottom: 8,
   },
   addEntryButton: {
     marginTop: 20,
@@ -498,7 +648,31 @@ const styles = StyleSheet.create({
     fontFamily: "PoppinsRegular",
   },
   loadingContainer: {
-    marginTop: 70, 
+    marginTop: 70,
     alignItems: "center",
   },
+  entryActions: {
+    flexDirection: "row",
+    justifyContent: "flex-end",
+    gap: 8,
+  },
+  iconButton: {
+    padding: 10,
+    borderRadius: 20,
+    justifyContent: "center",
+    alignItems: "center",
+    elevation: 3,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.2,
+    shadowRadius: 3,
+  },
+  motivationalText: {
+    fontSize: 16,
+    fontStyle: "italic",
+    color: "#333",
+    marginTop: 20,
+    textAlign: "center",
+    fontFamily: "PoppinsRegular",
+  }
 });
