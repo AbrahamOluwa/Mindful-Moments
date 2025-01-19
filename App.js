@@ -47,6 +47,7 @@ import SignIn from "./screens/SignIn.js";
 import { AuthProvider } from "./context/AuthContext";
 import { AudioProvider, AudioContext } from "./context/AudioContext";
 import MinimizedPlayer from "./components/meditations/MinimizedPlayer";
+import EntryScreen from './screens/EntryScreen.js';
 // import TrackPlayer from 'react-native-track-player';
 
 const newColorTheme = {
@@ -175,6 +176,7 @@ export default function App() {
                   component={NewThoughts}
                 />
                 <Stack.Screen name="PathsScreen" component={Paths} />
+                <Stack.Screen name="EntryScreen" component={EntryScreen} />
               </Stack.Navigator>
               {/* <MinimizedPlayer /> */}
             </NavigationContainer>

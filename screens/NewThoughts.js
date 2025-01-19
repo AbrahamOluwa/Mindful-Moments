@@ -6,203 +6,263 @@ import {
   TextInput,
   TouchableOpacity,
   StyleSheet,
+  Modal,
+  ActivityIndicator,
 } from "react-native";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { MaterialIcons } from "@expo/vector-icons";
+import { useAuth } from '../context/AuthContext';
+import { db } from "../firebaseConfig";
+import { collection, query, where, getDocs } from "firebase/firestore";
 
 export default function NewThoughts({ navigation }) {
+  const { user } = useAuth();
   const [activeTab, setActiveTab] = useState("journals");
   const [searchTerm, setSearchTerm] = useState("");
   const [mood, setMood] = useState("😊");
+  const [modalVisible, setModalVisible] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [journalEntries, setJournalEntries] = useState([]);
+  const [gratitudeMoments, setGratitudeMoments] = useState([]);
 
-  const sampleJournals = [
-    {
-      id: "1",
-      content: "Felt more focused after meditating.",
-      mood: "😊",
-      tags: ["Productivity"],
-      date: "2024-11-28",
-    },
-    {
-      id: "2",
-      content: "Achieved a personal goal today!",
-      mood: "😎",
-      tags: ["Goals"],
-      date: "2024-11-27",
-    },
-    {
-      id: "3",
-      content: "Achieved a personal love today!",
-      mood: "😎",
-      tags: ["Goals"],
-      date: "2024-11-27",
-    },
-    {
-      id: "4",
-      content: "Achieved a personal greatness today!",
-      mood: "😎",
-      tags: ["Goals"],
-      date: "2024-11-27",
-    },
-  ];
+  useEffect(() => {
+    const fetchEntries = async () => {
+      if (!user) return;
 
-  const sampleGratitudes = [
-    {
-      id: "1",
-      content: "Grateful for my supportive friends!",
-      mood: "😊",
-      tags: ["Relationships"],
-      date: "2024-11-28",
-    },
-    {
-      id: "2",
-      content: "Thankful for a productive day at work.",
-      mood: "😊",
-      tags: ["Work"],
-      date: "2024-11-27",
-    },
-  ];
+      const userId = user.uid;
+      const journalQuery = query(collection(db, `users/${userId}/entries`), where("type", "==", "journal"));
+      const gratitudeQuery = query(collection(db, `users/${userId}/entries`), where("type", "==", "gratitude"));
 
-  // const goals = ['Improve Productivity', 'Mental Wellbeing', 'Personal Growth'];
+      try {
+        const journalSnapshot = await getDocs(journalQuery);
+        const gratitudeSnapshot = await getDocs(gratitudeQuery);
 
-  const filteredJournals = sampleJournals.filter((item) =>
-    item.content.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-  const filteredGratitudes = sampleGratitudes.filter((item) =>
+        const journals = journalSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        const gratitudes = gratitudeSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+        setJournalEntries(journals);
+        setGratitudeMoments(gratitudes);
+      } catch (error) {
+        console.error("Error fetching entries: ", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchEntries();
+  }, [user]);
+
+  const filteredJournals = journalEntries.filter((item) =>
     item.content.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  // Handle analytics (example counts)
-  const totalJournals = filteredJournals.length;
-  const totalGratitudes = filteredGratitudes.length;
-  const moodDistribution = { "😊": 5, "😎": 2 };
+  const filteredGratitudeMoments = gratitudeMoments.filter((item) =>
+    item.content.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
-  const handleSearch = (query) => {
-    setSearchQuery(query);
-    setFilteredJournals(
-      sampleJournals.filter((entry) =>
-        entry.text.toLowerCase().includes(query.toLowerCase())
-      )
-    );
-    setFilteredGratitudes(
-      sampleGratitudes.filter((entry) =>
-        entry.text.toLowerCase().includes(query.toLowerCase())
-      )
-    );
+  const calculateMoodDistribution = (entries) => {
+    const moodCount = {};
+    entries.forEach((entry) => {
+      moodCount[entry.mood] = (moodCount[entry.mood] || 0) + 1;
+    });
+    return moodCount;
   };
 
-  return (
-    <ScrollView contentContainerStyle={styles.container}>
-      {/* Header */}
-      <View style={styles.header}>
-        <Text style={styles.title}>Thoughts</Text>
-        <Text style={styles.quote}>"Reflect, Grow, and Be Grateful"</Text>
-      </View>
+  const moodDistribution = calculateMoodDistribution([
+    ...filteredJournals,
+    ...filteredGratitudeMoments,
+  ]);
 
-      {/* Daily Prompt */}
-      <View style={styles.dailyPromptContainer}>
-        <Text style={styles.dailyPromptTitle}>Daily Prompts</Text>
-        <Text style={styles.dailyPromptText}>What went well today?</Text>
-        <Text style={styles.dailyPromptText}>
-          What are you grateful for right now?
-        </Text>
-        <TouchableOpacity style={styles.startReflectionButton}>
+  const handleStartReflection = () => {
+    setModalVisible(true);
+  };
+
+  const handleAddEntry = () => {
+    setModalVisible(true);
+  };
+
+  const navigateToEntryScreen = (type) => {
+    setModalVisible(false);
+    navigation.navigate("EntryScreen", { type });
+  };
+
+  const renderEntry = (item) => (
+    <View
+      key={item.id}
+      style={[styles.entryCard, { backgroundColor: getRandomColor() }]}
+    >
+      <Text style={styles.entryText}>{item.content}</Text>
+      <Text style={styles.entryMood}>{item.mood}</Text>
+      <Text style={styles.entryTag}>{Array.isArray(item.tags) ? item.tags.join(", ") : ''}</Text>
+      <Text style={styles.entryDate}>{item.date}</Text>
+    </View>
+  );
+
+  // if (loading) {
+  //   return <ActivityIndicator size="large" color="#0000ff" />;
+  // }
+
+  if (loading) {
+    return (
+      <View style={styles.loadingContainer}>
+      <ActivityIndicator size="large" color="#0000ff" />
+    </View>
+    );
+  }
+
+  // {loading && (
+  //   <View style={styles.loadingContainer}>
+  //     <ActivityIndicator size="large" color="#0000ff" />
+  //   </View>
+  // )}
+
+  return (
+    <SafeAreaView style={{ flex: 1 }}>
+      <ScrollView contentContainerStyle={styles.container}>
+        {/* Header */}
+        <View style={styles.header}>
+          <Text style={styles.title}>Thoughts</Text>
+          <Text style={styles.quote}>"Reflect, Grow, and Be Grateful"</Text>
+        </View>
+
+        {/* Daily Prompt */}
+        <View style={styles.dailyPromptContainer}>
+          <Text style={styles.dailyPromptTitle}>Daily Prompts</Text>
+          <Text style={styles.dailyPromptText}>What went well today?</Text>
+          <Text style={styles.dailyPromptText}>
+            What are you grateful for right now?
+          </Text>
+          <TouchableOpacity
+            style={styles.startReflectionButton}
+            onPress={handleStartReflection}
+          >
             <Text style={styles.reflectionButtonText}>Start a Reflection</Text>
           </TouchableOpacity>
-      </View>
-
-      {/* Mood Tracker */}
-      <View style={styles.moodTracker}>
-        <Text style={styles.moodTrackerText}>How are you feeling today?</Text>
-        <View style={styles.moodOptions}>
-          {["😊", "😎", "😞", "😃", "😔"].map((emoji) => (
-            <TouchableOpacity
-              key={emoji}
-              onPress={() => setMood(emoji)}
-              style={styles.moodButton}
-            >
-              <Text style={styles.moodEmoji}>{emoji}</Text>
-            </TouchableOpacity>
-          ))}
         </View>
-      </View>
 
-      {/* Search Bar */}
-      <View style={styles.searchContainer}>
-        <TextInput
-          style={styles.searchInput}
-          placeholder="Search Journals or Gratitudes..."
-          value={searchTerm}
-          onChangeText={setSearchTerm}
-        />
-      </View>
+        {/* Mood Tracker */}
+        <View style={styles.moodTracker}>
+          <Text style={styles.moodTrackerText}>How are you feeling today?</Text>
+          <View style={styles.moodOptions}>
+            {["😊", "😎", "😞", "😃", "😔"].map((emoji) => (
+              <TouchableOpacity
+                key={emoji}
+                onPress={() => setMood(emoji)}
+                style={styles.moodButton}
+              >
+                <Text style={styles.moodEmoji}>{emoji}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        </View>
 
-      {/* Analytics */}
-      <View style={styles.analyticsContainer}>
-        <Text style={styles.analyticsTitle}>Analytics</Text>
-        <Text style={styles.analyticsText}>
-          Total Journals: {totalJournals}
-        </Text>
-        <Text style={styles.analyticsText}>
-          Total Gratitudes: {totalGratitudes}
-        </Text>
-        <Text style={styles.analyticsText}>
-          Mood Distribution: 😊: {moodDistribution["😊"]}, 😎:{" "}
-          {moodDistribution["😎"]}
-        </Text>
-      </View>
+        {/* Search Bar */}
+        <View style={styles.searchContainer}>
+          <TextInput
+            style={styles.searchInput}
+            placeholder="Search Journals or Gratitudes..."
+            value={searchTerm}
+            onChangeText={setSearchTerm}
+          />
+        </View>
 
-      {/* Tabs for Journals/Gratitudes */}
-      <View style={styles.tabContainer}>
+        {/* Analytics */}
+        <View style={styles.analyticsContainer}>
+          <Text style={styles.analyticsTitle}>Analytics</Text>
+          <Text style={styles.analyticsText}>
+            Total Journals: {filteredJournals.length}
+          </Text>
+          <Text style={styles.analyticsText}>
+            Total Gratitudes: {filteredGratitudeMoments.length}
+          </Text>
+          <Text style={styles.analyticsText}>
+            Mood Distribution: {Object.keys(moodDistribution).map((mood) => (
+              <Text key={mood}>
+                {mood}: {moodDistribution[mood]}{" "}
+              </Text>
+            ))}
+          </Text>
+        </View>
+
+        {/* Tabs for Journals/Gratitudes */}
+        <View style={styles.tabContainer}>
+          <TouchableOpacity
+            style={[styles.tab, activeTab === "journals" && styles.activeTab]}
+            onPress={() => setActiveTab("journals")}
+          >
+            <Text style={styles.tabText}>Journals</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.tab, activeTab === "gratitudes" && styles.activeTab]}
+            onPress={() => setActiveTab("gratitudes")}
+          >
+            <Text style={styles.tabText}>Gratitudes</Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* Entries Grid */}
+        <View style={styles.entriesGrid}>
+          {activeTab === "journals" ? (
+            filteredJournals.map(renderEntry)
+          ) : (
+            filteredGratitudeMoments.map(renderEntry)
+          )}
+        </View>
+
+        {/* Add New Entry Button */}
         <TouchableOpacity
-          style={[styles.tab, activeTab === "journals" && styles.activeTab]}
-          onPress={() => setActiveTab("journals")}
+          style={styles.addEntryButton}
+          onPress={handleAddEntry}
         >
-          <Text style={styles.tabText}>Journals</Text>
+          <Text style={styles.addEntryText}>+ Add Entry</Text>
         </TouchableOpacity>
-        <TouchableOpacity
-          style={[styles.tab, activeTab === "gratitudes" && styles.activeTab]}
-          onPress={() => setActiveTab("gratitudes")}
-        >
-          <Text style={styles.tabText}>Gratitudes</Text>
-        </TouchableOpacity>
-      </View>
 
-      {/* Entries Grid */}
-      <View style={styles.entriesGrid}>
-        {(activeTab === "journals" ? filteredJournals : filteredGratitudes).map(
-          (item) => (
-            <View
-              key={item.id}
-              style={[styles.entryCard, { backgroundColor: getRandomColor() }]}
-            >
-              <Text style={styles.entryText}>{item.content}</Text>
-              <Text style={styles.entryMood}>{item.mood}</Text>
-              <Text style={styles.entryTag}>{item.tags.join(", ")}</Text>
-              <Text style={styles.entryDate}>{item.date}</Text>
+        {/* Modal for Entry Options */}
+        <Modal
+          animationType="slide"
+          transparent={true}
+          visible={modalVisible}
+          onRequestClose={() => {
+            setModalVisible(!modalVisible);
+          }}
+        >
+          <View style={styles.modalContainer}>
+            <View style={styles.modalContent}>
+              <Text style={styles.modalTitle}>Choose Entry Type</Text>
+              <TouchableOpacity
+                style={styles.modalButton}
+                onPress={() => navigateToEntryScreen("journal")}
+              >
+                <Text style={styles.modalButtonText}>Journal Entry</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.modalButton}
+                onPress={() => navigateToEntryScreen("gratitude")}
+              >
+                <Text style={styles.modalButtonText}>Gratitude Moment</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.modalButton}
+                onPress={() => navigateToEntryScreen("goal")}
+              >
+                <Text style={styles.modalButtonText}>Goal Entry</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.modalCloseButton}
+                onPress={() => setModalVisible(false)}
+              >
+                <Text style={styles.modalCloseButtonText}>Cancel</Text>
+              </TouchableOpacity>
             </View>
-          )
-        )}
-      </View>
-
-      {/* Add New Entry Button */}
-      <TouchableOpacity style={styles.addEntryButton}>
-        <Text style={styles.addEntryText}>+ Add Entry</Text>
-      </TouchableOpacity>
-    </ScrollView>
+          </View>
+        </Modal>
+      </ScrollView>
+    </SafeAreaView>
   );
 }
 
 // Helper function to generate random background color
 const getRandomColor = () => {
-//   const colors = [
-//     "#FF6347",
-//     "#98FB98",
-//     "#87CEFA",
-//     "#FFD700",
-//     "#32CD32",
-//     "#FF4500",
-//   ];
   const colors = [
     "#A7C7E7",
     "#89CFF0",
@@ -239,23 +299,19 @@ const styles = StyleSheet.create({
   dailyPromptContainer: {
     marginBottom: 20,
     backgroundColor: "#9D50BB",
-    //backgroundColor: "#fff3e0",
     padding: 15,
     borderRadius: 8,
     borderWidth: 1,
     borderColor: "#9D50BB",
-    // borderColor: "#ff9800",
   },
   dailyPromptTitle: {
     fontSize: 20,
     fontWeight: "bold",
-    // color: "#ff9800",
     color: "#fff",
     fontFamily: "PoppinsSemiBold",
   },
   dailyPromptText: {
     fontSize: 16,
-    color: "#333",
     color: "#fff",
     marginTop: 8,
     fontFamily: "PoppinsRegular",
@@ -275,12 +331,10 @@ const styles = StyleSheet.create({
   moodTracker: {
     marginBottom: 20,
     backgroundColor: "#fff5f8",
-    // backgroundColor: "#f0f8ff",
     padding: 15,
     borderRadius: 8,
     borderWidth: 1,
     borderColor: "#fff5f8",
-    // borderColor: "#add8e6",
   },
   moodTrackerText: {
     fontSize: 18,
@@ -322,7 +376,6 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     padding: 15,
     backgroundColor: "#ffcbf2",
-    // backgroundColor: "#ffebcd",
     borderRadius: 8,
     borderWidth: 1,
     borderColor: "#ffcbf2",
@@ -352,7 +405,6 @@ const styles = StyleSheet.create({
     marginHorizontal: 10,
   },
   activeTab: {
-    // backgroundColor: "#4CAF50",
     backgroundColor: "#EF798A",
   },
   tabText: {
@@ -404,5 +456,49 @@ const styles = StyleSheet.create({
     fontSize: 15,
     color: "#fff",
     fontFamily: "PoppinsRegular",
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0,0,0,0.5)",
+  },
+  modalContent: {
+    width: 300,
+    backgroundColor: "#fff",
+    padding: 20,
+    borderRadius: 10,
+    alignItems: "center",
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    marginBottom: 20,
+    fontFamily: "PoppinsSemiBold",
+  },
+  modalButton: {
+    backgroundColor: "#9D50BB",
+    padding: 10,
+    borderRadius: 5,
+    marginVertical: 5,
+    width: "100%",
+    alignItems: "center",
+  },
+  modalButtonText: {
+    color: "#fff",
+    fontSize: 16,
+    fontFamily: "PoppinsRegular",
+  },
+  modalCloseButton: {
+    marginTop: 10,
+  },
+  modalCloseButtonText: {
+    color: "#9D50BB",
+    fontSize: 16,
+    fontFamily: "PoppinsRegular",
+  },
+  loadingContainer: {
+    marginTop: 70, 
+    alignItems: "center",
   },
 });

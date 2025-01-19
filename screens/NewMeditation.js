@@ -21,6 +21,7 @@ import {
   orderBy,
   limit,
 } from "firebase/firestore";
+import { useFocusEffect } from "@react-navigation/native";
 
 export default function NewMeditation({ navigation }) {
   const [filterCategory, setFilterCategory] = useState("All");
@@ -100,48 +101,93 @@ export default function NewMeditation({ navigation }) {
     try {
       setIsFetching(true);
       setError(null);
-
+  
       const userId = auth.currentUser.uid;
       const sessionsRef = collection(db, `users/${userId}/sessions`);
-      const q = query(sessionsRef, orderBy("date", "desc"), limit(3));
-      const querySnapshot = await getDocs(q);
-
+  
+      // Query for completed sessions
+      const completedSessionsQuery = query(sessionsRef, orderBy("date", "desc"), limit(4));
+      const completedSessionsSnapshot = await getDocs(completedSessionsQuery);
+  
       const sessions = [];
-      for (const docSnapshot of querySnapshot.docs) {
-        const sessionData = docSnapshot.data();
+  
+      // Process completed sessions
+      for (const docSnapshot of completedSessionsSnapshot.docs) {
+        if (docSnapshot.id !== "current") { // Exclude the "current" session
+          const sessionData = docSnapshot.data();
+          const meditationId = sessionData.meditationId;
+          const meditationDocRef = doc(db, "meditations", meditationId);
+          const meditationDoc = await getDoc(meditationDocRef);
+  
+          if (meditationDoc.exists()) {
+            const meditationData = meditationDoc.data();
+            let moodData = { name: "Unknown", color: "#ccc" };
+  
+            if (meditationData.mood) {
+              const moodDocRef = doc(db, "moods", meditationData.mood.id);
+              const moodDoc = await getDoc(moodDocRef);
+              if (moodDoc.exists()) {
+                moodData = moodDoc.data();
+              }
+            }
+  
+            sessions.push({
+              id: docSnapshot.id,
+              title: meditationData.title,
+              description: meditationData.description,
+              duration: meditationData.duration,
+              mood: moodData.name,
+              moodColor: moodData.color,
+              date: sessionData.date,
+            });
+          }
+        }
+      }
+  
+      // Fetch the current session
+      const currentSessionDocRef = doc(db, `users/${userId}/sessions`, "current");
+      const currentSessionDoc = await getDoc(currentSessionDocRef);
+  
+      if (currentSessionDoc.exists()) {
+        const sessionData = currentSessionDoc.data();
         const meditationId = sessionData.meditationId;
         const meditationDocRef = doc(db, "meditations", meditationId);
         const meditationDoc = await getDoc(meditationDocRef);
-
+  
         if (meditationDoc.exists()) {
           const meditationData = meditationDoc.data();
           let moodData = { name: "Unknown", color: "#ccc" };
-
+  
           if (meditationData.mood) {
-            const moodDocRef = doc(db, "moods", meditationData.mood.id); // Ensure this is a reference to the mood document
+            const moodDocRef = doc(db, "moods", meditationData.mood.id);
             const moodDoc = await getDoc(moodDocRef);
             if (moodDoc.exists()) {
               moodData = moodDoc.data();
             }
           }
-
+  
           sessions.push({
-            id: docSnapshot.id,
+            id: currentSessionDoc.id,
             title: meditationData.title,
             description: meditationData.description,
             duration: meditationData.duration,
             mood: moodData.name,
             moodColor: moodData.color,
+            date: sessionData.date,
           });
         }
       }
-
-      setLastSessions(sessions);
+  
+      // Sort sessions by date in descending order
+      sessions.sort((a, b) => b.date.toDate() - a.date.toDate());
+  
+      // Limit to the most recent 3 sessions
+      const recentSessions = sessions.slice(0, 3);
+  
+      setLastSessions(recentSessions);
     } catch (error) {
       console.error("Error fetching last listened sessions:", error);
-      setError(
-        "Failed to load last listened sessions. Please try again later."
-      );
+      setError("Failed to load last listened sessions. Please try again later.");
     } finally {
       setIsFetching(false);
     }
@@ -163,11 +209,19 @@ export default function NewMeditation({ navigation }) {
     }
   };
 
-  useEffect(() => {
-    getAllMeditations();
-    fetchLastListenedSessions();
-    fetchUserStreak(); 
-  }, []);
+  // useEffect(() => {
+  //   getAllMeditations();
+  //   fetchLastListenedSessions();
+  //   fetchUserStreak(); 
+  // }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      getAllMeditations();
+      fetchLastListenedSessions();
+      fetchUserStreak();
+    }, [])
+  );
 
   const filteredSessions =
     filterCategory === "All" && filterMood === "All"

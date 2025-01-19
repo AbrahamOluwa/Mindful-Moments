@@ -580,24 +580,34 @@ export default function MeditationPlayer({ route, navigation }) {
   const updateStreak = async (userId, sessionDate) => {
     const userRef = doc(db, `users/${userId}`);
     const userDoc = await getDoc(userRef);
-
+  
     if (userDoc.exists()) {
       const userData = userDoc.data();
       const lastSessionDate = userData.lastSessionDate ? userData.lastSessionDate.toDate() : null;
       let streak = userData.streak || 0;
-
+  
       if (lastSessionDate) {
-        const diffDays = Math.floor((sessionDate - lastSessionDate) / (1000 * 60 * 60 * 24));
-
+        // Normalize to start of the day (00:00:00) in UTC for both dates
+        const lastSessionDay = new Date(Date.UTC(lastSessionDate.getUTCFullYear(), lastSessionDate.getUTCMonth(), lastSessionDate.getUTCDate()));
+        const currentSessionDay = new Date(Date.UTC(sessionDate.getUTCFullYear(), sessionDate.getUTCMonth(), sessionDate.getUTCDate()));
+        
+        const diffDays = Math.floor((currentSessionDay - lastSessionDay) / (1000 * 60 * 60 * 24));
+       
+  
         if (diffDays === 1) {
+          // If the session is on the next calendar day, increment the streak
           streak += 1;
         } else if (diffDays > 1) {
+          // If there is a gap of more than one day, reset the streak
           streak = 1;
-        }
+        } // if diffDays === 0, the streak remains unchanged for multiple sessions in the same day
       } else {
+        // If there is no last session date, start the streak
         streak = 1;
       }
 
+     
+      // Update the user's last session date and streak in Firestore
       await updateDoc(userRef, {
         lastSessionDate: sessionDate,
         streak: streak,
