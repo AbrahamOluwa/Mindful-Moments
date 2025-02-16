@@ -48,6 +48,8 @@ import { AuthProvider } from "./context/AuthContext";
 import { AudioProvider, AudioContext } from "./context/AudioContext";
 import MinimizedPlayer from "./components/meditations/MinimizedPlayer";
 import EntryScreen from './screens/EntryScreen.js';
+import CreateGoal from "./screens/CreateGoal.js";
+import GoalDetails from "./screens/GoalDetails.js";
 // import TrackPlayer from 'react-native-track-player';
 
 const newColorTheme = {
@@ -177,6 +179,8 @@ export default function App() {
                 />
                 <Stack.Screen name="PathsScreen" component={Paths} />
                 <Stack.Screen name="EntryScreen" component={EntryScreen} />
+                <Stack.Screen name="CreateGoalScreen" component={CreateGoal} />
+                <Stack.Screen name="GoalDetailsScreen" component={GoalDetails} />
               </Stack.Navigator>
               {/* <MinimizedPlayer /> */}
             </NavigationContainer>

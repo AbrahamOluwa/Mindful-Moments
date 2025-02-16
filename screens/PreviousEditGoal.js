@@ -5,63 +5,83 @@ import {
   ScrollView,
   TextInput,
   TouchableOpacity,
-  SafeAreaView,
-  Alert,
+  FlatList,
 } from "react-native";
-import React, { useState } from "react";
-import { doc, updateDoc, collection, addDoc, getDocs, deleteDoc, serverTimestamp } from "firebase/firestore";
-import { db } from "../firebaseConfig";
-import { useRoute, useNavigation } from "@react-navigation/native";
-import { AntDesign } from "@expo/vector-icons";
+import React, { useState, useEffect } from "react";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { doc, updateDoc, serverTimestamp } from "firebase/firestore";
+import { auth, db } from "../firebaseConfig";
+import AntDesign from "@expo/vector-icons/AntDesign";
+import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { Picker } from "@react-native-picker/picker";
+import DatePicker from "@react-native-community/datetimepicker";
 import {
-  CheckIcon,
-  Select,
-  useToast,
-  Box,
   Button,
-  Modal,
+  useToast,
+  Select,
+  CheckIcon,
   Center,
   VStack,
+  HStack,
+  Box,
+  Modal,
 } from "native-base";
+import { useRoute } from "@react-navigation/native";
 import DateTimePicker from "@react-native-community/datetimepicker";
+import { getUserId } from "../components/home/GetUserId";
 import { Calendar } from "react-native-calendars";
 import Checkbox from "expo-checkbox";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { useGoalContext } from "../components/goals/GoalContext";
+import { useSelector, useDispatch } from 'react-redux';
+import { updateGoalAction } from "../redux/actions/goalActions";
 
-export default function EditGoal() {
+export default function EditGoal({navigation}) {
   const route = useRoute();
-  const navigation = useNavigation();
-  const { goal, userId } = route.params;
+  const {
+    id,
+    title,
+    description,
+    dueDate,
+    category,
+    priority,
+    repeatOption,
+    selectedDays,
+    selectedTime,
+    selectedDateMY,
+    tasks,
+   // onUpdate 
+  } = route.params;
 
-  const [goalTitle, setGoalTitle] = useState(goal.title);
-  const [goalDescription, setGoalDescription] = useState(goal.description);
-  const [goalCategory, setGoalCategory] = useState(goal.category);
-  const [goalPriority, setGoalPriority] = useState(goal.priority);
+  const dispatch = useDispatch();
+  const [goalId, setGoalId] = useState(id);
+  const [goalTitle, setGoalTitle] = useState(title);
+  const [goalDescription, setGoalDescription] = useState(description);
+  const [goalCategory, setGoalCategory] = useState(category);
+  const [goalPriority, setGoalPriority] = useState(priority);
   const [newTask, setNewTask] = useState("");
   const [showDueDatePicker, setShowDueDatePicker] = useState(false);
-  const [newDueDate, setNewDueDate] = useState(new Date(goal.dueDate.toDate()));
+  const [newDueDate, setNewDueDate] = useState(
+    new Date(formatFirestoreTimestamp(dueDate))
+  );
   const [isSubmitting, setIsSubmitting] = useState(false);
   const toast = useToast();
   const [goalSelectedTime, setGoalSelectedTime] = useState(
-    new Date(
-      goal.reminderSettings.selectedTime
-        ? goal.reminderSettings.selectedTime.toDate()
-        : new Date()
-    )
+    selectedTime ? selectedTime.toDate() : new Date()
   );
-  const [goalRepeatOption, setGoalRepeatOption] = useState(
-    goal.reminderSettings.repeatOption
-  );
-  const [goalSelectedDays, setGoalSelectedDays] = useState(
-    goal.reminderSettings.selectedDays
-  );
-  const [selectedDate, setSelectedDate] = useState(
-    goal.reminderSettings.selectedDate
-  );
+
+  const [goalRepeatOption, setGoalRepeatOption] = useState(repeatOption); // Default to Daily
+  const [goalSelectedDays, setGoalSelectedDays] = useState(selectedDays); // Selected days for Weekly
+  const [selectedDate, setSelectedDate] = useState(selectedDateMY); // Selected date for Monthly and Yearly
   const [showTimePicker, setShowTimePicker] = useState(false);
-  const [goalTasks, setGoalTasks] = useState(goal.tasks);
-  const [goalMilestones, setGoalMilestones] = useState(goal.milestones);
+  const [goalTasks, setGoalTasks] = useState(tasks);
   const [showModal, setShowModal] = useState(false);
+
+ 
+  function formatFirestoreTimestamp(timestamp) {
+    const jsDate = timestamp.toDate();
+    const formattedDate = jsDate.toISOString().split("T")[0];
+    return formattedDate;
+  }
 
   const showDueDatePickerModal = () => {
     setShowDueDatePicker(true);
@@ -79,12 +99,13 @@ export default function EditGoal() {
   };
 
   const toggleDay = (day) => {
+    // Toggle the selected state of a day for Weekly reminders
     if (goalSelectedDays.includes(day)) {
       setGoalSelectedDays(
         goalSelectedDays.filter((selectedDay) => selectedDay !== day)
       );
     } else {
-      setGoalSelectedDays([...goalSelectedDays, day]);
+      setGoalSelectedDays([...selectedDays, day]);
     }
   };
 
@@ -123,7 +144,13 @@ export default function EditGoal() {
     setIsSubmitting(true);
 
     try {
-      if (!goalTitle || !goalDescription || !newDueDate || !goalCategory || !goalPriority) {
+      if (
+        !goalTitle ||
+        !goalDescription ||
+        !newDueDate ||
+        !goalCategory ||
+        !goalPriority
+      ) {
         setIsSubmitting(false);
         toast.show({
           render: () => {
@@ -136,8 +163,11 @@ export default function EditGoal() {
             );
           },
         });
+        console.log("Please fill all the required fields.");
         return;
       }
+
+      const userId = await getUserId();
 
       const goalData = {
         title: goalTitle,
@@ -145,80 +175,107 @@ export default function EditGoal() {
         dueDate: newDueDate,
         category: goalCategory,
         priority: goalPriority,
-        isGoalCompleted: goalTasks.length === goalTasks.filter((task) => task.completed === true).length,
-        status: goalTasks.length === goalTasks.filter((task) => task.completed === true).length ? "completed" : "active",
+        // reminderDate: reminderDate,
+        tasks: goalTasks,
+        numberOfTasks: goalTasks.length,
+        completedTasks: goalTasks.filter((task) => task.completed === true)
+          .length,
+        isCompleted:
+          goalTasks.length ===
+          goalTasks.filter((task) => task.completed === true).length
+            ? true
+            : false,
+        status:
+          goalTasks.length ===
+          goalTasks.filter((task) => task.completed === true).length
+            ? "completed"
+            : "active",
         reminderSettings: {
           repeatOption: goalRepeatOption,
           selectedDays: goalSelectedDays,
-          selectedDate: goalRepeatOption === "Monthly" || goalRepeatOption === "Yearly" ? selectedDate : "",
+          selectedDate:
+            goalRepeatOption === "Monthly" || goalRepeatOption === "Yearly"
+              ? selectedDate
+              : "",
           selectedTime: goalRepeatOption === "Daily" ? goalSelectedTime : "", // Time selected by the user (for Daily)
         },
       };
 
-      const goalRef = doc(db, "users", userId, "goals", goal.id);
-      await updateDoc(goalRef, goalData);
+      //console.log(goalData);
 
-      // Fetch existing tasks from Firestore
-      const existingTasksSnapshot = await getDocs(collection(db, "users", userId, "goals", goal.id, "tasks"));
-      const existingTasks = existingTasksSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+      const collectionRef = doc(
+        db,
+        "nonRegisteredUsers",
+        userId,
+        "goals",
+        goalId
+      );
 
-      // Update existing tasks and add new tasks
-      for (const task of goalTasks) {
-        if (task.id) {
-          // Update existing task
-          const taskRef = doc(db, "users", userId, "goals", goal.id, "tasks", task.id);
-          await updateDoc(taskRef, { text: task.text, completed: task.completed });
-        } else {
-          // Add new task
-          await addDoc(collection(db, "users", userId, "goals", goal.id, "tasks"), {
-            text: task.text,
-            completed: task.completed,
-            createdAt: serverTimestamp(),
-          });
-        }
-      }
+      await updateDoc(collectionRef, goalData);
 
-      // Remove tasks that are no longer in the updated goalTasks
-      for (const existingTask of existingTasks) {
-        if (!goalTasks.find((task) => task.id === existingTask.id)) {
-          const taskRef = doc(db, "users", userId, "goals", goal.id, "tasks", existingTask.id);
-          await deleteDoc(taskRef);
-        }
-      }
+      console.log("Goal updated successfully! Document ID:", collectionRef.id);
 
       setIsSubmitting(false);
 
-      const tasksThatHasBeenMarkedAsComplete = goalTasks.filter((task) => task.completed === true).length;
+     // onUpdate(goalData);
 
+     updateGoalRedux(goalId, goalData)
+
+      const tasksThatHasBeenMarkedAsComplete = goalTasks.filter(
+        (task) => task.completed === true
+      ).length;
+  
       if (goalTasks.length === tasksThatHasBeenMarkedAsComplete) {
+        console.log("This goal has been achieved");
         setShowModal(true);
       } else {
         toast.show({
           render: () => {
             return (
               <Box bg="emerald.500" px="4" py="3" rounded="sm" mb={5}>
-                <Text style={{ fontFamily: "PoppinsMedium", color: "#fff" }}>
-                  Goal updated successfully!
+                <Text style={{ fontFamily: "SoraMedium", color: "#fff" }}>
+                  Goal uploaded successfully!
                 </Text>
               </Box>
             );
           },
         });
-
+  
         setTimeout(() => {
-          navigation.navigate("GoalDetailsScreen", { goalId: goal.id, userId });
+          navigation.navigate("GoalsListScreen");
         }, 2000);
       }
     } catch (error) {
-      console.error("Error updating goal:", error);
-      Alert.alert(
-        "Error",
-        "There was an error updating the goal. Please try again."
-      );
-      setIsSubmitting(false);
+      console.error("Error saving goal:", error);
     }
+  
   };
 
+  const updateGoalRedux = (goalId, updatedGoalData) => {
+    // Dispatch an action to update the goal in your state
+    dispatch(updateGoalAction(goalId, updatedGoalData));
+
+  };
+
+  // const handleUpdateGoal = (updatedGoalData) => {
+  //   const { updateGoal } = useGoalContext();
+  //   updateGoal(updatedGoalData);
+  //   // ...
+  
+  //   // This function should only set the navigation options
+  //   navigation.setOptions({
+  //     headerRight: () => (
+  //       <TouchableOpacity
+  //         onPress={() => {
+  //           // This is correct: Call handleUpdateGoal when the user clicks the "Save" button
+  //           handleUpdateGoal(updatedGoalData);
+  //         }}
+  //       >
+  //         <Text>Save</Text>
+  //       </TouchableOpacity>
+  //     ),
+  //   });
+  // };
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
@@ -234,7 +291,7 @@ export default function EditGoal() {
             multiline
             placeholder="Goal Title"
             value={goalTitle}
-            onChangeText={setGoalTitle}
+            onChangeText={(text) => setGoalTitle(text)}
           />
 
           <Text style={styles.label}>
@@ -246,7 +303,7 @@ export default function EditGoal() {
             placeholder="Enter Goal Description"
             multiline
             value={goalDescription}
-            onChangeText={setGoalDescription}
+            onChangeText={(text) => setGoalDescription(text)}
           />
 
           <Text style={styles.label}>
@@ -262,7 +319,7 @@ export default function EditGoal() {
             </Text>
           </TouchableOpacity>
           {showDueDatePicker && (
-            <DateTimePicker
+            <DatePicker
               value={newDueDate}
               mode="date"
               display="default"
@@ -296,8 +353,8 @@ export default function EditGoal() {
                 variant="unstyled"
                 mt={1}
                 shadow={2}
-                style={{ fontSize: 14, fontFamily: "PoppinsMedium" }}
-                onValueChange={setGoalCategory}
+                style={{ fontSize: 14, fontFamily: "SoraMedium" }}
+                onValueChange={(itemValue) => setGoalCategory(itemValue)}
               >
                 <Select.Item label="General" value="General" />
                 <Select.Item
@@ -358,8 +415,8 @@ export default function EditGoal() {
                 variant="unstyled"
                 mt={1}
                 shadow={2}
-                style={{ fontSize: 13, fontFamily: "PoppinsMedium" }}
-                onValueChange={setGoalPriority}
+                style={{ fontSize: 14, fontFamily: "SoraMedium" }}
+                onValueChange={(itemValue) => setGoalPriority(itemValue)}
               >
                 <Select.Item label="Critical" value="Critical" />
                 <Select.Item label="High" value="High" />
@@ -389,7 +446,7 @@ export default function EditGoal() {
                   <Text
                     style={{
                       color: goalRepeatOption === option ? "white" : "black",
-                      fontFamily: "PoppinsMedium",
+                      fontFamily: "SoraLight",
                     }}
                   >
                     {option}
@@ -411,7 +468,7 @@ export default function EditGoal() {
                   >
                     <Text
                       style={{
-                        fontFamily: "PoppinsSemiBold",
+                        fontFamily: "SoraSemiBold",
                         color: "#613F75",
                         fontSize: 20,
                       }}
@@ -425,6 +482,7 @@ export default function EditGoal() {
                   <DateTimePicker
                     value={goalSelectedTime}
                     mode="time"
+                    //is24Hour={true}
                     display="clock"
                     onChange={handleTimeChange}
                   />
@@ -456,7 +514,7 @@ export default function EditGoal() {
                             color: goalSelectedDays.includes(day)
                               ? "white"
                               : "black",
-                            fontFamily: "PoppinsRegular",
+                            fontFamily: "SoraLight",
                           }}
                         >
                           {day}
@@ -511,7 +569,7 @@ export default function EditGoal() {
               style={styles.addTaskInput}
               placeholder="Add Task"
               value={newTask}
-              onChangeText={setNewTask}
+              onChangeText={(text) => setNewTask(text)}
             />
             <TouchableOpacity style={styles.addTaskButton} onPress={addTask}>
               <Text style={styles.addTaskButtonText}>Add Task</Text>
@@ -531,8 +589,8 @@ export default function EditGoal() {
                 bg: "#EF798A",
                 _text: {
                   color: "coolGray.700",
-                  fontFamily: "PoppinsMedium",
-                  fontSize: 14,
+                  fontFamily: "SoraMedium",
+                  fontSize: 15,
                 },
               }}
               _spinner={{
@@ -559,15 +617,12 @@ export default function EditGoal() {
         >
           <Modal.Content maxWidth="350" maxH="250">
             <Modal.CloseButton />
-            <VStack alignItems="center" style={{ marginTop: 10 }}>
-              <MaterialCommunityIcons
-                name="party-popper"
-                size={45}
-                color="#FF007F"
-              />
+            <VStack alignItems="center" style={{marginTop: 10}}>
+              {/* <AntDesign name="checkcircleo" size={45} color="green" /> */}
+              <MaterialCommunityIcons name="party-popper" size={45} color="#FF007F" />
             </VStack>
             <Modal.Body>
-              <Text style={{ fontFamily: "PoppinsRegular", fontSize: 12 }}>
+              <Text style={{ fontFamily: "SoraRegular" , fontSize: 12}}>
                 Congratulations! 🎉 You have achieved your goal. Keep up the
                 great work and set new goals to conquer!
               </Text>
@@ -577,13 +632,14 @@ export default function EditGoal() {
                 onPress={() => {
                   setShowModal(false);
                   setTimeout(() => {
-                    navigation.goBack();
+                    navigation.navigate("GoalsListScreen");
                   }, 2000);
                 }}
               >
-                <Text style={{ fontFamily: "PoppinsRegular", color: "#fff" }}>
-                  Close
+                <Text style={{ fontFamily: "SoraRegular" , color: '#fff'}}>
+                   Close
                 </Text>
+                
               </Button>
             </Modal.Footer>
           </Modal.Content>
@@ -592,6 +648,7 @@ export default function EditGoal() {
     </SafeAreaView>
   );
 }
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -599,18 +656,18 @@ const styles = StyleSheet.create({
   },
   heading: {
     fontSize: 24,
-    fontFamily: "PoppinsSemiBold",
+    fontFamily: "SoraSemiBold",
     marginBottom: 10,
     marginLeft: 10,
-    marginTop: 10,
+    marginTop: 10
   },
   label: {
-    fontFamily: "PoppinsMedium",
+    fontFamily: "SoraMedium",
     fontSize: 16,
     marginBottom: 10,
   },
   miniLabel: {
-    fontFamily: "PoppinsSemiBold",
+    fontFamily: "SoraSemiBold",
     fontSize: 14,
     marginBottom: 10,
     color: "#222222",
@@ -624,7 +681,7 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     marginBottom: 20,
     backgroundColor: "#FFF",
-    fontFamily: "PoppinsMedium",
+    fontFamily: "SoraMedium",
   },
   input2: {
     height: 120,
@@ -634,7 +691,7 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     marginBottom: 20,
     backgroundColor: "#FFF",
-    fontFamily: "PoppinsMedium",
+    fontFamily: "SoraMedium",
   },
   dropdown: {
     borderWidth: 2,
@@ -643,10 +700,10 @@ const styles = StyleSheet.create({
     padding: 10,
     marginBottom: 20,
     backgroundColor: "#FFF",
-    fontFamily: "PoppinsMedium",
+    fontFamily: "SoraMedium",
   },
   pickerItemStyle: {
-    fontFamily: "PoppinsMedium",
+    fontFamily: "SoraMedium",
   },
   datePicker: {
     marginBottom: 16,
@@ -663,7 +720,7 @@ const styles = StyleSheet.create({
   },
   datePickerText: {
     marginLeft: 10,
-    fontFamily: "PoppinsMedium",
+    fontFamily: "SoraMedium",
   },
   tasksContainer: {
     maxHeight: 200,
@@ -680,8 +737,8 @@ const styles = StyleSheet.create({
   },
   taskText: {
     flex: 1,
-    fontSize: 13,
-    fontFamily: "PoppinsRegular",
+    fontSize: 14,
+    fontFamily: "SoraRegular",
     // color: '#fff'
   },
   addTaskContainer: {
@@ -690,14 +747,14 @@ const styles = StyleSheet.create({
   },
   addTaskInput: {
     flex: 1,
-    height: 45,
+    height: 40,
     borderWidth: 1,
     borderColor: "#fff",
     backgroundColor: "#FFF",
     borderRadius: 5,
     padding: 10,
     marginRight: 10,
-    fontFamily: "PoppinsMedium",
+    fontFamily: "SoraMedium",
   },
   addTaskButton: {
     backgroundColor: "#988B8E",
@@ -709,8 +766,8 @@ const styles = StyleSheet.create({
   },
   addTaskButtonText: {
     color: "white",
-    fontSize: 15,
-    fontFamily: "PoppinsSemiBold",
+    fontSize: 16,
+    fontFamily: "SoraSemiBold",
   },
   saveButton: {
     backgroundColor: "#613F75",
@@ -722,8 +779,8 @@ const styles = StyleSheet.create({
   },
   saveButtonText: {
     color: "white",
-    fontSize: 16,
-    fontFamily: "PoppinsSemiBold",
+    fontSize: 18,
+    fontFamily: "SoraSemiBold",
   },
   row: {
     flexDirection: "row",
@@ -736,6 +793,6 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     borderRadius: 8,
     marginHorizontal: 4,
-    fontFamily: "PoppinsRegular",
+    fontFamily: "SoraRegular",
   },
 });

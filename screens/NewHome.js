@@ -174,7 +174,7 @@ export default function NewHome() {
       <View style={styles.safeArea}>
         {/* Greeting Section */}
         <Text style={styles.greetingText}>{getGreeting()}, welcome back!</Text>
-        <Text style={styles.welcomeText}>Welcome, {user ? user.uid : 'User'}!</Text>
+        {/* <Text style={styles.welcomeText}>Welcome, {user ? user.uid : 'User'}!</Text> */}
 
         {/* Beautiful Daily Inspiration Section */}
         <LinearGradient

@@ -1,149 +1,43 @@
-import React, { useState, useEffect } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  ScrollView,
-} from "react-native";
+import React from "react";
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from "react-native";
 import { FontAwesome } from "@expo/vector-icons";
-import { db } from "../firebaseConfig";
-import {
-  collection,
-  query,
-  where,
-  getDocs,
-  deleteDoc,
-  doc,
-} from "firebase/firestore";
-import { useAuth } from "../context/AuthContext";
 
-const fetchGoals = async (userId) => {
-  try {
-    const goals = [];
-    const goalsSnapshot = await getDocs(
-      collection(db, "users", userId, "goals")
-    );
-
-    for (const goalDoc of goalsSnapshot.docs) {
-      const goalData = goalDoc.data();
-      const goalId = goalDoc.id;
-
-      // Fetch milestones
-      const milestones = [];
-      const milestonesSnapshot = await getDocs(
-        collection(db, "users", userId, "goals", goalId, "milestones")
-      );
-      milestonesSnapshot.forEach((milestoneDoc) => {
-        milestones.push({ id: milestoneDoc.id, ...milestoneDoc.data() });
-      });
-
-      // Fetch tasks
-      const tasks = [];
-      const tasksSnapshot = await getDocs(
-        collection(db, "users", userId, "goals", goalId, "tasks")
-      );
-      tasksSnapshot.forEach((taskDoc) => {
-        tasks.push({ id: taskDoc.id, ...taskDoc.data() });
-      });
-
-      goals.push({
-        id: goalId,
-        ...goalData,
-        milestones: milestones,
-        tasks: tasks,
-      });
-    }
-
-    //console.log(goals);
-    return goals;
-  } catch (error) {
-    console.error("Error fetching goals:", error);
-    return [];
-  }
-};
-
-const CreatedGoals = ({ navigation, userId }) => {
-  const [goals, setGoals] = useState([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const getGoals = async () => {
-      try {
-        const fetchedGoals = await fetchGoals(userId);
-        setGoals(fetchedGoals);
-        setLoading(false);
-      } catch (error) {
-        console.error("Error fetching goals:", error);
-      }
-    };
-
-    getGoals();
-  }, [userId]);
-
-  if (loading) {
-    return <Text>Loading...</Text>;
-  }
+const CreatedGoals = () => {
+  const createdGoals = [
+    {
+      id: "1",
+      title: "Learn JavaScript",
+      description: "Complete the JavaScript course on Codecademy.",
+    },
+    {
+      id: "2",
+      title: "Read 10 Books",
+      description: "Read 10 books on personal development.",
+    },
+  ];
 
   return (
     <View style={styles.section}>
       <View style={styles.sectionHeader}>
         <Text style={styles.sectionTitle}>Created Goals</Text>
-        <TouchableOpacity
-          onPress={() => navigation.navigate("GoalsListScreen")}
-          style={styles.seeMore}
-        >
+        <TouchableOpacity style={styles.seeMore}>
           <Text style={styles.seeMoreText}>See More</Text>
         </TouchableOpacity>
       </View>
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={styles.horizontalScroll}
-      >
-        {goals.slice(0, 5).map((goal) => (
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.horizontalScroll}>
+        {createdGoals.map((goal) => (
           <View style={styles.goalCard} key={goal.id}>
             <Text style={styles.goalTitle}>{goal.title}</Text>
             <Text style={styles.goalDescription}>{goal.description}</Text>
-            <View style={styles.progressBar}>
-              <View
-                style={[
-                  styles.progress,
-                  {
-                    width: `${
-                      (goal.tasks.filter((task) => task.completed === true)
-                        .length /
-                        goal.tasks.length) *
-                      100
-                    }%`,
-                  },
-                ]}
-              />
-            </View>
-            <Text style={styles.progressText}>
-              Progress:{goal.tasks.filter((task) => task.completed === true).length}/
-              {goal.tasks.length} tasks
-              completed
-            </Text>
             <View style={styles.cardActions}>
-              <TouchableOpacity
-                style={styles.cardActionButton}
-                onPress={() =>
-                  navigation.navigate("GoalDetailsScreen", { goalId: goal.id , userId })
-                }
-              >
-                <FontAwesome
-                  name="info-circle"
-                  size={20}
-                  color="#2D3748"
-                  style={styles.cardActionIcon}
-                />
+              <TouchableOpacity style={styles.cardActionButton}>
+                <FontAwesome name="info-circle" size={20} color="#2D3748" style={styles.cardActionIcon} />
                 <Text style={styles.cardActionText}>View Details</Text>
               </TouchableOpacity>
-              {/* <TouchableOpacity style={styles.cardActionButton}>
+              <TouchableOpacity style={styles.cardActionButton}>
                 <FontAwesome name="edit" size={20} color="#2D3748" style={styles.cardActionIcon} />
                 <Text style={styles.cardActionText}>Edit Goal</Text>
-              </TouchableOpacity> */}
+              </TouchableOpacity>
             </View>
           </View>
         ))}
@@ -176,11 +70,7 @@ const ActivePaths = () => {
           <Text style={styles.seeMoreText}>See More</Text>
         </TouchableOpacity>
       </View>
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={styles.horizontalScroll}
-      >
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.horizontalScroll}>
         {activePaths.map((path) => (
           <View style={styles.activePathCard} key={path.id}>
             <View style={styles.cardHeader}>
@@ -206,39 +96,19 @@ const ActivePaths = () => {
             <Text style={styles.nextStepDetail}>{path.nextStep}</Text>
             <View style={styles.cardActions}>
               <TouchableOpacity style={styles.cardActionButton}>
-                <FontAwesome
-                  name="info-circle"
-                  size={20}
-                  color="#2D3748"
-                  style={styles.cardActionIcon}
-                />
+                <FontAwesome name="info-circle" size={20} color="#2D3748" style={styles.cardActionIcon} />
                 <Text style={styles.cardActionText}>View Details</Text>
               </TouchableOpacity>
               <TouchableOpacity style={styles.cardActionButton}>
-                <FontAwesome
-                  name="edit"
-                  size={20}
-                  color="#2D3748"
-                  style={styles.cardActionIcon}
-                />
+                <FontAwesome name="edit" size={20} color="#2D3748" style={styles.cardActionIcon} />
                 <Text style={styles.cardActionText}>Edit Path</Text>
               </TouchableOpacity>
               <TouchableOpacity style={styles.cardActionButton}>
-                <FontAwesome
-                  name="play-circle"
-                  size={20}
-                  color="#2D3748"
-                  style={styles.cardActionIcon}
-                />
+                <FontAwesome name="play-circle" size={20} color="#2D3748" style={styles.cardActionIcon} />
                 <Text style={styles.cardActionText}>Resume Path</Text>
               </TouchableOpacity>
               <TouchableOpacity style={styles.cardActionButtonComplete}>
-                <FontAwesome
-                  name="check-circle"
-                  size={20}
-                  color="#FFF"
-                  style={styles.cardActionIcon}
-                />
+                <FontAwesome name="check-circle" size={20} color="#FFF" style={styles.cardActionIcon} />
                 <Text style={styles.cardActionText}>Complete Path</Text>
               </TouchableOpacity>
             </View>
@@ -271,25 +141,14 @@ const CompletedPaths = () => {
           <Text style={styles.seeMoreText}>See More</Text>
         </TouchableOpacity>
       </View>
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={styles.horizontalScroll}
-      >
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.horizontalScroll}>
         {completedPaths.map((path) => (
           <View style={styles.completedPathCard} key={path.id}>
             <Text style={styles.completedPathName}>{path.name}</Text>
-            <Text style={styles.completedDate}>
-              Completed on: {path.completedDate}
-            </Text>
+            <Text style={styles.completedDate}>Completed on: {path.completedDate}</Text>
             <View style={styles.cardActions}>
               <TouchableOpacity style={styles.cardActionButton}>
-                <FontAwesome
-                  name="info-circle"
-                  size={20}
-                  color="#2D3748"
-                  style={styles.cardActionIcon}
-                />
+                <FontAwesome name="info-circle" size={20} color="#2D3748" style={styles.cardActionIcon} />
                 <Text style={styles.cardActionText}>View Details</Text>
               </TouchableOpacity>
             </View>
@@ -330,11 +189,7 @@ const AvailablePaths = () => {
           <Text style={styles.seeMoreText}>See More</Text>
         </TouchableOpacity>
       </View>
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={styles.horizontalScroll}
-      >
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.horizontalScroll}>
         {suggestedPaths.map((item) => (
           <View style={styles.suggestedCard} key={item.id}>
             <Text style={styles.suggestedTitle}>{item.title}</Text>
@@ -351,8 +206,6 @@ const AvailablePaths = () => {
 };
 
 const Paths = ({ navigation }) => {
-  const { user } = useAuth();
-  const userId = user.uid;
   return (
     <ScrollView style={styles.container}>
       {/* Header Section */}
@@ -366,10 +219,7 @@ const Paths = ({ navigation }) => {
             <TouchableOpacity style={styles.ctaButton}>
               <Text style={styles.ctaButtonText}>Discover New Paths</Text>
             </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.secondaryButton}
-              onPress={() => navigation.navigate("CreateGoalScreen")}
-            >
+            <TouchableOpacity style={styles.secondaryButton} onPress={() => navigation.navigate('CreateGoalScreen')} >
               <Text style={styles.secondaryButtonText}>Create New Goal</Text>
             </TouchableOpacity>
           </View>
@@ -377,7 +227,7 @@ const Paths = ({ navigation }) => {
       </View>
 
       {/* Created Goals Section */}
-      <CreatedGoals navigation={navigation} userId={userId} />
+      <CreatedGoals />
 
       {/* Active Paths Section */}
       <ActivePaths />
@@ -413,14 +263,14 @@ const styles = StyleSheet.create({
     fontSize: 28,
     fontWeight: "bold",
     color: "#FFF",
-    fontFamily: "RobotoSlabSemiBold",
+    fontFamily: 'RobotoSlabSemiBold'
   },
   subtitle: {
     fontSize: 16,
     color: "#E2E8F0",
     marginTop: 5,
     textAlign: "center",
-    fontFamily: "PoppinsRegular",
+    fontFamily: 'PoppinsRegular'
   },
   quickActions: {
     flexDirection: "row",
@@ -439,7 +289,7 @@ const styles = StyleSheet.create({
   ctaButtonText: {
     color: "#3182CE",
     fontWeight: "bold",
-    fontFamily: "PoppinsRegular",
+    fontFamily: 'PoppinsRegular'
   },
   secondaryButton: {
     backgroundColor: "#E2E8F0",
@@ -449,12 +299,12 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 5,
     shadowOffset: { width: 0, height: 2 },
-    fontFamily: "PoppinsRegular",
+    fontFamily: 'PoppinsRegular'
   },
   secondaryButtonText: {
     color: "#3182CE",
     fontWeight: "bold",
-    fontFamily: "PoppinsRegular",
+    fontFamily: 'PoppinsRegular'
   },
   section: {
     paddingHorizontal: 12,
@@ -471,7 +321,7 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     color: "#2D3748",
     flex: 1,
-    fontFamily: "PoppinsRegular",
+    fontFamily: 'PoppinsRegular'
   },
   seeMore: {
     paddingHorizontal: 10,
@@ -481,7 +331,7 @@ const styles = StyleSheet.create({
     fontSize: 15,
     color: "#3182CE",
     fontWeight: "bold",
-    fontFamily: "PoppinsRegular",
+    fontFamily: 'PoppinsRegular'
   },
   horizontalScroll: {
     paddingVertical: 10,
@@ -506,7 +356,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: "bold",
     color: "#2D3748",
-    fontFamily: "PoppinsRegular",
+    fontFamily: 'PoppinsRegular'
   },
   activePathProgress: {
     fontSize: 16,
@@ -516,31 +366,13 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: "#718096",
     marginTop: 10,
-    fontFamily: "PoppinsRegular",
+    fontFamily: 'PoppinsRegular'
   },
   nextStepDetail: {
     fontSize: 16,
     color: "#2D3748",
     marginBottom: 10,
-    fontFamily: "PoppinsRegular",
-  },
-  progressBar: {
-    height: 8,
-    width: "100%",
-    backgroundColor: "#E2E8F0",
-    borderRadius: 4,
-    overflow: "hidden",
-    marginTop: 10,
-  },
-  progress: {
-    height: "100%",
-    backgroundColor: "#3182CE",
-  },
-  progressText: {
-    fontSize: 14,
-    color: "#718096",
-    marginTop: 5,
-    fontFamily: "PoppinsRegular",
+    fontFamily: 'PoppinsRegular'
   },
   cardActions: {
     marginTop: 10,
@@ -563,7 +395,7 @@ const styles = StyleSheet.create({
   cardActionText: {
     color: "#2D3748",
     fontWeight: "bold",
-    fontFamily: "PoppinsRegular",
+    fontFamily: 'PoppinsRegular'
   },
   cardActionButtonComplete: {
     backgroundColor: "#38A169",
@@ -593,19 +425,13 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: "bold",
     color: "#2D3748",
-    fontFamily: "PoppinsRegular",
+    fontFamily: 'PoppinsRegular'
   },
   goalDescription: {
     fontSize: 14,
     color: "#718096",
     marginTop: 10,
-    fontFamily: "PoppinsRegular",
-  },
-  completedText: {
-    fontSize: 14,
-    color: "#38A169",
-    marginTop: 10,
-    fontFamily: "PoppinsRegular",
+    fontFamily: 'PoppinsRegular'
   },
   completedPathCard: {
     backgroundColor: "#FFF",
@@ -623,13 +449,13 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: "bold",
     color: "#2D3748",
-    fontFamily: "PoppinsRegular",
+    fontFamily: 'PoppinsRegular'
   },
   completedDate: {
     fontSize: 14,
     color: "#718096",
     marginTop: 10,
-    fontFamily: "PoppinsRegular",
+    fontFamily: 'PoppinsRegular'
   },
   suggestedPathsContainer: {
     flexDirection: "row",
@@ -651,19 +477,19 @@ const styles = StyleSheet.create({
     fontSize: 17,
     fontWeight: "bold",
     color: "#2D3748",
-    fontFamily: "PoppinsRegular",
+    fontFamily: 'PoppinsRegular'
   },
   suggestedDescription: {
     fontSize: 13,
     color: "#718096",
     marginTop: 10,
-    fontFamily: "PoppinsRegular",
+    fontFamily: 'PoppinsRegular'
   },
   suggestedDetails: {
     fontSize: 13,
     color: "#4A5568",
     marginTop: 5,
-    fontFamily: "PoppinsRegular",
+    fontFamily: 'PoppinsRegular'
   },
   startPathButton: {
     backgroundColor: "#3182CE",
@@ -675,7 +501,7 @@ const styles = StyleSheet.create({
   startPathText: {
     color: "#FFF",
     fontWeight: "bold",
-    fontFamily: "PoppinsRegular",
+    fontFamily: 'PoppinsRegular'
   },
   analyticsContainer: {
     marginTop: 15,
