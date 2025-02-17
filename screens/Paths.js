@@ -90,7 +90,7 @@ const CreatedGoals = ({ navigation, userId }) => {
       <View style={styles.sectionHeader}>
         <Text style={styles.sectionTitle}>Created Goals</Text>
         <TouchableOpacity
-          onPress={() => navigation.navigate("GoalsListScreen")}
+          onPress={() => navigation.navigate("GoalsListScreen", {userId})}
           style={styles.seeMore}
         >
           <Text style={styles.seeMoreText}>See More</Text>

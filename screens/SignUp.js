@@ -58,11 +58,17 @@ const SignUp = ({ navigation }) => {
       await setDoc(doc(db, "users", user.uid), {
         uid: user.uid,
         email: user.email,
+        fullName: credentials.name,
         username: credentials.username,
         gender: credentials.gender,
         countryCode: credentials.countryCode,
         phoneNumber: credentials.phone,
         createdAt: serverTimestamp(),
+        profileImage: "",
+        bio: "",
+        address: "",
+        nationality: "",
+        dob: null,
       });
   
       setSuccessMessage("User created successfully!");

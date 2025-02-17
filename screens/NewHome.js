@@ -2,11 +2,10 @@ import {
   View,
   Image,
   ScrollView,
-  Pressable,
-  SafeAreaView,
-  StyleSheet,
   TouchableOpacity,
   Text,
+  StyleSheet,
+  ActivityIndicator,
 } from "react-native";
 import React, { useState, useEffect } from "react";
 import {
@@ -24,13 +23,24 @@ import MaterialIcons from "react-native-vector-icons/MaterialIcons";
 import FontAwesome from "react-native-vector-icons/FontAwesome";
 import FontAwesome5 from "react-native-vector-icons/FontAwesome5";
 import EmptyState from "../components/home/EmptyState";
-import { useAuth } from '../context/AuthContext';
-
-
+import { useAuth } from "../context/AuthContext";
+import { useNavigation } from "@react-navigation/native";
+import {
+  collection,
+  getDocs,
+  query,
+  where,
+  orderBy,
+  limit,
+} from "firebase/firestore";
+import { db } from "../firebaseConfig";
 
 export default function NewHome() {
+  const { user } = useAuth();
+  const [goals, setGoals] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const navigation = useNavigation();
 
-  const { user } = useAuth(); 
   // Get greeting based on time of day
   const getGreeting = () => {
     const currentHour = new Date().getHours();
@@ -43,114 +53,58 @@ export default function NewHome() {
     }
   };
 
-  
+  useEffect(() => {
+    const fetchGoals = async () => {
+      try {
+        const goalsQuery = query(
+          collection(db, "users", user.uid, "goals"),
+          where("isGoalCompleted", "==", false),
+          orderBy("dueDate", "asc"),
+          limit(3)
+        );
 
-  // useEffect(async () => {
-  //   const userId = await getUserId();
-  //   console.log(userId);
-  // }, [])
-  
+        const goalsSnapshot = await getDocs(goalsQuery);
 
-  // Sample data for goals and resources
-  const goals = [
-    {
-      title: "Read 20 Pages",
-      progress: 60,
-      deadline: "Dec 15, 2024",
-      isCompleted: false,
-    },
-    {
-      title: "Write PMP Exam",
-      progress: 10,
-      deadline: "Dec 15, 2024",
-      isCompleted: false,
-    },
-    {
-      title: "Exercise for 30 mins",
-      progress: 100,
-      deadline: "Nov 23, 2024",
-      isCompleted: true,
-    },
-  ];
+        // More efficient way to process goals and tasks:
+        const goalsList = goalsSnapshot.docs.map((doc) => {
+          const goalData = doc.data();
+          return getDocs(
+            collection(db, "users", user.uid, "goals", doc.id, "tasks")
+          ).then((tasksSnapshot) => {
+            const tasks = tasksSnapshot.docs.map((taskDoc) => taskDoc.data());
+            const completedTasks = tasks.filter(
+              (task) => task.completed
+            ).length;
+            const progress =
+              tasks.length > 0
+                ? Math.round((completedTasks / tasks.length) * 100)
+                : 0;
 
-  const goalsResource = [
-    {
-      id: 1,
-      title: "Fitness",
-      description:
-        "Achieve better physical health through regular workouts and healthy habits.",
-      resources: [
-        {
-          id: 1,
-          title: "30-Minute Home Workout",
-          description: "A beginner-friendly workout plan to get you started.",
-          type: "Video",
-          link: "https://www.example.com/workout-video",
-        },
-        {
-          id: 2,
-          title: "Healthy Eating Guide",
-          description:
-            "A guide to eating balanced meals to fuel your fitness journey.",
-          type: "Article",
-          link: "https://www.example.com/healthy-eating-guide",
-        },
-      ],
-    },
-    {
-      id: 2,
-      title: "Mindfulness",
-      description:
-        "Improve mental clarity and focus through daily mindfulness practices.",
-      resources: [
-        {
-          id: 1,
-          title: "Daily Meditation for Focus",
-          description:
-            "Guided meditations to help you stay focused throughout the day.",
-          type: "Audio",
-          link: "https://www.example.com/meditation-audio",
-        },
-        {
-          id: 2,
-          title: "Mindfulness for Stress Relief",
-          description:
-            "A set of practices to reduce stress and increase relaxation.",
-          type: "Article",
-          link: "https://www.example.com/mindfulness-stress-relief",
-        },
-      ],
-    },
-    {
-      id: 3,
-      title: "Productivity",
-      description:
-        "Boost your productivity through time management and goal-setting strategies.",
-      resources: [
-        {
-          id: 1,
-          title: "Pomodoro Technique for Focus",
-          description:
-            "A technique to manage time in focused intervals to boost productivity.",
-          type: "Video",
-          link: "https://www.example.com/pomodoro-technique",
-        },
-        {
-          id: 2,
-          title: "Time Blocking for Better Workflow",
-          description:
-            "Learn how to organize your day with time blocking to stay productive.",
-          type: "Article",
-          link: "https://www.example.com/time-blocking",
-        },
-      ],
-    },
-  ];
+            return {
+              id: doc.id,
+              ...goalData,
+              tasks,
+              completedTasks,
+              progress,
+            };
+          });
+        });
 
-  //   const resources = [
-  //     { title: 'How to Stay Focused', image: require('./assets/focused.png'), type: 'article' },
-  //     { title: 'Meditation for Beginners', image: require('./assets/meditation.png'), type: 'video' },
-  //   ];
+        const resolvedGoals = await Promise.all(goalsList); // Resolve all promises
+        setGoals(resolvedGoals);
+      } catch (error) {
+        console.error("Error fetching goals:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (user) {
+      fetchGoals();
+    }
+  }, [user]);
+
+  // Sample data for resources
   const resources = [
     { title: "Digital Marketing 101", type: "article" },
     { title: "How to Stay Focused", type: "article" },
@@ -164,10 +118,6 @@ export default function NewHome() {
     { title: "Mindfulness Techniques", type: "audio" },
     { title: "Productivity Hacks", type: "article" },
   ];
-  //   const startedResources = [
-  //     { title: 'Mindfulness Techniques', image: require('./assets/mindfulness.png'), type: 'audio' },
-  //     { title: 'Productivity Hacks', image: require('./assets/productivity.png'), type: 'article' },
-  //   ];
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
@@ -194,11 +144,13 @@ export default function NewHome() {
         {/* Goals Section */}
         <View>
           <Text style={styles.sectionTitle}>Your Goals</Text>
-          {goals.length > 0 ? (
+          {loading ? (
+            <ActivityIndicator size="large" color="#3182CE" />
+          ) : goals.length > 0 ? (
             <View style={styles.cardContainer}>
               {goals.map((goal, index) => (
                 <Card
-                  key={index}
+                  key={goal.id}
                   style={[
                     styles.card,
                     {
@@ -214,11 +166,17 @@ export default function NewHome() {
                     color={goal.isCompleted ? "#4CAF50" : "#EF798A"}
                   />
                   <Text style={styles.goalDeadline}>
-                    {goal.isCompleted
-                      ? `Completed on: ${goal.deadline}`
-                      : `Deadline: ${goal.deadline}`}
+                    Deadline: {new Date(goal.dueDate.toDate()).toDateString()}
                   </Text>
-                  <Button style={styles.viewButton}>
+                  <Button
+                    style={styles.viewButton}
+                    onPress={() =>
+                      navigation.navigate("GoalDetailsScreen", {
+                        goalId: goal.id,
+                        userId: user.uid,
+                      })
+                    }
+                  >
                     <Text style={styles.viewButtonText}>View Goal</Text>
                   </Button>
                 </Card>
@@ -334,21 +292,6 @@ export default function NewHome() {
 
         {/* Journals Section Tied to Goal Reflection */}
         <Text style={styles.sectionTitle}>Reflect on Your Journey</Text>
-        {/* <View style={styles.journalCard}>
-          <Text style={styles.journalTitle}>
-            My Journey Towards Mindfulness
-          </Text>
-          <Button style={styles.viewButton}>
-            <Text style={styles.viewButtonText}>Read Journal</Text>
-          </Button>
-        </View>
-        <View style={styles.journalCard}>
-          <Text style={styles.journalTitle}>Things I am Grateful For</Text>
-          <Button style={styles.viewButton}>
-            <Text style={styles.viewButtonText}>Read Moments</Text>
-          </Button>
-        </View> */}
-
         <EmptyState
           title="No Journal Entries"
           description="Reflect on your journey by writing your first journal entry."
@@ -456,12 +399,6 @@ const styles = StyleSheet.create({
     borderRadius: 5,
   },
   viewButton: {
-    // backgroundColor: "#fff",
-    // paddingVertical: 10,
-    // paddingHorizontal: 20,
-    // borderRadius: 5,
-    // alignSelf: "center",
-
     backgroundColor: "#fff",
     paddingVertical: 8,
     paddingHorizontal: 15,
@@ -470,51 +407,33 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   viewButtonText: {
-    // fontSize: 14,
-    // color: "#9D50BB",
-    // textAlign: "center",
-    // fontFamily: "PoppinsRegular",
-
-    color: "#9D50BB", // Matching button color with card
+    color: "#9D50BB",
     fontSize: 14,
     fontWeight: "600",
   },
-
   sectionContainerAlt: {
     marginVertical: 15,
     padding: 15,
     borderRadius: 15,
     backgroundColor: "#fff5f8",
-    //elevation: 5,
   },
   sectionContainer: {
     marginVertical: 15,
     padding: 15,
     borderRadius: 15,
     backgroundColor: "#f0f8ff",
-    //elevation: 3,
   },
-
   resourceCard: {
-    // width: 250,
-    // marginRight: 15,
-    // borderRadius: 10,
-    // elevation: 5,
-    // backgroundColor: "#fff",
-    // alignItems: "center",
-    // justifyContent: "center",
-
     width: 220,
-    height: 250, // Fixed height for uniformity
+    height: 250,
     marginRight: 15,
     borderRadius: 15,
     padding: 15,
     backgroundColor: "#fff",
     elevation: 5,
-    justifyContent: "space-between", // Align content properly
-    overflow: "hidden", // Prevent content overflow
+    justifyContent: "space-between",
+    overflow: "hidden",
   },
-
   resourceImage: {
     width: "100%",
     height: 100,
@@ -527,7 +446,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
     marginBottom: 10,
     fontFamily: "PoppinsRegular",
-    flexShrink: 1, // Prevent text overflow
+    flexShrink: 1,
   },
   horizontalScrollContainer: {
     marginBottom: 20,
@@ -536,20 +455,12 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     paddingHorizontal: 3,
-    paddingBottom: 5, // Adds space around cards
+    paddingBottom: 5,
   },
   spacer: {
-    width: 20, // Ensures the last card is fully visible
+    width: 20,
   },
   startedResourceCard: {
-    // width: 200,
-    // marginRight: 15,
-    // borderRadius: 10,
-    // elevation: 5,
-    // backgroundColor: "#f0f0f0",
-    // alignItems: "center",
-    // justifyContent: "center",
-
     width: 220,
     height: 250,
     marginRight: 15,
@@ -559,38 +470,33 @@ const styles = StyleSheet.create({
     elevation: 5,
     justifyContent: "space-between",
   },
-
   meditationCard: {
     padding: 20,
     marginVertical: 10,
     borderRadius: 10,
     backgroundColor: "#EF798A",
     elevation: 5,
-    flexDirection: "row", // Horizontal layout
+    flexDirection: "row",
     alignItems: "center",
     justifyContent: "flex-start",
   },
-
   meditationTitle: {
     fontSize: 18,
     color: "#fff",
     marginBottom: 10,
     fontFamily: "PoppinsRegular",
   },
-
   meditationImage: {
     width: 100,
     height: 100,
-    borderRadius: 10, // Circular image
-    marginRight: 12, // Space between image and text
+    borderRadius: 10,
+    marginRight: 12,
   },
-
   meditationTextContainer: {
-    flexShrink: 1, // Allow the text container to shrink if necessary
-    justifyContent: "center", // Center text and button vertically
-    minWidth: 150, // Ensure the text container has enough space for title and button
+    flexShrink: 1,
+    justifyContent: "center",
+    minWidth: 150,
   },
-
   journalCard: {
     padding: 20,
     marginVertical: 10,
@@ -605,52 +511,31 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     fontFamily: "PoppinsRegular",
   },
-  //   ctaContainer: {
-  //     marginTop: 30,
-  //     alignItems: "center",
-  //   },
-  //   ctaButton: {
-  //     backgroundColor: "#9D50BB",
-  //     marginVertical: 10,
-  //     paddingVertical: 15,
-  //     paddingHorizontal: 30,
-  //     borderRadius: 5,
-  //   },
-  //   ctaButtonText: {
-  //     fontSize: 16,
-  //     color: "#fff",
-  //     fontFamily: "PoppinsRegular",
-  //   },
-
   ctaContainer: {
-    flexDirection: "row", // Row layout for buttons
-    justifyContent: "space-between", // Space between buttons
-    alignItems: "center", // Center items vertically
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     marginVertical: 15,
-    flexWrap: "wrap", // Allow wrapping for small screens
+    flexWrap: "wrap",
   },
-
-  // Individual CTA Button Style
   ctaButton: {
-    flexDirection: "row", // Icon and text in a row
-    alignItems: "center", // Vertically align icon and text
+    flexDirection: "row",
+    alignItems: "center",
     backgroundColor: "#3F72AF",
     paddingVertical: 10,
     paddingHorizontal: 15,
     borderRadius: 8,
-    marginHorizontal: 5, // Space between buttons
-    marginVertical: 5, // For wrapping behavior on smaller screens
+    marginHorizontal: 5,
+    marginVertical: 5,
     elevation: 5,
-    flexGrow: 1, // Buttons share available space
-    minWidth: "40%", // Ensures buttons don't shrink too small
+    flexGrow: 1,
+    minWidth: "40%",
   },
-
-  // Text Style for CTA Buttons
   ctaButtonText: {
     color: "#fff",
     fontSize: 14,
     fontWeight: "600",
-    marginLeft: 10, // Space between icon and text
+    marginLeft: 10,
     fontFamily: "PoppinsRegular",
   },
 });

@@ -1,351 +1,285 @@
+import React from "react";
 import {
   View,
   Text,
-  TouchableOpacity,
-  StyleSheet,
-  Image,
   ScrollView,
+  Image,
+  StyleSheet,
+  TouchableOpacity,
+  Alert,
 } from "react-native";
-import React from "react";
-import { SafeAreaView } from "react-native-safe-area-context";
-// import { Card, Icon, Divider } from "react-native-elements";
-import { Card, Icon, Divider } from "@rneui/themed";
-import { useNavigation } from "@react-navigation/native";
-import { Ionicons } from "@expo/vector-icons";
-import { FontAwesome5 } from "@expo/vector-icons";
-import { AntDesign } from "@expo/vector-icons";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
+import Ionicons from "@expo/vector-icons/Ionicons";
+import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
+import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
+import { auth, db, storage } from "../firebaseConfig";
+import { getAuth, signOut } from "firebase/auth";
+import { useAuth } from "../context/AuthContext";
 
-export default function Settings() {
-  const navigation = useNavigation();
+export default function SettingsScreen({ navigation }) {
+  const auth = getAuth();
+  // const { setUser } = useAuth();
+  // const { user } = useAuth();
 
-  const handleCreateAccountPress = () => {
-    // Navigate to create account screen
+  const { setUser, user } = useAuth();
+
+  const logout = () => {
+    signOut(auth)
+      .then(() => {
+        setUser(null);
+        navigation.navigate("SignInScreen");
+      })
+      .catch((error) => {
+        // An error happened.
+        if (error.code === "auth/no-current-user") {
+          console.log("No user is currently signed in.");
+          Alert.alert("Error", "No user is currently signed in.");
+        } else {
+          console.log("An error occurred: ", error.message);
+          Alert.alert("Error", "Failed to sign out. Please try again.");
+        }
+      });
   };
-
-  const handleSetRemindersPress = () => {
-    // Navigate to set reminders screen
-  };
-
-  const handleGiveFeedbackPress = () => {
-    // Navigate to give feedback screen
-  };
-
-  const handlePrivacyPolicyPress = () => {
-    // Navigate to privacy policy screen
-  };
-
-  const handleAboutUsPress = () => {
-    // Navigate to about us screen
-  };
-
-  const handleNavigation = (screen) => {
-    navigation.navigate(screen);
-  };
-
-  // Dummy user name
-  const userName = "Guest";
-
-  // Example progress data
-  const progressData = [
-    { title: "Meditation", progress: 50 },
-    { title: "Journaling", progress: 70 },
-    { title: "Gratitude", progress: 100 },
-  ];
 
   return (
-    <SafeAreaView>
-      <ScrollView>
-        <View style={styles.container}>
-          <View style={styles.header}>
-            <Image
-              source={require("../assets/images/lion_avatar.png")}
-              style={styles.profileImage}
-            />
-            <Text style={styles.userName}>{userName}</Text>
+    <ScrollView style={styles.scrollView}>
+      <View style={styles.container}>
+        <View style={styles.profileContainer}>
+          <Image
+            source={
+              user && user.profileImage
+                ? { uri: user.profileImage }
+                : require("../assets/images/lion_avatar.png")
+            }
+            style={styles.profileImage}
+          />
+          <Text style={styles.profileName}>
+            {user ? user.fullName : "Loading..."}
+          </Text>
+          <Text style={styles.profileDescription}>
+            {user ? user.bio : "Loading..."} {/* Use user.bio */}
+          </Text>
+        </View>
+
+        <View style={styles.divider} />
+
+        <View style={styles.infoContainer}>
+          <View style={styles.infoBox}>
+            <Text style={styles.infoText}>Current Streak:</Text>
+            <Text style={[styles.infoText, styles.highlightedText]}>
+              8 days active
+            </Text>
           </View>
-          <View style={styles.card}>
-            {progressData.map((data, index) => (
-              <View key={index} style={styles.progressItem}>
-                <Text style={styles.progressItemTitle}>{data.title}</Text>
-                <View
-                  style={[
-                    styles.progressBar,
-                    {
-                      backgroundColor: getColorForProgress(data.progress),
-                      width: `${(data.progress / 100) * 100}%`,
-                    },
-                  ]}
-                ></View>
-                {/* <Text
-                style={styles.progressItemProgress}
-              >{`${data.progress}%`}</Text> */}
-
-                <Text
-                  style={styles.progressItemProgress}
-                >{`${data.progress}/100`}</Text>
-              </View>
-            ))}
-          </View>
-
-          {/* <View>
-            <TouchableOpacity
-              style={styles.option}
-              onPress={handleCreateAccountPress}
-            >
-              <Text style={styles.optionText}>Create Account</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.option}
-              onPress={handleSetRemindersPress}
-            >
-              <Text style={styles.optionText}>Set Reminders</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.option}
-              onPress={handleGiveFeedbackPress}
-            >
-              <Text style={styles.optionText}>Give Feedback</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.option}
-              onPress={handlePrivacyPolicyPress}
-            >
-              <Text style={styles.optionText}>Privacy Policy</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.option}
-              onPress={handleAboutUsPress}
-            >
-              <Text style={styles.optionText}>About Us</Text>
-            </TouchableOpacity>
-          </View> */}
-
-          <View style={styles.cardContainer}>
-            <Card title="Profile" containerStyle={styles.profileCard}>
-              <TouchableOpacity
-                onPress={() => handleNavigation("SignUpScreen")}
-              >
-                <View style={styles.itemRow}>
-                  <Ionicons name="person-circle" size={24} color="#EF798A" />
-                  <Text style={styles.itemText}>Login or Create Account</Text>
-                  <View style={styles.rightIcon}>
-                    <Ionicons
-                      name="ios-arrow-forward-circle-outline"
-                      size={24}
-                      color="black"
-                    />
-                  </View>
-                </View>
-              </TouchableOpacity>
-              <Divider style={styles.divider} />
-              <TouchableOpacity
-                onPress={() => handleNavigation("CreateAccount")}
-              >
-                <View style={styles.itemRow}>
-                  <MaterialCommunityIcons
-                    name="account"
-                    size={24}
-                    color="#EF798A"
-                  />
-                  <Text style={styles.itemText}>Profile</Text>
-                  <View style={styles.rightIcon}>
-                    <Ionicons
-                      name="ios-arrow-forward-circle-outline"
-                      size={24}
-                      color="black"
-                    />
-                  </View>
-                </View>
-              </TouchableOpacity>
-              <Divider style={styles.divider} />
-              <TouchableOpacity onPress={() => handleNavigation("Profile")}>
-                <View style={styles.itemRow}>
-                  <FontAwesome5 name="bell" size={24} color="#EF798A" />
-                  <Text style={styles.itemText}>Set Reminders</Text>
-                  <View style={styles.rightIcon}>
-                    <Ionicons
-                      name="ios-arrow-forward-circle-outline"
-                      size={24}
-                      color="black"
-                    />
-                  </View>
-                </View>
-              </TouchableOpacity>
-              <Divider style={styles.divider} />
-              <TouchableOpacity
-                onPress={() => handleNavigation("GiveFeedback")}
-              >
-                <View style={styles.itemRow}>
-                  <AntDesign name="message1" size={24} color="#EF798A" />
-                  <Text style={styles.itemText}>Give Feedback</Text>
-                  <View style={styles.rightIcon}>
-                    <Ionicons
-                      name="ios-arrow-forward-circle-outline"
-                      size={24}
-                      color="black"
-                    />
-                  </View>
-                </View>
-              </TouchableOpacity>
-              <Divider style={styles.divider} />
-              <TouchableOpacity onPress={() => handleNavigation("AboutUs")}>
-                <View style={styles.itemRow}>
-                  <AntDesign name="infocirlce" size={24} color="#EF798A" />
-                  <Text style={styles.itemText}>About Us</Text>
-                  <View style={styles.rightIcon}>
-                    <Ionicons
-                      name="ios-arrow-forward-circle-outline"
-                      size={24}
-                      color="black"
-                    />
-                  </View>
-                </View>
-              </TouchableOpacity>
-              {/* Rest of the items */}
-            </Card>
+          <View style={styles.verticalDivider} />
+          <View style={styles.infoBox}>
+            <Text style={styles.infoText}>Current Streak:</Text>
+            <Text style={[styles.infoText, styles.highlightedText]}>
+              2 weeks active
+            </Text>
           </View>
         </View>
-      </ScrollView>
-    </SafeAreaView>
+
+        <View style={styles.divider} />
+
+        <View>
+          <Text style={styles.sectionTitle}>Account Settings</Text>
+          <View style={styles.optionsContainer}>
+            <TouchableOpacity
+              onPress={() => navigation.navigate("ProfileScreen")}
+              style={styles.optionContainer}
+            >
+              <Ionicons
+                name="person-circle-outline"
+                size={20}
+                color="#407BFF"
+              />
+              <View style={styles.optionTextContainer}>
+                <Text style={styles.mainText}>Profile</Text>
+                <Text style={styles.subText}>Personal Details, Bio</Text>
+              </View>
+            </TouchableOpacity>
+
+            <View style={styles.optionDivider} />
+
+            <TouchableOpacity style={styles.optionContainer}>
+              <MaterialCommunityIcons
+                name="gamepad-variant-outline"
+                size={20}
+                color="#407BFF"
+              />
+              <View style={styles.optionTextContainer}>
+                <Text style={styles.mainText}>Games</Text>
+                <Text style={styles.subText}>Scores, Badges</Text>
+              </View>
+            </TouchableOpacity>
+
+            <View style={styles.optionDivider} />
+
+            <TouchableOpacity
+              onPress={() => navigation.navigate("NotificationsSettingsScreen")}
+              style={styles.optionContainer}
+            >
+              <Ionicons
+                name="notifications-outline"
+                size={20}
+                color="#407BFF"
+              />
+              <View style={styles.optionTextContainer}>
+                <Text style={styles.mainText}>Notification</Text>
+                <Text style={styles.subText}>Push, Push notification</Text>
+              </View>
+            </TouchableOpacity>
+
+            <View style={styles.optionDivider} />
+
+            <TouchableOpacity
+              onPress={() => navigation.navigate("HelpScreen")}
+              style={styles.optionContainer}
+            >
+              <MaterialCommunityIcons
+                name="help-circle-outline"
+                size={20}
+                color="#407BFF"
+              />
+              <View style={styles.optionTextContainer}>
+                <Text style={styles.mainText}>Help</Text>
+                <Text style={styles.subText}>Support, FAQs</Text>
+              </View>
+            </TouchableOpacity>
+
+            <View style={styles.optionDivider} />
+
+            <TouchableOpacity
+              onPress={() => navigation.navigate("TermsAndConditionsScreen")}
+              style={styles.optionContainer}
+            >
+              <Ionicons
+                name="document-text-outline"
+                size={20}
+                color="#407BFF"
+              />
+              <View style={styles.optionTextContainer}>
+                <Text style={styles.mainText}>Terms and Conditions</Text>
+              </View>
+            </TouchableOpacity>
+
+            <View style={styles.optionDivider} />
+
+            <TouchableOpacity
+              onPress={() => navigation.navigate("AboutScreen")}
+              style={styles.optionContainer}
+            >
+              <Ionicons
+                name="information-circle-outline"
+                size={20}
+                color="#407BFF"
+              />
+              <View style={styles.optionTextContainer}>
+                <Text style={styles.mainText}>About the App</Text>
+              </View>
+            </TouchableOpacity>
+          </View>
+          <TouchableOpacity onPress={logout}>
+            <View style={styles.logoutContainer}>
+              <Ionicons name="log-out-outline" size={30} color="#FF1493" />
+              <Text style={styles.logoutText}>Logout</Text>
+            </View>
+          </TouchableOpacity>
+        </View>
+      </View>
+    </ScrollView>
   );
 }
 
-const getColorForProgress = (progress) => {
-  if (progress <= 50) {
-    return "#FF4C4C"; // Red color for low progress
-  } else if (progress <= 75) {
-    return "#FFA200"; // Orange color for medium progress
-  } else {
-    return "#00B8D9"; // Blue color for high progress
-  }
-};
-
 const styles = StyleSheet.create({
+  scrollView: {
+    flex: 1,
+    backgroundColor: "#ffffff",
+  },
   container: {
-    //flex: 1,
-    //backgroundColor: "#F5F5F5",
-    paddingHorizontal: 16,
-    paddingTop: 24,
+    padding: 25,
   },
-  // progressContainer: {
-  //   backgroundColor: "#FFF",
-  //   paddingVertical: 16,
-  //   paddingHorizontal: 24,
-  //   marginBottom: 12,
-  //   borderRadius: 8,
-  //   shadowColor: "#000",
-  //   shadowOffset: { width: 0, height: 2 },
-  //   shadowOpacity: 0.1,
-  //   shadowRadius: 4,
-  //   elevation: 4,
-  // },
-  // progressTitle: {
-  //   fontSize: 18,
-  //   fontWeight: "bold",
-  //   color: "#333",
-  //   marginBottom: 8,
-  // },
-  // progressText: {
-  //   fontSize: 16,
-  //   color: "#333",
-  // },
-  option: {
-    marginTop: 10,
-    backgroundColor: "#FFF",
-    paddingVertical: 16,
-    paddingHorizontal: 24,
-    marginBottom: 12,
-    borderRadius: 8,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 4,
-  },
-  optionText: {
-    fontSize: 16,
-    color: "#333",
-  },
-
-  header: {
+  profileContainer: {
     alignItems: "center",
-    marginBottom: 24,
+    marginTop: 20,
   },
   profileImage: {
-    width: 120,
-    height: 120,
-    borderRadius: 50,
-    marginBottom: 5,
+    width: 90,
+    height: 90,
   },
-  userName: {
+  profileName: {
+    marginTop: 15,
+    fontFamily: "PoppinsSemiBold",
     fontSize: 20,
-    fontFamily: "SoraSemiBold",
-    color: "#333",
   },
-  card: {
-    backgroundColor: "#FFF",
-    borderRadius: 8,
-    padding: 14,
-  },
-  progressItem: {
-    marginBottom: 16,
-  },
-  progressItemTitle: {
-    fontSize: 15,
-    color: "#333",
-    marginBottom: 8,
-    fontFamily: "SoraSemiBold",
-  },
-  progressBar: {
-    height: 10,
-    //width: 200,
-    borderRadius: 5,
-    overflow: "hidden",
-  },
-  progress: {
-    height: "100%",
-    borderRadius: 5,
-    with: "50%",
-  },
-  progressItemProgress: {
-    fontSize: 13,
-    fontFamily: "SoraRegular",
-    //color: "#333",
-  },
-  cardContainer: {
+  profileDescription: {
     marginTop: 10,
-    width: "100%",
-    alignItems: "center",
-    marginBottom: 40
-  },
-  profileCard: {
-    width: "100%",
-    borderWidth: 0,
-    borderRadius: 8,
-    // Add any other styling properties for the card
+    fontFamily: "PoppinsMedium",
+    fontSize: 13,
+    textAlign: "center",
   },
   divider: {
-    backgroundColor: "#ccc",
-    marginBottom: 10,
+    marginVertical: 20,
+    height: 1,
+    backgroundColor: "#ececec",
   },
-  itemRow: {
+  infoContainer: {
+    flexDirection: "row",
+    justifyContent: "space-evenly",
+    alignItems: "center",
+    height: 40,
+  },
+  infoBox: {
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  infoText: {
+    fontFamily: "PoppinsMedium",
+    fontSize: 13,
+  },
+  highlightedText: {
+    color: "#407BFF",
+  },
+  verticalDivider: {
+    width: 1,
+    height: "100%",
+    backgroundColor: "#ececec",
+  },
+  sectionTitle: {
+    fontFamily: "PoppinsSemiBold",
+    fontSize: 16,
+  },
+  optionsContainer: {
+    marginTop: 10,
+  },
+  optionContainer: {
     flexDirection: "row",
     alignItems: "center",
-    paddingVertical: 12,
+    marginVertical: 10,
   },
-  leftIcon: {
-    marginRight: 10,
-    color: "black",
+  optionTextContainer: {
+    marginLeft: 15, // Adjusted margin for consistency
   },
-  rightIcon: {
-    marginLeft: "auto",
-    //color: 'black',
+  mainText: {
+    fontFamily: "PoppinsSemiBold",
+    fontSize: 15,
   },
-  itemText: {
+  subText: {
+    fontFamily: "PoppinsMedium",
+    fontSize: 13,
+  },
+  optionDivider: {
+    marginVertical: 10,
+    height: 1,
+    backgroundColor: "#ececec",
+  },
+  logoutContainer: {
+    marginTop: 70,
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  logoutText: {
+    color: "#FF1493",
     marginLeft: 10,
-    fontSize: 14,
-    fontFamily: "SoraSemiBold",
-    // Add any other styling properties for the item text
+    fontFamily: "PoppinsSemiBold",
   },
 });

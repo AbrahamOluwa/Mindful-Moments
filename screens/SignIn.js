@@ -61,7 +61,6 @@ const SignIn = ({navigation}) => {
         // Assume the first result is the correct one
         const userData = querySnapshot.docs[0].data();
         email = userData.email; // Get the email associated with the username
-        console.log('email', userData.email)
       }
 
       // Perform Firebase Authentication with the resolved email
@@ -73,7 +72,7 @@ const SignIn = ({navigation}) => {
       const user = userCredential.user;
 
       // Alert.alert("Success", `Welcome back, ${user.email || user.displayName}!`);
-      setUser({ uid: user.uid, email: user.email });
+      // setUser({ uid: user.uid, email: user.email, username });
 
       navigation.navigate("NewHomeScreen");
     } catch (error) {

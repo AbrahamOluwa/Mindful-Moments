@@ -50,6 +50,8 @@ import MinimizedPlayer from "./components/meditations/MinimizedPlayer";
 import EntryScreen from './screens/EntryScreen.js';
 import CreateGoal from "./screens/CreateGoal.js";
 import GoalDetails from "./screens/GoalDetails.js";
+import Terms from "./screens/Terms.js";
+import Profile from "./screens/Profile.js";
 // import TrackPlayer from 'react-native-track-player';
 
 const newColorTheme = {
@@ -76,6 +78,7 @@ export default function App() {
     PoppinsRegular: require("./assets/fonts/Poppins/Poppins-Regular.ttf"),
     PoppinsMedium: require("./assets/fonts/Poppins/Poppins-Medium.ttf"),
     PoppinsSemiBold: require("./assets/fonts/Poppins/Poppins-SemiBold.ttf"),
+    PoppinsBold: require("./assets/fonts/Poppins/Poppins-Bold.ttf"),
     RobotoSlabRegular: require("./assets/fonts/Roboto_Slab/static/RobotoSlab-Regular.ttf"),
     RobotoSlabSemiBold: require("./assets/fonts/Roboto_Slab/static/RobotoSlab-SemiBold.ttf"),
   });
@@ -181,6 +184,8 @@ export default function App() {
                 <Stack.Screen name="EntryScreen" component={EntryScreen} />
                 <Stack.Screen name="CreateGoalScreen" component={CreateGoal} />
                 <Stack.Screen name="GoalDetailsScreen" component={GoalDetails} />
+                <Stack.Screen name="TermsScreen" component={Terms} />
+                <Stack.Screen name="ProfileScreen" component={Profile} />
               </Stack.Navigator>
               {/* <MinimizedPlayer /> */}
             </NavigationContainer>
