@@ -15,12 +15,12 @@ import * as ImagePicker from "expo-image-picker";
 import { Picker } from "@react-native-picker/picker";
 import { auth, db, storage } from "../firebaseConfig";
 import { collection, query, where, getDocs, updateDoc, doc, getDoc } from "firebase/firestore";
-import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { ref, uploadBytes, getDownloadURL, uploadBytesResumable } from "firebase/storage";
 import { useAuth } from "../context/AuthContext";
-import DateTimePicker from '@react-native-community/datetimepicker';
+import DateTimePicker from "@react-native-community/datetimepicker";
 
 export default function Profile({ navigation }) {
-    const { user, setUser } = useAuth(); 
+  const { user, setUser } = useAuth();
   const [displayName, setDisplayName] = useState();
   const [fullName, setFullName] = useState();
   const [email, setEmail] = useState();
@@ -35,46 +35,12 @@ export default function Profile({ navigation }) {
   const [dob, setDob] = useState(new Date());
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false); // New state for saving indicator
-
-//   const fetchUserData = async () => {
-//     try {
-//       const usersRef = collection(db, "users");
-//       const q = query(usersRef, where("uid", "==", user.uid));
-//       const querySnapshot = await getDocs(q);
-
-//       if (querySnapshot.empty) {
-//         throw new Error("User not found");
-//       }
-
-//       const userData = querySnapshot.docs[0].data();
-
-//       setDisplayName(userData.username);
-//       setFullName(userData.fullName);
-//       setEmail(userData.email);
-//       setBio(userData.bio);
-//       if (userData.profileImage) {
-//         setProfileImage({ uri: userData.profileImage });
-//       }
-//       setGender(userData.gender);
-//       setCountryCode(userData.countryCode);
-//       setPhoneNumber(userData.phoneNumber);
-//       if (userData.dob) {
-//         setDob(new Date(userData.dob));
-//       }
-
-//       console.log("User data:", userData);
-//     } catch (error) {
-//       console.error("Error fetching user data:", error);
-//     } finally {
-//       setLoading(false);
-//     }
-//   };
-  
+  const [saving, setSaving] = useState(false);
+  const [imageUploading, setImageUploading] = useState(false);
 
   useEffect(() => {
-    if (user) { // Make sure user object is loaded.
-      setDisplayName(user.username || ""); // Use user.username, provide default if needed
+    if (user) {
+      setDisplayName(user.username || "");
       setFullName(user.fullName || "");
       setEmail(user.email || "");
       setBio(user.bio || "");
@@ -82,10 +48,10 @@ export default function Profile({ navigation }) {
         setProfileImage({ uri: user.profileImage });
       }
       setGender(user.gender || "");
-      setCountryCode(user.countryCode || "");
+      setCountryCode(user.countryCode || "+1");
       setPhoneNumber(user.phoneNumber || "");
       if (user.dob) {
-        setDob(new Date(user.dob)); 
+        setDob(new Date(user.dob));
       }
       setLoading(false);
     }
@@ -112,50 +78,63 @@ export default function Profile({ navigation }) {
   };
 
   const uploadImage = async (uri) => {
+    setImageUploading(true);
     try {
       const response = await fetch(uri);
       const blob = await response.blob();
-
+  
       const storageRef = ref(storage, `profileImages/${user.uid}`);
-      await uploadBytes(storageRef, blob);
-
-      const downloadURL = await getDownloadURL(storageRef);
-      setProfileImage({ uri: downloadURL });
-      console.log("Image uploaded and URL updated:", downloadURL);
-
+  
+      // *** Improved: Use a resumable upload for larger files ***
+      const uploadTask = uploadBytesResumable(storageRef, blob);
+  
+      // Monitor upload progress (optional, but good UX):
+      uploadTask.on('state_changed', 
+        (snapshot) => {
+          const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+          console.log('Upload is ' + progress + '% done');
+          // ... update a progress bar in your UI
+        }, 
+        (error) => {
+          // Handle unsuccessful uploads
+          console.error("Upload Error", error);
+          setImageUploading(false); // Hide loading indicator on error
+          Alert.alert("Error", error.message);
+        }, 
+        () => {
+          // Handle successful uploads
+          getDownloadURL(uploadTask.snapshot.ref).then(async (downloadURL) => {
+            setProfileImage({ uri: downloadURL });
+  
+            const userDoc = doc(db, "users", user.uid);
+            await updateDoc(userDoc, { profileImage: downloadURL });
+  
+            // Update AuthContext (same as before)
+            const updatedUserDoc = await getDoc(userDoc);
+            if (updatedUserDoc.exists()) {
+              setUser({
+                uid: user.uid,
+                email: user.email,
+                ...updatedUserDoc.data(),
+              });
+            }
+            console.log("Image uploaded and URL updated:", downloadURL);
+            setImageUploading(false); // Hide loading indicator on success
+          });
+        }
+      );
+  
+  
     } catch (error) {
-      console.error("Error uploading image:", error);
-      Alert.alert('Error', error.message);
+      console.error("Error fetching or uploading image:", error);
+      setImageUploading(false); // Hide loading indicator on error
+      Alert.alert("Error", error.message);
     }
   };
 
   const handleEdit = () => {
     setIsEditing(!isEditing);
   };
-
-//   const handleSave = async () => {
-//     setSaving(true); // Show saving indicator
-//     try {
-//       const userDoc = doc(db, "users", user.uid);
-//       await updateDoc(userDoc, {
-//         fullName,
-//         bio,
-//         gender,
-//         countryCode,
-//         phoneNumber,
-//         dob: dob.toISOString(),
-//         profileImage: profileImage.uri || null,
-//       });
-//       setIsEditing(false);
-//       Alert.alert("Success", "Profile updated successfully");
-//       navigation.goBack(); // Redirect to the previous screen
-//     } catch (error) {
-//       console.error("Error updating user data:", error);
-//       Alert.alert("Error", "Failed to update profile");
-//     } finally {
-//       setSaving(false); // Hide saving indicator
-//     }
-//   };
 
   const handleSave = async () => {
     setSaving(true);
@@ -170,17 +149,17 @@ export default function Profile({ navigation }) {
         dob: dob.toISOString(),
         profileImage: profileImage.uri || null,
       });
-  
-      // *** Update AuthContext after successful update ***
-      const updatedUserDoc = await getDoc(userDoc); // Refetch the user document
+
+      // Update AuthContext after successful update
+      const updatedUserDoc = await getDoc(userDoc);
       if (updatedUserDoc.exists()) {
         setUser({
           uid: user.uid,
           email: user.email,
-          ...updatedUserDoc.data(), // Update context with new data
+          ...updatedUserDoc.data(),
         });
       }
-  
+
       setIsEditing(false);
       Alert.alert("Success", "Profile updated successfully");
       navigation.goBack();
@@ -199,10 +178,10 @@ export default function Profile({ navigation }) {
   };
 
   const formatDate = (date) => {
-    return date.toLocaleDateString('en-GB', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
+    return date.toLocaleDateString("en-GB", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
     });
   };
 
@@ -218,8 +197,12 @@ export default function Profile({ navigation }) {
     <ScrollView style={styles.scrollView}>
       <View style={styles.container}>
         <View style={styles.profileImageContainer}>
-          <TouchableOpacity onPress={pickImage}>
-            <Image source={profileImage} style={styles.profileImage} />
+          <TouchableOpacity onPress={pickImage} disabled={imageUploading}>
+            {imageUploading ? (
+              <ActivityIndicator size="large" color="#407BFF" style={styles.profileImage} />
+            ) : (
+              <Image source={profileImage} style={styles.profileImage} />
+            )}
             <Ionicons
               name="camera"
               size={24}
@@ -245,7 +228,10 @@ export default function Profile({ navigation }) {
           <Text style={styles.label}>Email</Text>
           <TextInput style={styles.input} value={email} editable={false} />
           <Text style={styles.label}>Date of Birth</Text>
-          <TouchableOpacity onPress={() => setShowDatePicker(true)} disabled={!isEditing}>
+          <TouchableOpacity
+            onPress={() => setShowDatePicker(true)}
+            disabled={!isEditing}
+          >
             <TextInput
               style={[styles.input, isEditing && styles.editableInput]}
               value={formatDate(dob)}

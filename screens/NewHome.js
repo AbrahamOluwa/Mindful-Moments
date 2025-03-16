@@ -38,6 +38,7 @@ import { db } from "../firebaseConfig";
 export default function NewHome() {
   const { user } = useAuth();
   const [goals, setGoals] = useState([]);
+  const [entries, setEntries] = useState([]);
   const [loading, setLoading] = useState(true);
   const navigation = useNavigation();
 
@@ -54,7 +55,7 @@ export default function NewHome() {
   };
 
   useEffect(() => {
-    const fetchGoals = async () => {
+    const fetchGoalsAndEntries = async () => {
       try {
         const goalsQuery = query(
           collection(db, "users", user.uid, "goals"),
@@ -63,9 +64,17 @@ export default function NewHome() {
           limit(3)
         );
 
-        const goalsSnapshot = await getDocs(goalsQuery);
+        const entriesQuery = query(
+          collection(db, "users", user.uid, "entries"),
+          orderBy("createdAt", "desc"),
+          limit(3)
+        );
 
-        // More efficient way to process goals and tasks:
+        const [goalsSnapshot, entriesSnapshot] = await Promise.all([
+          getDocs(goalsQuery),
+          getDocs(entriesQuery),
+        ]);
+
         const goalsList = goalsSnapshot.docs.map((doc) => {
           const goalData = doc.data();
           return getDocs(
@@ -90,17 +99,23 @@ export default function NewHome() {
           });
         });
 
-        const resolvedGoals = await Promise.all(goalsList); // Resolve all promises
+        const resolvedGoals = await Promise.all(goalsList);
         setGoals(resolvedGoals);
+
+        const entriesList = entriesSnapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+        setEntries(entriesList);
       } catch (error) {
-        console.error("Error fetching goals:", error);
+        console.error("Error fetching goals and entries:", error);
       } finally {
         setLoading(false);
       }
     };
 
     if (user) {
-      fetchGoals();
+      fetchGoalsAndEntries();
     }
   }, [user]);
 
@@ -125,7 +140,7 @@ export default function NewHome() {
         {/* Greeting Section */}
         <Text style={styles.greetingText}>{getGreeting()}, welcome back!</Text>
         {/* <Text style={styles.welcomeText}>Welcome, {user ? user.uid : 'User'}!</Text> */}
-
+  
         {/* Beautiful Daily Inspiration Section */}
         <LinearGradient
           colors={["#9D50BB", "#6E48AA"]}
@@ -140,7 +155,7 @@ export default function NewHome() {
             <Text style={styles.buttonText}>See More Quotes</Text>
           </TouchableOpacity>
         </LinearGradient>
-
+  
         {/* Goals Section */}
         <View>
           <Text style={styles.sectionTitle}>Your Goals</Text>
@@ -191,7 +206,51 @@ export default function NewHome() {
             />
           )}
         </View>
-
+  
+        {/* Entries Section */}
+        <View>
+          <Text style={styles.sectionTitle}>Reflect on Your Journey</Text>
+          {loading ? (
+            <ActivityIndicator size="large" color="#3182CE" />
+          ) : entries.length > 0 ? (
+            <View style={styles.cardContainer}>
+              {entries.map((entry) => (
+                <Card key={entry.id} style={styles.entryCard}>
+                  <View style={styles.entryHeader}>
+                    <Text style={styles.entryType}>{entry.type.toUpperCase()}</Text>
+                  </View>
+                  <Text style={styles.entryContent}>
+                    {entry.content.length > 100
+                      ? `${entry.content.substring(0, 90)}...`
+                      : entry.content}
+                  </Text>
+                  <Text style={styles.entryDate}>
+                    {new Date(entry.createdAt.toDate()).toDateString()}
+                  </Text>
+                  <Button
+                    style={styles.viewButton}
+                    onPress={() =>
+                      navigation.navigate("EntryDetailsScreen", {
+                        entryId: entry.id,
+                        userId: user.uid,
+                      })
+                    }
+                  >
+                    <Text style={styles.viewButtonText}>View</Text>
+                  </Button>
+                </Card>
+              ))}
+            </View>
+          ) : (
+            <EmptyState
+              title="No Entries Yet"
+              description="Add your first journal or gratitude entry to reflect on your journey."
+              buttonText="Add Entry"
+              onPress={() => console.log("Navigate to add entry")}
+            />
+          )}
+        </View>
+  
         {/* Resources Section Tied to Goals */}
         <View style={styles.sectionContainer}>
           <Text style={styles.sectionTitle}>Resources for Your Goals</Text>
@@ -224,7 +283,7 @@ export default function NewHome() {
             />
           )}
         </View>
-
+  
         {/* Started Resources Section */}
         <View style={styles.sectionContainerAlt}>
           <Text style={styles.sectionTitle}>
@@ -258,7 +317,7 @@ export default function NewHome() {
             />
           )}
         </View>
-
+  
         {/* Meditation Section Tied to Mindfulness Goals */}
         <Text style={styles.sectionTitle}>Guided Meditation</Text>
         <View style={styles.meditationCard}>
@@ -289,16 +348,16 @@ export default function NewHome() {
             </Button>
           </View>
         </View>
-
+  
         {/* Journals Section Tied to Goal Reflection */}
-        <Text style={styles.sectionTitle}>Reflect on Your Journey</Text>
+        {/* <Text style={styles.sectionTitle}>Reflect on Your Journey</Text>
         <EmptyState
           title="No Journal Entries"
           description="Reflect on your journey by writing your first journal entry."
           buttonText="Log Your First Thought"
           onPress={() => console.log("Navigate to journaling")}
-        />
-
+        /> */}
+  
         {/* Call-to-Action Buttons for New Goals */}
         <View style={styles.ctaContainer}>
           <TouchableOpacity style={styles.ctaButton}>
@@ -508,6 +567,42 @@ const styles = StyleSheet.create({
   journalTitle: {
     fontSize: 18,
     color: "#fff",
+    marginBottom: 10,
+    fontFamily: "PoppinsRegular",
+  },
+  entryCard: {
+    padding: 15,
+    marginBottom: 10,
+    borderRadius: 10,
+    backgroundColor: "#fff",
+    elevation: 5,
+  },
+  entryHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 10,
+  },
+  entryType: {
+    fontSize: 10,
+    fontWeight: "bold",
+    color: "#fff",
+    backgroundColor: "#3182CE",
+    paddingVertical: 4,
+    paddingHorizontal: 8,
+    borderRadius: 20,
+    overflow: "hidden",
+    fontFamily: "PoppinsRegular",
+  },
+  entryContent: {
+    fontSize: 13,
+    fontFamily: "PoppinsRegular",
+    color: "#333",
+    marginBottom: 10,
+  },
+  entryDate: {
+    fontSize: 12,
+    color: "#666",
     marginBottom: 10,
     fontFamily: "PoppinsRegular",
   },

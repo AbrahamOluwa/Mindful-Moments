@@ -85,10 +85,12 @@ const SignUp = ({ navigation }) => {
       });
   
       setIsLoading(false); // Stop loader
+
+      navigation.navigate("OnboardingQuestionnaireScreen", { userId: user.uid });
   
-      setTimeout(() => {
-        navigation.navigate("SignInScreen");
-      }, 4000);
+      // setTimeout(() => {
+      //   navigation.navigate("SignInScreen");
+      // }, 4000);
     } catch (error) {
       //console.error("Error creating user:", error.message);
   

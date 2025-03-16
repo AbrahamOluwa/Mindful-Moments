@@ -100,7 +100,7 @@ export default function SettingsScreen({ navigation }) {
 
             <View style={styles.optionDivider} />
 
-            <TouchableOpacity style={styles.optionContainer}>
+            {/* <TouchableOpacity style={styles.optionContainer}>
               <MaterialCommunityIcons
                 name="gamepad-variant-outline"
                 size={20}
@@ -112,7 +112,7 @@ export default function SettingsScreen({ navigation }) {
               </View>
             </TouchableOpacity>
 
-            <View style={styles.optionDivider} />
+            <View style={styles.optionDivider} /> */}
 
             <TouchableOpacity
               onPress={() => navigation.navigate("NotificationsSettingsScreen")}
@@ -149,7 +149,7 @@ export default function SettingsScreen({ navigation }) {
             <View style={styles.optionDivider} />
 
             <TouchableOpacity
-              onPress={() => navigation.navigate("TermsAndConditionsScreen")}
+              onPress={() => navigation.navigate("TermsScreen")}
               style={styles.optionContainer}
             >
               <Ionicons
@@ -200,11 +200,12 @@ const styles = StyleSheet.create({
   },
   profileContainer: {
     alignItems: "center",
-    marginTop: 20,
+    marginTop: 25,
   },
   profileImage: {
-    width: 90,
-    height: 90,
+    width: 120,
+    height: 120,
+    borderRadius: 60,
   },
   profileName: {
     marginTop: 15,

@@ -300,7 +300,7 @@ const CompletedPaths = () => {
   );
 };
 
-const AvailablePaths = () => {
+const AvailablePaths = ({navigation}) => {
   const suggestedPaths = [
     {
       id: "1",
@@ -340,7 +340,7 @@ const AvailablePaths = () => {
             <Text style={styles.suggestedTitle}>{item.title}</Text>
             <Text style={styles.suggestedDescription}>{item.description}</Text>
             <Text style={styles.suggestedDetails}>{item.details}</Text>
-            <TouchableOpacity style={styles.startPathButton}>
+            <TouchableOpacity style={styles.startPathButton}  onPress={() => navigation.navigate("PathOverviewScreen")}>
               <Text style={styles.startPathText}>Start Path</Text>
             </TouchableOpacity>
           </View>
@@ -386,7 +386,7 @@ const Paths = ({ navigation }) => {
       <CompletedPaths />
 
       {/* Available Paths Section */}
-      <AvailablePaths />
+      <AvailablePaths navigation={navigation} />
     </ScrollView>
   );
 };

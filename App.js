@@ -52,6 +52,11 @@ import CreateGoal from "./screens/CreateGoal.js";
 import GoalDetails from "./screens/GoalDetails.js";
 import Terms from "./screens/Terms.js";
 import Profile from "./screens/Profile.js";
+import OnboardingQuestionnaire from "./screens/OnboardingQuestionnaire.js";
+import PathOverview from "./screens/PathOverview.js";
+import DailyPath from "./screens/DailyPath.js";
+import WeekView from "./screens/WeekView.js";
+import ItemDetail from "./screens/ItemDetail.js"
 // import TrackPlayer from 'react-native-track-player';
 
 const newColorTheme = {
@@ -108,6 +113,7 @@ export default function App() {
           <AudioProvider>
             <NavigationContainer onLayout={onLayoutRootView}>
               <Stack.Navigator screenOptions={{ headerShown: false }}>
+              
                 <Stack.Screen name="SignInScreen" component={SignIn} />
                 <Stack.Screen name="SignUpScreen" component={SignUp} />
                 <Stack.Screen name="HomeScreen" component={BottomTabs} />
@@ -186,6 +192,11 @@ export default function App() {
                 <Stack.Screen name="GoalDetailsScreen" component={GoalDetails} />
                 <Stack.Screen name="TermsScreen" component={Terms} />
                 <Stack.Screen name="ProfileScreen" component={Profile} />
+                <Stack.Screen name="OnboardingQuestionnaireScreen" component= {OnboardingQuestionnaire} /> 
+                <Stack.Screen name="PathOverviewScreen" component= {PathOverview} />
+                <Stack.Screen name="DailyPathScreen" component= {DailyPath} />
+                <Stack.Screen name="WeekViewScreen" component= {WeekView} />
+                <Stack.Screen name="ItemDetailScreen" component= {ItemDetail} />
               </Stack.Navigator>
               {/* <MinimizedPlayer /> */}
             </NavigationContainer>

@@ -22,14 +22,16 @@
     "@react-navigation/native-stack": "^6.9.12",
     "@rneui/base": "github:react-native-elements/react-native-elements#base",
     "@rneui/themed": "github:react-native-elements/react-native-elements#themed",
-    "expo": "~52.0.35",
+    "date-fns": "^4.1.0",
+    "expo": "~52.0.36",
     "expo-av": "~15.0.2",
     "expo-checkbox": "~4.0.1",
     "expo-font": "~13.0.1",
+    "expo-image-picker": "~16.0.6",
     "expo-linear-gradient": "~14.0.2",
     "expo-splash-screen": "~0.29.22",
     "expo-status-bar": "~2.0.1",
-    "expo-updates": "~0.26.18",
+    "expo-updates": "~0.27.1",
     "firebase": "^9.22.2",
     "formik": "^2.4.6",
     "lodash": "^4.17.21",
@@ -58,8 +60,7 @@
     "redux": "^4.2.1",
     "reselect": "^4.1.8",
     "typescript": "~5.3.3",
-    "yup": "^1.4.0",
-    "expo-image-picker": "~16.0.6"
+    "yup": "^1.4.0"
   },
   "devDependencies": {
     "@babel/core": "^7.24.0"
