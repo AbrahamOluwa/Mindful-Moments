@@ -103,7 +103,7 @@ const GoalDetails = () => {
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#3182CE" />
+        <ActivityIndicator size="large" color="#4DB6AC" />
       </View>
     );
   }
@@ -228,14 +228,15 @@ const GoalDetails = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F4F8FB",
+    backgroundColor: "#FAFAFA",
     paddingBottom: 20,
   },
   loadingContainer: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#F4F8FB",
+    backgroundColor: "#FAFAFA",
+    // backgroundColor: "#F4F8FB",
   },
   scrollContainer: {
     padding: 20,
@@ -249,6 +250,8 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 10,
     shadowOffset: { width: 0, height: 4 },
+    borderColor: "#D7CCC8",
+    borderWidth: 1,
   },
   header: {
     marginBottom: 20,
@@ -257,13 +260,13 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 20,
     fontWeight: "bold",
-    color: "#2D3748",
+    color: "#263238",
     fontFamily: "PoppinsSemiBold",
     marginBottom: 10,
   },
   description: {
     fontSize: 14,
-    color: "#718096",
+    color: "#263238",
     fontFamily: "PoppinsRegular",
     marginBottom: 10,
   },
@@ -277,17 +280,18 @@ const styles = StyleSheet.create({
   },
   progress: {
     height: "100%",
-    backgroundColor: "#3182CE",
+    // backgroundColor: "#3182CE",
+    backgroundColor: "#F48FB1",
   },
   progressText: {
     fontSize: 14,
-    color: "#718096",
+    color: "#78909C",
     marginBottom: 20,
     fontFamily: "PoppinsRegular",
   },
   detailText: {
     fontSize: 14,
-    color: "#2D3748",
+    color: "#263238",
     fontFamily: "PoppinsRegular",
     marginBottom: 10,
   },
@@ -301,28 +305,32 @@ const styles = StyleSheet.create({
   milestone: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#F7FAFC",
+    backgroundColor: "#fff",
+    borderColor: "#D7CCC8",
+    borderWidth: 1, 
     padding: 10,
     borderRadius: 8,
     marginBottom: 5,
   },
   milestoneText: {
     fontSize: 14,
-    color: "#2D3748",
+    color: "#263238",
     fontFamily: "PoppinsRegular",
     marginLeft: 10,
   },
   task: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#F7FAFC",
+    backgroundColor: "#fff",
     padding: 10,
     borderRadius: 8,
+    borderColor: "#D7CCC8",
+    borderWidth: 1, 
     marginBottom: 5,
   },
   taskText: {
     fontSize: 14,
-    color: "#2D3748",
+    color: "#263238",
     fontFamily: "PoppinsRegular",
     marginLeft: 10,
   },

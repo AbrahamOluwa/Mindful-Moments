@@ -637,7 +637,7 @@ export default function MeditationPlayer({ route, navigation }) {
   return (
     <SafeAreaView style={styles.container}>
       {loading ? (
-        <ActivityIndicator size="large" color="#FF7F9F" />
+        <ActivityIndicator size="large" color="#4DB6AC" />
       ) : error ? (
         <Text style={styles.errorText}>{error}</Text>
       ) : (
@@ -665,9 +665,12 @@ export default function MeditationPlayer({ route, navigation }) {
             maximumValue={1}
             value={sliderValue}
             onSlidingComplete={seekTo}
-            minimumTrackTintColor="#FF7F9F"
-            maximumTrackTintColor="#ccc"
-            thumbTintColor="#FF7F9F"
+            // minimumTrackTintColor="#FF7F9F"
+            // maximumTrackTintColor="#ccc"
+            // thumbTintColor="#FF7F9F"
+            minimumTrackTintColor="#B39DDB"
+            maximumTrackTintColor="#4DB6AC"
+            thumbTintColor="#B39DDB"
           />
           <View style={styles.timeContainer}>
             <Text style={styles.timeText}>{formatTime(positionMillis)}</Text>
@@ -682,7 +685,7 @@ export default function MeditationPlayer({ route, navigation }) {
               <AntDesign
                 name={isPlaying ? "pausecircleo" : "playcircleo"}
                 size={75}
-                color={isPlaying ? "#FF7F9F" : "#333"}
+                color={isPlaying ? "#B39DDB" : "#4DB6AC"}
               />
             </Animated.View>
           </TouchableOpacity>
@@ -703,7 +706,7 @@ export default function MeditationPlayer({ route, navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F7F7F7",
+    backgroundColor: "#FAFAFA",
     justifyContent: "center",
     alignItems: "center",
   },
@@ -730,7 +733,7 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     textAlign: "center",
     marginBottom: 10,
-    color: "#333",
+    color: "#263238",
   },
   description: {
     fontSize: 14,
@@ -757,7 +760,7 @@ const styles = StyleSheet.create({
   },
   timeText: {
     fontSize: 14,
-    color: "#777",
+    color: "#263238",
   },
   playButton: {
     justifyContent: "center",
@@ -766,10 +769,13 @@ const styles = StyleSheet.create({
   },
   completeButton: {
     marginTop: 20,
-    backgroundColor: "#FF7F9F",
+    // backgroundColor: "#FF7F9F",
+    backgroundColor: "#A5D6A7",
     paddingVertical: 10,
     paddingHorizontal: 20,
     borderRadius: 10,
+    textAlign: "center",
+    alignItems: "center",
   },
   completeButtonText: {
     color: "#fff",

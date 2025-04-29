@@ -199,20 +199,26 @@ export default function EntryScreen({ route, navigation }) {
           // </>
 
           <>
-          <ScrollView contentContainerStyle={styles.scrollableCard}>
-  <View style={styles.entryCard}>
-    <Text style={styles.contentText}>{content}</Text>
-    <Text style={styles.moodText}>Mood: <Text style={styles.valueText}>{selectedMood}</Text></Text>
-    <Text style={styles.goalText}>Goal: <Text style={styles.valueText}>{selectedGoal}</Text></Text>
-    <Text style={styles.tagsText}>Tags: <Text style={styles.valueText}>{tag}</Text></Text>
-    <TouchableOpacity
-      style={styles.editButton}
-      onPress={() => setIsEditing(true)}
-    >
-      <Text style={styles.editButtonText}>Edit Entry</Text>
-    </TouchableOpacity>
-  </View>
-</ScrollView>
+            <ScrollView contentContainerStyle={styles.scrollableCard}>
+              <View style={styles.entryCard}>
+                <Text style={styles.contentText}>{content}</Text>
+                <Text style={styles.moodText}>
+                  Mood: <Text style={styles.valueText}>{selectedMood}</Text>
+                </Text>
+                <Text style={styles.goalText}>
+                  Goal: <Text style={styles.valueText}>{selectedGoal}</Text>
+                </Text>
+                <Text style={styles.tagsText}>
+                  Tags: <Text style={styles.valueText}>{tag}</Text>
+                </Text>
+                <TouchableOpacity
+                  style={styles.editButton}
+                  onPress={() => setIsEditing(true)}
+                >
+                  <Text style={styles.editButtonText}>Edit Entry</Text>
+                </TouchableOpacity>
+              </View>
+            </ScrollView>
           </>
         )}
       </ScrollView>
@@ -234,14 +240,16 @@ const styles = StyleSheet.create({
     marginTop: 19,
     fontSize: 28,
     fontWeight: "bold",
-    color: "#4b0082",
+    // color: "#4b0082",
+    color: "#263238",
     marginBottom: 20,
     textAlign: "center",
   },
   label: {
     fontSize: 18,
     marginBottom: 10,
-    color: "#4b0082",
+    // color: "#4b0082",
+    color: "#263238",
   },
   moodOptions: {
     flexDirection: "row",
@@ -302,7 +310,8 @@ const styles = StyleSheet.create({
   },
   contentInput: {
     height: 550,
-    borderColor: "#ccc",
+    // borderColor: "#ccc",
+    borderColor: "#D7CCC8",
     borderWidth: 1,
     borderRadius: 10,
     paddingHorizontal: 15,
@@ -334,7 +343,8 @@ const styles = StyleSheet.create({
   },
   saveButton: {
     marginTop: 30,
-    backgroundColor: "#4b0082",
+    // backgroundColor: "#4b0082",
+    backgroundColor: "#4DB6AC",
     paddingVertical: 15,
     paddingHorizontal: 25,
     borderRadius: 25,
@@ -394,7 +404,8 @@ const styles = StyleSheet.create({
     fontFamily: "PoppinsRegular",
   },
   editButton: {
-    backgroundColor: "#4CAF50",
+    // backgroundColor: "#4CAF50",
+    backgroundColor: "#4DB6AC",
     paddingVertical: 12,
     paddingHorizontal: 25,
     borderRadius: 25,

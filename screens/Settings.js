@@ -90,7 +90,7 @@ export default function SettingsScreen({ navigation }) {
               <Ionicons
                 name="person-circle-outline"
                 size={20}
-                color="#407BFF"
+                color="#4DB6AC"
               />
               <View style={styles.optionTextContainer}>
                 <Text style={styles.mainText}>Profile</Text>
@@ -121,7 +121,7 @@ export default function SettingsScreen({ navigation }) {
               <Ionicons
                 name="notifications-outline"
                 size={20}
-                color="#407BFF"
+                color="#4DB6AC"
               />
               <View style={styles.optionTextContainer}>
                 <Text style={styles.mainText}>Notification</Text>
@@ -138,7 +138,7 @@ export default function SettingsScreen({ navigation }) {
               <MaterialCommunityIcons
                 name="help-circle-outline"
                 size={20}
-                color="#407BFF"
+                color="#4DB6AC"
               />
               <View style={styles.optionTextContainer}>
                 <Text style={styles.mainText}>Help</Text>
@@ -155,7 +155,7 @@ export default function SettingsScreen({ navigation }) {
               <Ionicons
                 name="document-text-outline"
                 size={20}
-                color="#407BFF"
+                color="#4DB6AC"
               />
               <View style={styles.optionTextContainer}>
                 <Text style={styles.mainText}>Terms and Conditions</Text>
@@ -171,7 +171,8 @@ export default function SettingsScreen({ navigation }) {
               <Ionicons
                 name="information-circle-outline"
                 size={20}
-                color="#407BFF"
+                // color="#407BFF"
+                color="#4DB6AC"
               />
               <View style={styles.optionTextContainer}>
                 <Text style={styles.mainText}>About the App</Text>
@@ -180,7 +181,7 @@ export default function SettingsScreen({ navigation }) {
           </View>
           <TouchableOpacity onPress={logout}>
             <View style={styles.logoutContainer}>
-              <Ionicons name="log-out-outline" size={30} color="#FF1493" />
+              <Ionicons name="log-out-outline" size={30} color="#F48FB1" />
               <Text style={styles.logoutText}>Logout</Text>
             </View>
           </TouchableOpacity>
@@ -193,7 +194,7 @@ export default function SettingsScreen({ navigation }) {
 const styles = StyleSheet.create({
   scrollView: {
     flex: 1,
-    backgroundColor: "#ffffff",
+    backgroundColor: "#FAFAFA",
   },
   container: {
     padding: 25,
@@ -211,6 +212,7 @@ const styles = StyleSheet.create({
     marginTop: 15,
     fontFamily: "PoppinsSemiBold",
     fontSize: 20,
+    color: "#263238",
   },
   profileDescription: {
     marginTop: 10,
@@ -221,7 +223,8 @@ const styles = StyleSheet.create({
   divider: {
     marginVertical: 20,
     height: 1,
-    backgroundColor: "#ececec",
+    // backgroundColor: "#ececec",
+    backgroundColor: "#D7CCC8",
   },
   infoContainer: {
     flexDirection: "row",
@@ -236,18 +239,22 @@ const styles = StyleSheet.create({
   infoText: {
     fontFamily: "PoppinsMedium",
     fontSize: 13,
+    color: "#263238",
   },
   highlightedText: {
-    color: "#407BFF",
+    // color: "#407BFF",
+    color: "#78909C"
   },
   verticalDivider: {
     width: 1,
     height: "100%",
-    backgroundColor: "#ececec",
+    // backgroundColor: "#ececec",
+    backgroundColor: "#D7CCC8",
   },
   sectionTitle: {
     fontFamily: "PoppinsSemiBold",
     fontSize: 16,
+    color: "#263238",
   },
   optionsContainer: {
     marginTop: 10,
@@ -263,15 +270,18 @@ const styles = StyleSheet.create({
   mainText: {
     fontFamily: "PoppinsSemiBold",
     fontSize: 15,
+    color: "#263238",
   },
   subText: {
     fontFamily: "PoppinsMedium",
     fontSize: 13,
+    color: "#78909C",
   },
   optionDivider: {
     marginVertical: 10,
     height: 1,
-    backgroundColor: "#ececec",
+    // backgroundColor: "#ececec",
+    backgroundColor: "#D7CCC8",
   },
   logoutContainer: {
     marginTop: 70,
@@ -279,7 +289,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   logoutText: {
-    color: "#FF1493",
+    // color: "#FF1493",
+    color: "#F48FB1",
     marginLeft: 10,
     fontFamily: "PoppinsSemiBold",
   },

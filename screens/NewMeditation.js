@@ -285,7 +285,7 @@ export default function NewMeditation({ navigation }) {
       </ImageBackground>
 
       {isFetching ? (
-        <ActivityIndicator size="large" color="#FF7F9F" />
+        <ActivityIndicator size="large" color="#4DB6AC" />
       ) : error ? (
         <Text style={styles.errorText}>{error}</Text>
       ) : (
@@ -327,14 +327,14 @@ export default function NewMeditation({ navigation }) {
                     <View
                       style={{ flexDirection: "row", alignItems: "center" }}
                     >
-                      <FontAwesome5 name="clock" size={14} color="#333" />
+                      <FontAwesome5 name="clock" size={14} color="#B39DDB" />
                       <Text style={styles.durationText}> {item.duration}</Text>
                     </View>
                     <View style={{ marginTop: 10 }}>
                       <Ionicons
                         name="play-circle-outline"
                         size={35}
-                        color="#4CAF50"
+                       color="#4DB6AC"
                       />
                     </View>
                   </TouchableOpacity>
@@ -415,7 +415,7 @@ export default function NewMeditation({ navigation }) {
                     <Text style={styles.moodText}>{item.mood}</Text>
                   </View>
                   <View style={{ flexDirection: "row", alignItems: "center" }}>
-                    <FontAwesome5 name="clock" size={14} color="#333" />
+                    <FontAwesome5 name="clock" size={14} color="#B39DDB" />
                     <Text style={styles.durationText}> {item.duration}</Text>
                   </View>
 
@@ -423,7 +423,7 @@ export default function NewMeditation({ navigation }) {
                     <Ionicons
                       name="play-circle-outline"
                       size={35}
-                      color="#4CAF50"
+                      color="#4DB6AC"
                     />
                   </View>
                 </TouchableOpacity>
@@ -444,7 +444,7 @@ export default function NewMeditation({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F5F5F5",
+    backgroundColor: "#FAFAFA",
   },
   banner: {
     height: 320,
@@ -462,7 +462,8 @@ const styles = StyleSheet.create({
   bannerText: {
     fontSize: 24,
     fontWeight: "bold",
-    color: "white",
+    color: "#fff",
+    fontFamily: "PoppinsSemiBold",
     marginBottom: 10,
   },
   suggestion: {
@@ -476,11 +477,11 @@ const styles = StyleSheet.create({
   suggestionText: {
     fontSize: 16,
     fontWeight: "bold",
-    color: "#333",
+    color: "#263238",
   },
   goalText: {
     fontSize: 12,
-    color: "#555",
+    color: "#263238",
     marginTop: 5,
   },
   filterContainer: {
@@ -497,13 +498,15 @@ const styles = StyleSheet.create({
     marginHorizontal: 5,
   },
   filterButtonActive: {
-    backgroundColor: "#90CAF9",
+    // backgroundColor: "#90CAF9",
+    backgroundColor: "#B39DDB",
   },
   filterText: {
-    color: "#555",
+    // color: "#555",
+    color: "#263238",
   },
   filterTextActive: {
-    color: "#333",
+    color: "#fff",
     fontWeight: "bold",
   },
   grid: {
@@ -521,30 +524,36 @@ const styles = StyleSheet.create({
     alignItems: "center",
     padding: 20,
     flexBasis: "48%",
-    backgroundColor: "#ffcbf2",
+    // backgroundColor: "#ffcbf2",
+    backgroundColor: "#F5F5F5",
+    borderColor: "#D7CCC8",
+    borderWidth: 1,
     borderRadius: 10,
     marginBottom: 15,
     shadowColor: "#000",
     shadowOpacity: 0.1,
     shadowRadius: 5,
     shadowOffset: { width: 0, height: 2 },
-    elevation: 3,
+    elevation: 5,
   },
   moodText: {
-    fontSize: 12.5,
+    fontSize: 12,
     color: "#fff",
+    fontFamily: "PoppinsMedium",
   },
   cardTitle: {
     fontSize: 15,
     fontWeight: "bold",
-    color: "#333",
+    // color: "#333",
+    color: "#263238",
     marginBottom: 5,
     height: 50,
     textAlign: "center",
   },
   cardSubtitle: {
     fontSize: 12,
-    color: "#555",
+    // color: "#555",
+    color: "#263238",
     marginBottom: 10,
     height: 30,
     textAlign: "center",
@@ -560,7 +569,8 @@ const styles = StyleSheet.create({
   },
   durationText: {
     fontSize: 12,
-    color: "#333",
+    // color: "#333",
+    color: "#78909C",
     fontWeight: "bold",
   },
   streakContainer: {
@@ -572,11 +582,13 @@ const styles = StyleSheet.create({
   streakText: {
     fontSize: 16,
     fontWeight: "bold",
-    color: "#333",
+    color: "#263238",
   },
   badge: {
     fontSize: 14,
-    color: "#ff6347",
+    // color: "#ff6347",
+    // color: "#FF7043",
+    color: "#E91E63",
     marginTop: 5,
   },
   horizontalScroll: {
@@ -594,31 +606,29 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 5,
     shadowOffset: { width: 0, height: 2 },
-    elevation: 3,
+    elevation: 5,
   },
   lastListenedTitle: {
     fontSize: 18,
     fontWeight: "bold",
-    color: "#333",
+    color: "#263238",
     marginBottom: 10,
   },
   lastListenedCard: {
     padding: 22,
-    backgroundColor: "#ffcbf2",
+    // backgroundColor: "#ffcbf2",
     borderRadius: 10,
     alignItems: "center",
     marginRight: 16,
     width: 200,
+    backgroundColor: "#F3E5F5",
+    borderColor: "#D7CCC8",
+    borderWidth: 1,
   },
   lastListenedText: {
     fontSize: 16,
     fontWeight: "bold",
-    color: "#333",
-  },
-  lastListenedMood: {
-    fontSize: 14,
-    color: "#777",
-    marginTop: 5,
+    color: "#263238",
   },
   placeholderContainer: {
     alignItems: "center",
@@ -635,12 +645,12 @@ const styles = StyleSheet.create({
   },
   placeholderText: {
     fontSize: 14,
-    color: "#777",
+    color: "#263238",
     textAlign: "center",
   },
   errorText: {
     fontSize: 18,
-    color: "red",
+    color: "#FF7043",
     textAlign: "center",
     padding: 20,
   },

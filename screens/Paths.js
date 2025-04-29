@@ -5,6 +5,7 @@ import {
   StyleSheet,
   TouchableOpacity,
   ScrollView,
+  ActivityIndicator
 } from "react-native";
 import { FontAwesome } from "@expo/vector-icons";
 import { db } from "../firebaseConfig";
@@ -62,6 +63,8 @@ const fetchGoals = async (userId) => {
     return [];
   }
 };
+
+
 
 const CreatedGoals = ({ navigation, userId }) => {
   const [goals, setGoals] = useState([]);
@@ -135,7 +138,8 @@ const CreatedGoals = ({ navigation, userId }) => {
                 <FontAwesome
                   name="info-circle"
                   size={20}
-                  color="#2D3748"
+                  // color="#2D3748"
+                  color="#fff"
                   style={styles.cardActionIcon}
                 />
                 <Text style={styles.cardActionText}>View Details</Text>
@@ -209,25 +213,26 @@ const ActivePaths = () => {
                 <FontAwesome
                   name="info-circle"
                   size={20}
-                  color="#2D3748"
+                  // color="#2D3748"
+                  color="#fff"
                   style={styles.cardActionIcon}
                 />
                 <Text style={styles.cardActionText}>View Details</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.cardActionButton}>
+              {/* <TouchableOpacity style={styles.cardActionButton}>
                 <FontAwesome
                   name="edit"
                   size={20}
-                  color="#2D3748"
+                  color="#fff"
                   style={styles.cardActionIcon}
                 />
                 <Text style={styles.cardActionText}>Edit Path</Text>
-              </TouchableOpacity>
+              </TouchableOpacity> */}
               <TouchableOpacity style={styles.cardActionButton}>
                 <FontAwesome
                   name="play-circle"
                   size={20}
-                  color="#2D3748"
+                  color="#fff"
                   style={styles.cardActionIcon}
                 />
                 <Text style={styles.cardActionText}>Resume Path</Text>
@@ -287,7 +292,8 @@ const CompletedPaths = () => {
                 <FontAwesome
                   name="info-circle"
                   size={20}
-                  color="#2D3748"
+                  // color="#2D3748"
+                  color="#fff"
                   style={styles.cardActionIcon}
                 />
                 <Text style={styles.cardActionText}>View Details</Text>
@@ -321,6 +327,52 @@ const AvailablePaths = ({navigation}) => {
       details: "3 Milestones, 3 Resources",
     },
   ];
+
+  const [paths, setPaths] = useState({});
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchPaths = async () => {
+      try {
+        const pathsCollection = collection(db, "paths");
+        const querySnapshot = await getDocs(query(pathsCollection));
+
+        const pathsData = {};
+        querySnapshot.forEach((doc) => {
+          pathsData[doc.id] = doc.data();
+        });
+
+        setPaths(pathsData);
+        console.log(pathsData);
+      } catch (err) {
+        console.error("Error fetching paths:", err);
+        setError(err);
+        Alert.alert("Error", "Failed to fetch paths. Please try again."); // Use Alert for user feedback
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPaths();
+  }, []);
+
+  if (loading) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <ActivityIndicator size="large" color="#4DB6AC" />
+        <Text>Loading paths...</Text>
+      </View>
+    );
+  }
+
+  if (error) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <Text>Error: {error.message}</Text>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.section}>
@@ -394,10 +446,11 @@ const Paths = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F4F8FB",
+    backgroundColor: "#FAFAFA",
   },
   header: {
-    backgroundColor: "#EF798A",
+    // backgroundColor: "#EF798A",
+    backgroundColor: "#4DB6AC",
     padding: 40,
     borderRadius: 10,
     marginBottom: 20,
@@ -417,7 +470,8 @@ const styles = StyleSheet.create({
   },
   subtitle: {
     fontSize: 16,
-    color: "#E2E8F0",
+    // color: "#E2E8F0",
+    color: "#fff",
     marginTop: 5,
     textAlign: "center",
     fontFamily: "PoppinsRegular",
@@ -437,9 +491,10 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
   },
   ctaButtonText: {
-    color: "#3182CE",
+    // color: "#3182CE",
+    color: "#4DB6AC",
     fontWeight: "bold",
-    fontFamily: "PoppinsRegular",
+    fontFamily: "PoppinsMedium",
   },
   secondaryButton: {
     backgroundColor: "#E2E8F0",
@@ -452,7 +507,8 @@ const styles = StyleSheet.create({
     fontFamily: "PoppinsRegular",
   },
   secondaryButtonText: {
-    color: "#3182CE",
+    // color: "#3182CE",
+    color: "#78909C",
     fontWeight: "bold",
     fontFamily: "PoppinsRegular",
   },
@@ -479,7 +535,8 @@ const styles = StyleSheet.create({
   },
   seeMoreText: {
     fontSize: 15,
-    color: "#3182CE",
+    // color: "#3182CE",
+    color: "#F48FB1",
     fontWeight: "bold",
     fontFamily: "PoppinsRegular",
   },
@@ -527,14 +584,16 @@ const styles = StyleSheet.create({
   progressBar: {
     height: 8,
     width: "100%",
-    backgroundColor: "#E2E8F0",
+    // backgroundColor: "#E2E8F0",
+    backgroundColor: "#D7CCC8",
     borderRadius: 4,
     overflow: "hidden",
     marginTop: 10,
   },
   progress: {
     height: "100%",
-    backgroundColor: "#3182CE",
+    // backgroundColor: "#3182CE",
+    backgroundColor: "#F48FB1",
   },
   progressText: {
     fontSize: 14,
@@ -546,7 +605,8 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   cardActionButton: {
-    backgroundColor: "#E2E8F0",
+    // backgroundColor: "#E2E8F0",
+    backgroundColor: "#F48FB1",
     padding: 10,
     borderRadius: 8,
     flexDirection: "row",
@@ -561,12 +621,14 @@ const styles = StyleSheet.create({
     marginRight: 10,
   },
   cardActionText: {
-    color: "#2D3748",
+    // color: "#2D3748",
+    color: "#fff",
     fontWeight: "bold",
     fontFamily: "PoppinsRegular",
   },
   cardActionButtonComplete: {
-    backgroundColor: "#38A169",
+    // backgroundColor: "#38A169",
+    backgroundColor: "#A5D6A7",
     padding: 10,
     borderRadius: 8,
     flexDirection: "row",
@@ -588,11 +650,13 @@ const styles = StyleSheet.create({
     shadowRadius: 10,
     shadowOffset: { width: 0, height: 4 },
     width: 270,
+    borderWidth: 1,
+    borderColor: "#D7CCC8",
   },
   goalTitle: {
     fontSize: 18,
     fontWeight: "bold",
-    color: "#2D3748",
+    color: "#263238",
     fontFamily: "PoppinsRegular",
   },
   goalDescription: {
@@ -666,7 +730,8 @@ const styles = StyleSheet.create({
     fontFamily: "PoppinsRegular",
   },
   startPathButton: {
-    backgroundColor: "#3182CE",
+    // backgroundColor: "#3182CE",
+    backgroundColor: "#F48FB1",
     padding: 10,
     borderRadius: 5,
     marginTop: 15,

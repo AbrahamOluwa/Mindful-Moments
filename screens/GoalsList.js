@@ -70,7 +70,7 @@ const GoalsList = () => {
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#3182CE" />
+        <ActivityIndicator size="large" color="#4DB6AC" />
       </View>
     );
   }
@@ -107,15 +107,15 @@ const GoalsList = () => {
           >
             <View style={styles.goalHeader}>
               <Text style={styles.goalTitle}>{item.title}</Text>
-              <MaterialIcons name="more-vert" size={24} color="#718096" />
+              <MaterialIcons name="more-vert" size={24} color="#F48FB1" />
             </View>
             <Text style={styles.goalDescription}>{item.description}</Text>
             <View style={styles.goalDetailRow}>
-              <FontAwesome name="calendar" size={16} color="#718096" />
+              <FontAwesome name="calendar" size={16} color="#78909C" />
               <Text style={styles.goalDetail}>Deadline: {item.dueDate.toDate().toDateString()}</Text>
             </View>
             <View style={styles.goalDetailRow}>
-              <FontAwesome name="tasks" size={16} color="#718096" />
+              <FontAwesome name="tasks" size={16} color="#78909C" />
               <Text style={styles.goalDetail}>Tasks: {item.tasks.length}</Text>
             </View>
             <View style={styles.progressBar}>
@@ -133,19 +133,19 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
-    backgroundColor: '#F4F8FB',
+    backgroundColor: '#FAFAFA',
   },
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#F4F8FB',
+    backgroundColor: '#FAFAFA',
   },
   title: {
     fontSize: 24,
     fontWeight: 'bold',
     marginBottom: 20,
-    color: '#2D3748',
+    color: '#263238',
   },
   tabsContainer: {
     flexDirection: 'row',
@@ -161,10 +161,12 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   activeTab: {
-    backgroundColor: '#3182CE',
+    // backgroundColor: '#3182CE',
+    backgroundColor: '#4DB6AC',
   },
   tabText: {
-    color: '#2D3748',
+    // color: '#2D3748',
+    color: '#78909C',
     fontSize: 16,
     fontWeight: 'bold',
   },
@@ -180,6 +182,9 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 10,
     shadowOffset: { width: 0, height: 4 },
+    elevation: 5,
+    borderColor: "#D7CCC8",
+    borderWidth: 1,
   },
   goalHeader: {
     flexDirection: 'row',
@@ -190,11 +195,11 @@ const styles = StyleSheet.create({
   goalTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#2D3748',
+    color: '#263238',
   },
   goalDescription: {
     fontSize: 14,
-    color: '#718096',
+    color: '#263238',
     marginBottom: 10,
   },
   goalDetailRow: {
@@ -204,7 +209,7 @@ const styles = StyleSheet.create({
   },
   goalDetail: {
     fontSize: 14,
-    color: '#718096',
+    color: '#78909C',
     marginLeft: 5,
   },
   progressBar: {
@@ -217,7 +222,8 @@ const styles = StyleSheet.create({
   },
   progress: {
     height: '100%',
-    backgroundColor: '#3182CE',
+    // backgroundColor: '#3182CE',
+    backgroundColor: '#F48FB1',
   },
 });
 

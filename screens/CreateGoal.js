@@ -433,7 +433,7 @@ export default function CreateGoal({ navigation }) {
               onPress={() => toggleRepeatOption(option)}
               style={[
                 styles.option,
-                { backgroundColor: repeatOption === option ? "#EF798A" : "#F2F2F2" },
+                { backgroundColor: repeatOption === option ? "#4DB6AC" : "#F2F2F2" },
               ]}
             >
               <Text style={{ color: repeatOption === option ? "white" : "black", fontFamily: "PoppinsRegular" }}>
@@ -465,7 +465,7 @@ export default function CreateGoal({ navigation }) {
                   onPress={() => toggleDay(day)}
                   style={[
                     styles.option,
-                    { backgroundColor: selectedDays.includes(day) ? "#EF798A" : "#F2F2F2" },
+                    { backgroundColor: selectedDays.includes(day) ? "#4DB6AC" : "#F2F2F2" },
                   ]}
                 >
                   <Text style={{ color: selectedDays.includes(day) ? "white" : "black", fontFamily: "PoppinsRegular" }}>
@@ -498,11 +498,11 @@ export default function CreateGoal({ navigation }) {
           <View key={index} style={styles.taskRow}>
             <Text style={styles.taskText}>{task.text}</Text>
             <TouchableOpacity onPress={() => removeTask(index)}>
-              <AntDesign name="delete" size={20} color="black" />
+              <AntDesign name="delete" size={20} color="#263238" />
             </TouchableOpacity>
-            <TouchableOpacity onPress={() => markTaskAsCompleted(index)}>
-              <AntDesign name="checkcircle" size={20} color="green" />
-            </TouchableOpacity>
+            {/* <TouchableOpacity onPress={() => markTaskAsCompleted(index)}>
+              <AntDesign name="checkcircle" size={20} color="#A5D6A7" />
+            </TouchableOpacity> */}
           </View>
         ))}
       </ScrollView>
@@ -556,7 +556,7 @@ export default function CreateGoal({ navigation }) {
         <Button
           isLoading
           _loading={{
-            bg: "#EF798A",
+            bg: "#F48FB1",
             _text: {
               color: "coolGray.700",
               fontFamily: "PoppinsMedium",
@@ -628,7 +628,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
-    backgroundColor: "#F4F8FB",
+    backgroundColor: "#FAFAFA",
   },
   headerContainer: {
     flexDirection: "row",
@@ -653,8 +653,8 @@ const styles = StyleSheet.create({
   },
   input: {
     height: 47,
-    borderWidth: 2,
-    borderColor: "#fff",
+    borderWidth: 1,
+    borderColor: "#D7CCC8",
     borderRadius: 5,
     padding: 10,
     marginBottom: 20,
@@ -664,8 +664,9 @@ const styles = StyleSheet.create({
   inputDescription: {
     height: 120,
     padding: 10,
-    borderWidth: 2,
-    borderColor: "#fff",
+    borderWidth: 1,
+    // borderColor: "#fff",
+    borderColor: "#D7CCC8",
     borderRadius: 5,
     marginBottom: 20,
     backgroundColor: "#FFF",
@@ -675,7 +676,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     borderWidth: 1,
-    borderColor: "#fff",
+    borderColor: "#D7CCC8",
     backgroundColor: "#FFF",
     padding: 10,
     borderRadius: 5,
@@ -687,8 +688,8 @@ const styles = StyleSheet.create({
   },
   selectContainer: {
     backgroundColor: "#fff",
-    borderColor: "#fff",
-    borderWidth: 2,
+    borderColor: "#D7CCC8",
+    borderWidth: 1,
     borderRadius: 8,
     marginBottom: 20,
   },
@@ -713,7 +714,8 @@ const styles = StyleSheet.create({
     fontFamily: "PoppinsSemiBold",
     fontSize: 14,
     marginBottom: 10,
-    color: "#222222",
+    // color: "#222222",
+    color: "#263238",
   },
   timePickerContainer: {
     paddingVertical: 15,
@@ -722,7 +724,8 @@ const styles = StyleSheet.create({
   },
   timeText: {
     fontFamily: "PoppinsSemiBold",
-    color: "#613F75",
+    // color: "#613F75",
+    color: "#263238",
     fontSize: 20,
   },
   tasksContainer: {
@@ -736,13 +739,17 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginBottom: 10,
     borderRadius: 8,
-    backgroundColor: "#EFB9CB",
+    // backgroundColor: "#EFB9CB",
+    backgroundColor: "#fff",
     padding: 10,
+    borderColor: "#D7CCC8",
+    borderWidth: 1, 
   },
   taskText: {
     flex: 1,
     fontSize: 14,
     fontFamily: "PoppinsRegular",
+    color: "#263238"
   },
   addTaskContainer: {
     flexDirection: "row",
@@ -752,7 +759,7 @@ const styles = StyleSheet.create({
     flex: 1,
     height: 44,
     borderWidth: 1,
-    borderColor: "#fff",
+    borderColor: "#D7CCC8",
     backgroundColor: "#FFF",
     borderRadius: 5,
     padding: 10,
@@ -760,7 +767,8 @@ const styles = StyleSheet.create({
     fontFamily: "PoppinsRegular",
   },
   addTaskButton: {
-    backgroundColor: "#988B8E",
+    // backgroundColor: "#988B8E",
+    backgroundColor: "#F48FB1",
     paddingVertical: 10,
     paddingHorizontal: 15,
     borderRadius: 5,
@@ -773,7 +781,8 @@ const styles = StyleSheet.create({
     fontFamily: "PoppinsRegular",
   },
   saveButton: {
-    backgroundColor: "#613F75",
+    // backgroundColor: "#613F75",
+    backgroundColor: "#F48FB1",
     paddingVertical: 10,
     paddingHorizontal: 15,
     borderRadius: 5,
@@ -783,7 +792,7 @@ const styles = StyleSheet.create({
   saveButtonText: {
     color: "white",
     fontSize: 18,
-    fontFamily: "PoppinsRegular",
+    fontFamily: "PoppinsMedium",
   },
   guideTitle: {
     fontFamily: "PoppinsSemiBold",

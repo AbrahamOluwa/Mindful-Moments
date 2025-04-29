@@ -76,7 +76,7 @@ const styles = StyleSheet.create({
   },
   dayCard: {
     width: 78,
-    height: 79,
+    height: 83,
     borderRadius: 10,
     backgroundColor: "#E5E4E2",
     alignItems: "center",
@@ -88,6 +88,7 @@ const styles = StyleSheet.create({
     elevation: 5,
     marginHorizontal: 5,
     padding: 10,
+    paddingTop: 13,
   },
   activeDayCard: {
     backgroundColor: "#a9a9a9", // Darker gray for the active day
@@ -96,7 +97,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#add8e6", // Light blue for the current day
   },
   dayLabel: {
-    fontSize: 14,
+    fontSize: 13,
     color: "#333",
     //fontWeight: "bold",
     marginBottom: 5,
@@ -109,7 +110,7 @@ const styles = StyleSheet.create({
     fontFamily: 'PoppinsMedium'
   },
   dayNameLabel: {
-    fontSize: 10,
+    fontSize: 11,
     color: "#999",
     fontFamily: 'PoppinsRegular'
   },

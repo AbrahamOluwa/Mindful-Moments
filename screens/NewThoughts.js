@@ -262,7 +262,7 @@ export default function NewThoughts({ navigation }) {
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#0000ff" />
+        <ActivityIndicator size="large" color="#4DB6AC" />
       </View>
     );
   }
@@ -441,34 +441,38 @@ const styles = StyleSheet.create({
   },
   dailyPromptContainer: {
     marginBottom: 20,
-    backgroundColor: "#9D50BB",
+    // backgroundColor: "#9D50BB",
+    backgroundColor: "#fff",
     padding: 15,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: "#9D50BB",
+    // borderColor: "#9D50BB",
+    borderColor: "#D7CCC8",
+    elevation: 5,
   },
   dailyPromptTitle: {
     fontSize: 20,
     fontWeight: "bold",
-    color: "#fff",
+    color: "#263238",
     fontFamily: "PoppinsSemiBold",
   },
   dailyPromptText: {
     fontSize: 16,
-    color: "#fff",
+    color: "#263238",
     marginTop: 8,
     fontFamily: "PoppinsRegular",
   },
   startReflectionButton: {
     marginTop: 10,
     alignSelf: "center",
-    backgroundColor: "#ffffff",
+    // backgroundColor: "#ffffff",
     padding: 10,
     borderRadius: 5,
   },
   reflectionButtonText: {
-    fontSize: 14,
-    color: "#9D50BB",
+    fontSize: 16,
+    // color: "#9D50BB",
+    color: "#4DB6AC",
     fontFamily: "PoppinsRegular",
   },
   moodTracker: {
@@ -482,7 +486,8 @@ const styles = StyleSheet.create({
   moodTrackerText: {
     fontSize: 18,
     fontWeight: "bold",
-    color: "#007bff",
+    // color: "#007bff",
+    color: "#4DB6AC",
     fontFamily: "PoppinsRegular",
   },
   moodOptions: {
@@ -518,20 +523,25 @@ const styles = StyleSheet.create({
   analyticsContainer: {
     marginBottom: 20,
     padding: 15,
-    backgroundColor: "#ffcbf2",
+    // backgroundColor: "#ffcbf2",
+    backgroundColor: "#fff",
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: "#ffcbf2",
+    // borderColor: "#ffcbf2",
+    borderColor: "#D7CCC8",
+    elevation: 5,
   },
   analyticsTitle: {
     fontSize: 19,
     fontWeight: "bold",
-    color: "#e76f51",
+    // color: "#e76f51",
+    color: "#4DB6AC",
     fontFamily: "PoppinsSemiBold",
   },
   analyticsText: {
     fontSize: 14,
-    color: "#333",
+    // color: "#333",
+    color: "#263238",
     marginTop: 8,
     fontFamily: "PoppinsRegular",
   },
@@ -543,12 +553,14 @@ const styles = StyleSheet.create({
   tab: {
     paddingVertical: 10,
     paddingHorizontal: 20,
-    backgroundColor: "#e0e0e0",
+    // backgroundColor: "#e0e0e0",
+    backgroundColor: "#D7CCC8",
     borderRadius: 5,
     marginHorizontal: 10,
   },
   activeTab: {
-    backgroundColor: "#EF798A",
+    // backgroundColor: "#EF798A",
+    backgroundColor: "#4DB6AC",
   },
   tabText: {
     fontSize: 17,
@@ -566,14 +578,20 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   journalCard: {
-    backgroundColor: "#A7C7E7",
+    // backgroundColor: "#A7C7E7",
+    backgroundColor: "#F5F5F5",
+    borderWidth: 1,
+    borderColor: "#D7CCC8",
   },
   gratitudeCard: {
-    backgroundColor: "#B0E0E6",
+    // backgroundColor: "#B0E0E6",
+    backgroundColor: "#F5F5F5",
+    borderWidth: 1,
+    borderColor: "#D7CCC8",
   },
   entryText: {
     fontSize: 13,
-    color: "black",
+    color: "#263238",
     fontFamily: "PoppinsRegular",
   },
   entryMood: {
@@ -583,20 +601,21 @@ const styles = StyleSheet.create({
   },
   entryTag: {
     fontSize: 12,
-    color: "black",
+    color: "#F48FB1",
     marginTop: 4,
-    fontFamily: "PoppinsRegular",
+    fontFamily: "PoppinsMedium",
   },
   entryDate: {
     fontSize: 12,
-    color: "black",
+    color: "#78909C",
     marginTop: 5,
     fontFamily: "PoppinsRegular",
     marginBottom: 8,
   },
   addEntryButton: {
     marginTop: 20,
-    backgroundColor: "#9D50BB",
+    // backgroundColor: "#9D50BB",
+    backgroundColor: "#4DB6AC",
     paddingVertical: 12,
     paddingHorizontal: 25,
     borderRadius: 25,
@@ -627,7 +646,8 @@ const styles = StyleSheet.create({
     fontFamily: "PoppinsSemiBold",
   },
   modalButton: {
-    backgroundColor: "#9D50BB",
+    // backgroundColor: "#9D50BB",
+    backgroundColor: "#F48FB1",
     padding: 10,
     borderRadius: 5,
     marginVertical: 5,
@@ -643,7 +663,8 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   modalCloseButtonText: {
-    color: "#9D50BB",
+    // color: "#9D50BB",
+    color: "#4DB6AC",
     fontSize: 16,
     fontFamily: "PoppinsRegular",
   },
@@ -670,7 +691,8 @@ const styles = StyleSheet.create({
   motivationalText: {
     fontSize: 16,
     fontStyle: "italic",
-    color: "#333",
+    // color: "#333",
+    color: "#263238",
     marginTop: 20,
     textAlign: "center",
     fontFamily: "PoppinsRegular",

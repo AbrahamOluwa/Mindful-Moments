@@ -37,8 +37,8 @@ export default function BottomTabs() {
 
           return <Ionicons name={iconName} size={size} color={color} />;
         },
-        tabBarActiveTintColor: "#EF798A",  //e75874
-        tabBarInactiveTintColor: "gray",
+        tabBarActiveTintColor: "#4DB6AC",// #EF798A"
+        tabBarInactiveTintColor: "#78909C",  // "gray",
         tabBarLabelStyle: { fontSize: 11.5, fontFamily: "PoppinsRegular" },
       })}
     >

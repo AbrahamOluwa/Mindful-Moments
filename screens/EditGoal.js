@@ -278,8 +278,8 @@ export default function EditGoal() {
             <View
               style={{
                 backgroundColor: "#fff",
-                borderColor: "#fff",
-                borderWidth: 2,
+                borderColor: "#D7CCC8",
+                borderWidth: 1,
                 borderRadius: 8,
                 marginBottom: 20,
               }}
@@ -340,8 +340,8 @@ export default function EditGoal() {
             <View
               style={{
                 backgroundColor: "#fff",
-                borderColor: "#fff",
-                borderWidth: 2,
+                borderColor: "#D7CCC8",
+                borderWidth: 1,
                 borderRadius: 8,
                 marginBottom: 20,
               }}
@@ -382,7 +382,7 @@ export default function EditGoal() {
                     styles.option,
                     {
                       backgroundColor:
-                        goalRepeatOption === option ? "#EF798A" : "#F2F2F2",
+                        goalRepeatOption === option ? "#4DB6AC" : "#F2F2F2",
                     },
                   ]}
                 >
@@ -446,7 +446,7 @@ export default function EditGoal() {
                           styles.option,
                           {
                             backgroundColor: goalSelectedDays.includes(day)
-                              ? "#EF798A"
+                              ? "#4DB6AC"
                               : "#F2F2F2",
                           },
                         ]}
@@ -494,13 +494,13 @@ export default function EditGoal() {
                     updatedTasks[index].completed = !task.completed; // Toggle the completed property
                     setGoalTasks(updatedTasks); // Update the state with the new tasks array
                   }}
-                  color={task.completed ? "#198754" : undefined}
+                  color={task.completed ? "#A5D6A7" : undefined}
                 />
 
                 <Text style={styles.taskText}>{task.text}</Text>
 
                 <TouchableOpacity onPress={() => removeTask(index)}>
-                  <AntDesign name="delete" size={20} color="#DC3545" />
+                  <AntDesign name="delete" size={20} color="#263238" />
                 </TouchableOpacity>
               </View>
             ))}
@@ -528,7 +528,7 @@ export default function EditGoal() {
             <Button
               isLoading
               _loading={{
-                bg: "#EF798A",
+                bg: "#F48FB1",
                 _text: {
                   color: "coolGray.700",
                   fontFamily: "PoppinsMedium",
@@ -596,6 +596,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
+    backgroundColor: "#FAFAFA",
   },
   heading: {
     fontSize: 24,
@@ -618,9 +619,8 @@ const styles = StyleSheet.create({
   input: {
     height: 45,
     padding: 10,
-
-    borderWidth: 2,
-    borderColor: "#fff",
+    borderWidth: 1,
+    borderColor: "#D7CCC8",
     borderRadius: 5,
     marginBottom: 20,
     backgroundColor: "#FFF",
@@ -629,16 +629,16 @@ const styles = StyleSheet.create({
   input2: {
     height: 120,
     padding: 10,
-    borderWidth: 2,
-    borderColor: "#fff",
+    borderWidth: 1,
+    borderColor: "#D7CCC8",
     borderRadius: 5,
     marginBottom: 20,
     backgroundColor: "#FFF",
     fontFamily: "PoppinsMedium",
   },
   dropdown: {
-    borderWidth: 2,
-    borderColor: "#fff",
+    borderWidth: 1,
+    borderColor: "#D7CCC8",
     borderRadius: 8,
     padding: 10,
     marginBottom: 20,
@@ -655,7 +655,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     borderWidth: 1,
-    borderColor: "#fff",
+    borderColor: "#D7CCC8",
     backgroundColor: "#FFF",
     padding: 10,
     borderRadius: 5,
@@ -675,14 +675,17 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginBottom: 10,
     borderRadius: 8,
-    backgroundColor: "#EFB9CB",
+    backgroundColor: "#fff",
     padding: 10,
+    borderColor: "#D7CCC8",
+    borderWidth: 1, 
   },
   taskText: {
     flex: 1,
     fontSize: 13,
-    fontFamily: "PoppinsRegular",
-    // color: '#fff'
+    fontFamily: "PoppinsMedium",
+    color: '#263238',
+    fontWeight: "bold",
   },
   addTaskContainer: {
     flexDirection: "row",
@@ -692,15 +695,15 @@ const styles = StyleSheet.create({
     flex: 1,
     height: 45,
     borderWidth: 1,
-    borderColor: "#fff",
-    backgroundColor: "#FFF",
+    borderColor: "#D7CCC8",
+    backgroundColor: "#fff",
     borderRadius: 5,
     padding: 10,
     marginRight: 10,
     fontFamily: "PoppinsMedium",
   },
   addTaskButton: {
-    backgroundColor: "#988B8E",
+    backgroundColor: "#F48FB1",
     paddingVertical: 10,
     paddingHorizontal: 15,
     borderRadius: 5,
@@ -713,7 +716,7 @@ const styles = StyleSheet.create({
     fontFamily: "PoppinsSemiBold",
   },
   saveButton: {
-    backgroundColor: "#613F75",
+    backgroundColor: "#F48FB1",
     paddingVertical: 10,
     paddingHorizontal: 15,
     borderRadius: 5,

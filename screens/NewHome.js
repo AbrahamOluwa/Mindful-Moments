@@ -140,9 +140,9 @@ export default function NewHome() {
         {/* Greeting Section */}
         <Text style={styles.greetingText}>{getGreeting()}, welcome back!</Text>
         {/* <Text style={styles.welcomeText}>Welcome, {user ? user.uid : 'User'}!</Text> */}
-  
+
         {/* Beautiful Daily Inspiration Section */}
-        <LinearGradient
+        {/* <LinearGradient
           colors={["#9D50BB", "#6E48AA"]}
           start={[0, 0]}
           end={[1, 1]}
@@ -154,13 +154,22 @@ export default function NewHome() {
           <TouchableOpacity style={styles.seeMoreButton}>
             <Text style={styles.buttonText}>See More Quotes</Text>
           </TouchableOpacity>
-        </LinearGradient>
-  
+        </LinearGradient> */}
+
+        <Card style={styles.dailyInspiration}>
+          <Text style={styles.inspirationText}>
+            “Success is the sum of small efforts, repeated day in and day out.”
+          </Text>
+          <TouchableOpacity style={styles.seeMoreButton}>
+            <Text style={styles.buttonText}>See More Quotes</Text>
+          </TouchableOpacity>
+        </Card>
+
         {/* Goals Section */}
         <View>
           <Text style={styles.sectionTitle}>Your Goals</Text>
           {loading ? (
-            <ActivityIndicator size="large" color="#3182CE" />
+            <ActivityIndicator size="large" color="#4DB6AC" />
           ) : goals.length > 0 ? (
             <View style={styles.cardContainer}>
               {goals.map((goal, index) => (
@@ -168,17 +177,20 @@ export default function NewHome() {
                   key={goal.id}
                   style={[
                     styles.card,
-                    {
-                      backgroundColor:
-                        goal.progress === 100 ? "#4CAF50" : "#EF798A",
-                    },
+                    // {
+                    //   backgroundColor:
+                    //     goal.progress === 100 ? "#4CAF50" : "#EF798A",
+                    // },
                   ]}
                 >
                   <Text style={styles.goalTitle}>{goal.title}</Text>
                   <Progress
                     style={styles.progressBar}
                     value={goal.progress}
-                    color={goal.isCompleted ? "#4CAF50" : "#EF798A"}
+                    // color={goal.isCompleted ? "#4CAF50" : "#EF798A"}
+                    _filledTrack={{
+                      bg: "#F48FB1",
+                    }}
                   />
                   <Text style={styles.goalDeadline}>
                     Deadline: {new Date(goal.dueDate.toDate()).toDateString()}
@@ -206,18 +218,20 @@ export default function NewHome() {
             />
           )}
         </View>
-  
+
         {/* Entries Section */}
         <View>
           <Text style={styles.sectionTitle}>Reflect on Your Journey</Text>
           {loading ? (
-            <ActivityIndicator size="large" color="#3182CE" />
+            <ActivityIndicator size="large" color="#4DB6AC" />
           ) : entries.length > 0 ? (
             <View style={styles.cardContainer}>
               {entries.map((entry) => (
                 <Card key={entry.id} style={styles.entryCard}>
                   <View style={styles.entryHeader}>
-                    <Text style={styles.entryType}>{entry.type.toUpperCase()}</Text>
+                    <Text style={styles.entryType}>
+                      {entry.type.toUpperCase()}
+                    </Text>
                   </View>
                   <Text style={styles.entryContent}>
                     {entry.content.length > 100
@@ -250,7 +264,7 @@ export default function NewHome() {
             />
           )}
         </View>
-  
+
         {/* Resources Section Tied to Goals */}
         <View style={styles.sectionContainer}>
           <Text style={styles.sectionTitle}>Resources for Your Goals</Text>
@@ -283,7 +297,7 @@ export default function NewHome() {
             />
           )}
         </View>
-  
+
         {/* Started Resources Section */}
         <View style={styles.sectionContainerAlt}>
           <Text style={styles.sectionTitle}>
@@ -317,7 +331,7 @@ export default function NewHome() {
             />
           )}
         </View>
-  
+
         {/* Meditation Section Tied to Mindfulness Goals */}
         <Text style={styles.sectionTitle}>Guided Meditation</Text>
         <View style={styles.meditationCard}>
@@ -348,7 +362,7 @@ export default function NewHome() {
             </Button>
           </View>
         </View>
-  
+
         {/* Journals Section Tied to Goal Reflection */}
         {/* <Text style={styles.sectionTitle}>Reflect on Your Journey</Text>
         <EmptyState
@@ -357,7 +371,7 @@ export default function NewHome() {
           buttonText="Log Your First Thought"
           onPress={() => console.log("Navigate to journaling")}
         /> */}
-  
+
         {/* Call-to-Action Buttons for New Goals */}
         <View style={styles.ctaContainer}>
           <TouchableOpacity style={styles.ctaButton}>
@@ -385,7 +399,7 @@ export default function NewHome() {
 const styles = StyleSheet.create({
   container: {
     flexGrow: 1,
-    backgroundColor: "#f5f5f5",
+    backgroundColor: "#FAFAFA",
   },
   safeArea: {
     marginTop: 40,
@@ -394,7 +408,7 @@ const styles = StyleSheet.create({
   greetingText: {
     fontSize: 24,
     fontWeight: "bold",
-    color: "#333",
+    color: "#263238",
     textAlign: "center",
     marginVertical: 20,
     fontFamily: "RobotoSlabRegular",
@@ -406,30 +420,37 @@ const styles = StyleSheet.create({
     elevation: 5,
     alignItems: "center",
     justifyContent: "center",
+    borderColor: "#D7CCC8",
+    backgroundColor: "#fff",
+    borderWidth: 1,
   },
   inspirationText: {
     fontSize: 18,
-    color: "#fff",
+    //color: "#fff",
+    color: "#263238",
     textAlign: "center",
     marginBottom: 10,
     fontFamily: "PoppinsRegular",
+    fontWeight: "bold",
   },
   seeMoreButton: {
     marginTop: 10,
     alignSelf: "center",
-    backgroundColor: "#ffffff",
+    // backgroundColor: "#ffffff",
     padding: 10,
     borderRadius: 5,
   },
   buttonText: {
-    fontSize: 14,
-    color: "#9D50BB",
+    fontSize: 16,
+    // color: "#9D50BB",
+    color: "#4DB6AC",
     fontFamily: "PoppinsRegular",
   },
   sectionTitle: {
     fontSize: 22,
     marginVertical: 20,
-    color: "#333",
+    // color: "#333",
+    color: "#263238",
     fontFamily: "PoppinsSemiBold",
   },
   cardContainer: {
@@ -440,15 +461,20 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     borderRadius: 10,
     elevation: 5,
+    borderColor: "#D7CCC8",
+    borderWidth: 1,
+    backgroundColor: "#fff",
   },
   goalTitle: {
     fontSize: 17,
-    color: "#fff",
+    // color: "#fff",
+    color: "#263238",
     fontFamily: "PoppinsRegular",
   },
   goalDeadline: {
     fontSize: 14,
-    color: "#fff",
+    //color: "#fff",
+    color: "#78909C",
     marginVertical: 10,
     fontFamily: "PoppinsRegular",
   },
@@ -456,9 +482,11 @@ const styles = StyleSheet.create({
     marginTop: 10,
     height: 10,
     borderRadius: 5,
+    backgroundColor: "#D7CCC8",
   },
   viewButton: {
-    backgroundColor: "#fff",
+    // backgroundColor: "#fff",
+    backgroundColor: "#4DB6AC",
     paddingVertical: 8,
     paddingHorizontal: 15,
     borderRadius: 5,
@@ -466,21 +494,23 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   viewButtonText: {
-    color: "#9D50BB",
+    // color: "#9D50BB",
+    color: "#fff",
     fontSize: 14,
     fontWeight: "600",
+    fontFamily: "PoppinsMedium",
   },
   sectionContainerAlt: {
     marginVertical: 15,
     padding: 15,
     borderRadius: 15,
-    backgroundColor: "#fff5f8",
+    // backgroundColor: "#fff5f8",
   },
   sectionContainer: {
     marginVertical: 15,
     padding: 15,
     borderRadius: 15,
-    backgroundColor: "#f0f8ff",
+    // backgroundColor: "#f0f8ff",
   },
   resourceCard: {
     width: 220,
@@ -492,6 +522,8 @@ const styles = StyleSheet.create({
     elevation: 5,
     justifyContent: "space-between",
     overflow: "hidden",
+    borderColor: "#D7CCC8",
+    borderWidth: 1,
   },
   resourceImage: {
     width: "100%",
@@ -501,7 +533,7 @@ const styles = StyleSheet.create({
   },
   resourceTitle: {
     fontSize: 14,
-    color: "#333",
+    color: "#263238",
     textAlign: "center",
     marginBottom: 10,
     fontFamily: "PoppinsRegular",
@@ -528,20 +560,26 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     elevation: 5,
     justifyContent: "space-between",
+    borderColor: "#D7CCC8",
+    borderWidth: 1,
   },
   meditationCard: {
     padding: 20,
     marginVertical: 10,
     borderRadius: 10,
-    backgroundColor: "#EF798A",
+    // backgroundColor: "#EF798A",
+    backgroundColor: "#fff",
     elevation: 5,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "flex-start",
+    borderColor: "#D7CCC8",
+    borderWidth: 1,
   },
   meditationTitle: {
-    fontSize: 18,
-    color: "#fff",
+    fontSize: 15,
+    // color: "#fff",
+    color: "#263238",
     marginBottom: 10,
     fontFamily: "PoppinsRegular",
   },
@@ -556,25 +594,13 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     minWidth: 150,
   },
-  journalCard: {
-    padding: 20,
-    marginVertical: 10,
-    borderRadius: 10,
-    backgroundColor: "#9D50BB",
-    elevation: 5,
-    alignItems: "center",
-  },
-  journalTitle: {
-    fontSize: 18,
-    color: "#fff",
-    marginBottom: 10,
-    fontFamily: "PoppinsRegular",
-  },
   entryCard: {
     padding: 15,
     marginBottom: 10,
     borderRadius: 10,
     backgroundColor: "#fff",
+    borderColor: "#D7CCC8",
+    borderWidth: 1,
     elevation: 5,
   },
   entryHeader: {
@@ -587,7 +613,8 @@ const styles = StyleSheet.create({
     fontSize: 10,
     fontWeight: "bold",
     color: "#fff",
-    backgroundColor: "#3182CE",
+    // backgroundColor: "#3182CE",
+    backgroundColor: "#F48FB1",
     paddingVertical: 4,
     paddingHorizontal: 8,
     borderRadius: 20,
@@ -597,12 +624,13 @@ const styles = StyleSheet.create({
   entryContent: {
     fontSize: 13,
     fontFamily: "PoppinsRegular",
-    color: "#333",
+    color: "#263238",
     marginBottom: 10,
   },
   entryDate: {
     fontSize: 12,
-    color: "#666",
+    // color: "#666",
+    color: "#78909C",
     marginBottom: 10,
     fontFamily: "PoppinsRegular",
   },
@@ -616,7 +644,8 @@ const styles = StyleSheet.create({
   ctaButton: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#3F72AF",
+    // backgroundColor: "#3F72AF",
+    backgroundColor: "#4DB6AC",
     paddingVertical: 10,
     paddingHorizontal: 15,
     borderRadius: 8,
