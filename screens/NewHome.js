@@ -6,20 +6,11 @@ import {
   Text,
   StyleSheet,
   ActivityIndicator,
-  ImageBackground,
 } from "react-native";
 import React, { useState, useEffect } from "react";
-import {
-  Box,
-  VStack,
-  HStack,
-  Center,
-  Card,
-  Icon,
-  Button,
-  Progress,
-} from "native-base";
+import { Card, Button, Progress } from "native-base";
 import MaterialIcons from "react-native-vector-icons/MaterialIcons";
+import Empty from "../components/home/Empty";
 import { useAuth } from "../context/AuthContext";
 import { useNavigation } from "@react-navigation/native";
 import {
@@ -33,12 +24,17 @@ import {
   getDoc,
 } from "firebase/firestore";
 import { db } from "../firebaseConfig";
+import { LinearGradient } from "expo-linear-gradient";
 
 export default function NewHome() {
   const { user } = useAuth();
   const [goals, setGoals] = useState([]);
   const [entries, setEntries] = useState([]);
   const [streak, setStreak] = useState(0);
+  const [quote, setQuote] = useState({
+    text: "Success is the sum of small efforts, repeated day in and day out.",
+    author: "Robert Collier",
+  });
   const [loading, setLoading] = useState(true);
   const navigation = useNavigation();
 
@@ -92,7 +88,9 @@ export default function NewHome() {
               collection(db, "users", user.uid, "goals", d.id, "tasks")
             );
             const tasks = tasksSnapshot.docs.map((taskDoc) => taskDoc.data());
-            const completedTasks = tasks.filter((task) => task.completed).length;
+            const completedTasks = tasks.filter(
+              (task) => task.completed
+            ).length;
             const progress =
               tasks.length > 0
                 ? Math.round((completedTasks / tasks.length) * 100)
@@ -125,23 +123,33 @@ export default function NewHome() {
   ];
 
   return (
-    <ImageBackground
-      source={require("../assets/images/g1.jpg")}
-      style={styles.backgroundImage}
+    <LinearGradient
+      colors={["#E1F5FE", "#F3E5F5"]}
+      style={styles.container}
     >
-      <ScrollView contentContainerStyle={styles.container}>
+      <ScrollView contentContainerStyle={styles.scrollContainer}>
         <View style={styles.safeArea}>
-          {/* Personalized Greeting Section */}
+          {/* Greeting */}
           <Text style={styles.greetingText}>
             {getGreeting()}, {user?.username || "User"}!
           </Text>
 
-          {/* Today's Focus Section */}
-          <TouchableOpacity
-            style={styles.focusCard}
-            onPress={() => navigation.navigate("Meditations")}
-          >
-            <MaterialIcons name="self-improvement" size={30} color="#fff" />
+          {/* Premium Teal Quote Card */}
+          <Card style={styles.dailyInspiration}>
+            <MaterialIcons name="format-quote" size={34} color="#4DB6AC" />
+            <Text style={styles.inspirationText}>{quote.text}</Text>
+            <Text style={styles.inspirationAuthor}>- {quote.author}</Text>
+            <TouchableOpacity
+              style={styles.seeMoreButton}
+              onPress={() => navigation.navigate("Quotes")}
+            >
+              <Text style={styles.buttonText}>See More Quotes</Text>
+            </TouchableOpacity>
+          </Card>
+
+          {/* Focus Card */}
+          <View style={styles.focusCard}>
+            <MaterialIcons name="self-improvement" size={30} color="#FFFFFF" />
             <View style={styles.focusTextContainer}>
               <Text style={styles.focusTitle}>Today's Focus</Text>
               <Text style={styles.focusSubtitle}>
@@ -154,33 +162,41 @@ export default function NewHome() {
             >
               <Text style={styles.focusButtonText}>Start</Text>
             </Button>
-          </TouchableOpacity>
+          </View>
 
           {/* Streak Tracker */}
           <View style={styles.streakContainer}>
-            <MaterialIcons name="local-fire-department" size={24} color="#FFD180" />
-            <Text style={styles.streakText}>{streak}-Day Streak! Keep it up.</Text>
+            <MaterialIcons name="local-fire-department" size={24} color="#4DB6AC" />
+            <Text style={styles.streakText}>
+              {streak}-Day Streak! Keep it up.
+            </Text>
           </View>
 
-          {/* Goals Section */}
+          {/* Goals Section - Horizontal Scroll */}
           <View>
             <Text style={styles.sectionTitle}>Your Goals</Text>
             {loading ? (
-              <ActivityIndicator size="large" color="#FFF" />
+              <ActivityIndicator size="large" color="#4DB6AC" />
             ) : goals.length > 0 ? (
-              <View style={styles.cardContainer}>
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={styles.horizontalScroll}
+              >
                 {goals.map((goal) => (
-                  <Card key={goal.id} style={styles.card}>
+                  <Card key={goal.id} style={styles.goalCard}>
                     <Text style={styles.goalTitle}>{goal.title}</Text>
                     <Progress
                       style={styles.progressBar}
                       value={goal.progress}
                       _filledTrack={{
-                        bg: "#F48FB1",
+                        bg: "#4DB6AC",
                       }}
                     />
                     <Text style={styles.goalDeadline}>
-                      Deadline: {new Date(goal.dueDate.toDate()).toDateString()}
+                      <MaterialIcons name="event" size={14} color="#4DB6AC" />
+                      {"  Deadline: "}
+                      {new Date(goal.dueDate.toDate()).toDateString()}
                     </Text>
                     <Button
                       style={styles.viewButton}
@@ -195,9 +211,9 @@ export default function NewHome() {
                     </Button>
                   </Card>
                 ))}
-              </View>
+              </ScrollView>
             ) : (
-              <EmptyState
+              <Empty
                 title="No Goals Yet"
                 description="Set your first goal to start making progress on what matters most."
                 buttonText="Set a New Goal"
@@ -210,7 +226,7 @@ export default function NewHome() {
           <View>
             <Text style={styles.sectionTitle}>Reflect on Your Journey</Text>
             {loading ? (
-              <ActivityIndicator size="large" color="#FFF" />
+              <ActivityIndicator size="large" color="#4DB6AC" />
             ) : entries.length > 0 ? (
               <View style={styles.cardContainer}>
                 {entries.map((entry) => (
@@ -243,7 +259,7 @@ export default function NewHome() {
                 ))}
               </View>
             ) : (
-              <EmptyState
+              <Empty
                 title="No Entries Yet"
                 description="Add your first journal or gratitude entry to reflect on your journey."
                 buttonText="Add Entry"
@@ -275,7 +291,7 @@ export default function NewHome() {
                 ))}
               </ScrollView>
             ) : (
-              <EmptyState
+              <Empty
                 title="Explore resources."
                 description="Browse through resources that can help you achieve your goals."
                 buttonText="Explore Resources"
@@ -285,137 +301,199 @@ export default function NewHome() {
           </View>
         </View>
       </ScrollView>
-    </ImageBackground>
+    </LinearGradient>
   );
 }
 
 const styles = StyleSheet.create({
-  backgroundImage: {
-    flex: 1,
-    resizeMode: "cover",
-  },
-  container: {
-    flexGrow: 1,
-    backgroundColor: "rgba(0,0,0,0.3)", // Dark overlay for better text readability
-  },
+  container: { flex: 1 },
+  scrollContainer: { flexGrow: 1 },
   safeArea: {
     marginTop: 40,
     paddingHorizontal: 15,
-    paddingBottom: 40, // Add padding to the bottom
+    paddingBottom: 40,
   },
   greetingText: {
-    fontSize: 28,
+    fontSize: 32,
     fontWeight: "bold",
-    color: "#FFFFFF",
+    color: "#263238",
     textAlign: "center",
-    marginVertical: 20,
-    fontFamily: "RobotoSlabRegular",
-    textShadowColor: "rgba(0, 0, 0, 0.4)",
-    textShadowOffset: { width: 1, height: 1 },
-    textShadowRadius: 2,
+    marginVertical: 28,
+    fontFamily: "PoppinsBold",
+    letterSpacing: 1,
+  },
+  dailyInspiration: {
+    padding: 28,
+    borderRadius: 20,
+    marginVertical: 18,
+    backgroundColor: "rgba(255,255,255,0.97)",
+    shadowColor: "#4DB6AC",
+    shadowOffset: { width: 0, height: 12 },
+    shadowOpacity: 0.18,
+    shadowRadius: 18,
+    elevation: 15,
+    alignItems: "center",
+    justifyContent: "center",
+    borderWidth: 1,
+    borderColor: "#4DB6AC",
+  },
+  inspirationText: {
+    fontSize: 22,
+    color: "#263238",
+    textAlign: "center",
+    marginBottom: 10,
+    fontFamily: "PoppinsRegular",
+    fontStyle: "italic",
+    fontWeight: "bold",
+  },
+  inspirationAuthor: {
+    fontSize: 16,
+    color: "#4DB6AC",
+    textAlign: "center",
+    marginBottom: 10,
+    fontFamily: "PoppinsRegular",
+  },
+  seeMoreButton: {
+    marginTop: 10,
+    alignSelf: "center",
+    padding: 10,
+    borderRadius: 8,
+    backgroundColor: "#E0F2F1",
+    borderWidth: 1,
+    borderColor: "#4DB6AC",
+  },
+  buttonText: {
+    fontSize: 16,
+    color: "#4DB6AC",
+    fontFamily: "PoppinsRegular",
+    fontWeight: "bold",
   },
   focusCard: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "rgba(255, 255, 255, 0.2)", // Semi-transparent white
-    padding: 15,
-    borderRadius: 15,
-    marginVertical: 10,
-    borderColor: "rgba(255, 255, 255, 0.5)",
-    borderWidth: 1,
+    padding: 20,
+    borderRadius: 18,
+    marginVertical: 14,
+    backgroundColor: "#4DB6AC",
+    elevation: 10,
+    shadowColor: "#00897B",
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.16,
+    shadowRadius: 16,
   },
   focusTextContainer: {
     flex: 1,
     marginLeft: 15,
+    backgroundColor: "transparent",
   },
   focusTitle: {
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: "bold",
     color: "#FFFFFF",
     fontFamily: "PoppinsSemiBold",
   },
   focusSubtitle: {
-    fontSize: 14,
-    color: "#E0E0E0",
+    fontSize: 15,
+    color: "#F5F5F5",
     fontFamily: "PoppinsRegular",
   },
   focusButton: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#fff",
     paddingVertical: 8,
-    paddingHorizontal: 15,
+    paddingHorizontal: 18,
     borderRadius: 20,
+    elevation: 4,
   },
   focusButtonText: {
     color: "#4DB6AC",
     fontWeight: "bold",
-    fontSize: 14,
+    fontSize: 16,
   },
   streakContainer: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "rgba(0, 0, 0, 0.2)",
-    padding: 12,
-    borderRadius: 15,
-    marginVertical: 10,
+    backgroundColor: "#263238",
+    padding: 16,
+    borderRadius: 17,
+    marginVertical: 15,
+    elevation: 9,
+    shadowColor: "#4DB6AC",
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.12,
+    shadowRadius: 12,
   },
   streakText: {
-    fontSize: 16,
-    color: "#FFFFFF",
+    fontSize: 18,
+    color: "#4DB6AC",
     fontFamily: "PoppinsMedium",
     marginLeft: 8,
+    fontWeight: "bold",
   },
   sectionTitle: {
-    fontSize: 22,
+    fontSize: 24,
     marginVertical: 20,
-    color: "#FFFFFF",
+    color: "#263238",
     fontFamily: "PoppinsSemiBold",
-    textShadowColor: "rgba(0, 0, 0, 0.2)",
-    textShadowOffset: { width: 1, height: 1 },
-    textShadowRadius: 1,
+    fontWeight: "bold",
   },
-  cardContainer: {
-    marginBottom: 20,
+  horizontalScroll: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 3,
+    paddingBottom: 5,
   },
-  card: {
-    padding: 15,
-    marginBottom: 10,
-    borderRadius: 10,
-    elevation: 3, // Softened elevation
-    borderColor: "#D7CCC8",
-    borderWidth: 1,
+  goalCard: {
+    width: 230,
+    marginRight: 20,
+    borderRadius: 18,
+    padding: 18,
     backgroundColor: "#fff",
+    elevation: 12,
+    shadowColor: "#4DB6AC",
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.12,
+    shadowRadius: 22,
+    borderWidth: 1.5,
+    borderColor: "#4DB6AC",
+    justifyContent: "space-between",
   },
   goalTitle: {
-    fontSize: 17,
+    fontSize: 18,
     color: "#263238",
-    fontFamily: "PoppinsRegular",
+    fontFamily: "PoppinsSemiBold",
+    marginBottom: 12,
   },
   goalDeadline: {
-    fontSize: 14,
-    color: "#78909C",
-    marginVertical: 10,
+    fontSize: 15,
+    color: "#4DB6AC",
+    marginVertical: 8,
     fontFamily: "PoppinsRegular",
+    fontWeight: "bold",
   },
   progressBar: {
-    marginTop: 10,
-    height: 10,
-    borderRadius: 5,
-    backgroundColor: "#D7CCC8",
+    marginTop: 8,
+    height: 12,
+    borderRadius: 6,
+    backgroundColor: "#E0F2F1",
   },
   viewButton: {
     backgroundColor: "#4DB6AC",
-    paddingVertical: 8,
-    paddingHorizontal: 15,
-    borderRadius: 5,
+    paddingVertical: 9,
+    paddingHorizontal: 18,
+    borderRadius: 8,
     alignItems: "center",
-    marginTop: 10,
+    marginTop: 12,
+    elevation: 3,
   },
   viewButtonText: {
     color: "#fff",
-    fontSize: 14,
-    fontWeight: "600",
+    fontSize: 15,
+    fontWeight: "bold",
     fontFamily: "PoppinsMedium",
+  },
+  cardContainer: {
+    marginBottom: 20,
   },
   sectionContainer: {
     marginVertical: 15,
@@ -424,14 +502,18 @@ const styles = StyleSheet.create({
     width: 220,
     height: 250,
     marginRight: 15,
-    borderRadius: 15,
-    padding: 15,
+    borderRadius: 16,
+    padding: 18,
     backgroundColor: "#fff",
-    elevation: 3, // Softened elevation
+    elevation: 8,
+    shadowColor: "#4DB6AC",
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.14,
+    shadowRadius: 18,
     justifyContent: "space-between",
     overflow: "hidden",
-    borderColor: "#E0E0E0",
-    borderWidth: 1,
+    borderColor: "#4DB6AC",
+    borderWidth: 1.5,
   },
   resourceImage: {
     width: "100%",
@@ -440,27 +522,26 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   resourceTitle: {
-    fontSize: 14,
+    fontSize: 16,
     color: "#263238",
     textAlign: "center",
     marginBottom: 10,
     fontFamily: "PoppinsRegular",
     flexShrink: 1,
-  },
-  horizontalScroll: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingHorizontal: 3,
-    paddingBottom: 5,
+    fontWeight: "bold",
   },
   entryCard: {
-    padding: 15,
-    marginBottom: 10,
-    borderRadius: 10,
+    padding: 18,
+    marginBottom: 14,
+    borderRadius: 14,
     backgroundColor: "#fff",
-    borderColor: "#E0E0E0",
-    borderWidth: 1,
-    elevation: 3, // Softened elevation
+    borderColor: "#4DB6AC",
+    borderWidth: 1.2,
+    elevation: 9,
+    shadowColor: "#4DB6AC",
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.13,
+    shadowRadius: 16,
   },
   entryHeader: {
     flexDirection: "row",
@@ -469,25 +550,26 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   entryType: {
-    fontSize: 10,
+    fontSize: 12,
     fontWeight: "bold",
     color: "#fff",
-    backgroundColor: "#F48FB1",
+    backgroundColor: "#4DB6AC",
     paddingVertical: 4,
-    paddingHorizontal: 8,
+    paddingHorizontal: 12,
     borderRadius: 20,
     overflow: "hidden",
     fontFamily: "PoppinsRegular",
+    letterSpacing: 1,
   },
   entryContent: {
-    fontSize: 13,
+    fontSize: 14,
     fontFamily: "PoppinsRegular",
     color: "#263238",
     marginBottom: 10,
   },
   entryDate: {
-    fontSize: 12,
-    color: "#78909C",
+    fontSize: 13,
+    color: "#4DB6AC",
     marginBottom: 10,
     fontFamily: "PoppinsRegular",
   },

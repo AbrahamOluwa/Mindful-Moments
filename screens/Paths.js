@@ -5,7 +5,7 @@ import {
   StyleSheet,
   TouchableOpacity,
   ScrollView,
-  ActivityIndicator
+  ActivityIndicator,
 } from "react-native";
 import { FontAwesome } from "@expo/vector-icons";
 import { db } from "../firebaseConfig";
@@ -64,8 +64,6 @@ const fetchGoals = async (userId) => {
   }
 };
 
-
-
 const CreatedGoals = ({ navigation, userId }) => {
   const [goals, setGoals] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -93,7 +91,7 @@ const CreatedGoals = ({ navigation, userId }) => {
       <View style={styles.sectionHeader}>
         <Text style={styles.sectionTitle}>Created Goals</Text>
         <TouchableOpacity
-          onPress={() => navigation.navigate("GoalsListScreen", {userId})}
+          onPress={() => navigation.navigate("GoalsListScreen", { userId })}
           style={styles.seeMore}
         >
           <Text style={styles.seeMoreText}>See More</Text>
@@ -124,15 +122,18 @@ const CreatedGoals = ({ navigation, userId }) => {
               />
             </View>
             <Text style={styles.progressText}>
-              Progress:{goal.tasks.filter((task) => task.completed === true).length}/
-              {goal.tasks.length} tasks
-              completed
+              Progress:
+              {goal.tasks.filter((task) => task.completed === true).length}/
+              {goal.tasks.length} tasks completed
             </Text>
             <View style={styles.cardActions}>
               <TouchableOpacity
                 style={styles.cardActionButton}
                 onPress={() =>
-                  navigation.navigate("GoalDetailsScreen", { goalId: goal.id , userId })
+                  navigation.navigate("GoalDetailsScreen", {
+                    goalId: goal.id,
+                    userId,
+                  })
                 }
               >
                 <FontAwesome
@@ -306,7 +307,7 @@ const CompletedPaths = () => {
   );
 };
 
-const AvailablePaths = ({navigation}) => {
+const AvailablePaths = ({ navigation }) => {
   const suggestedPaths = [
     {
       id: "1",
@@ -359,7 +360,7 @@ const AvailablePaths = ({navigation}) => {
 
   if (loading) {
     return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
         <ActivityIndicator size="large" color="#4DB6AC" />
         <Text>Loading paths...</Text>
       </View>
@@ -368,7 +369,7 @@ const AvailablePaths = ({navigation}) => {
 
   if (error) {
     return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
         <Text>Error: {error.message}</Text>
       </View>
     );
@@ -392,7 +393,10 @@ const AvailablePaths = ({navigation}) => {
             <Text style={styles.suggestedTitle}>{item.title}</Text>
             <Text style={styles.suggestedDescription}>{item.description}</Text>
             <Text style={styles.suggestedDetails}>{item.details}</Text>
-            <TouchableOpacity style={styles.startPathButton}  onPress={() => navigation.navigate("PathOverviewScreen")}>
+            <TouchableOpacity
+              style={styles.startPathButton}
+              onPress={() => navigation.navigate("PathOverviewScreen")}
+            >
               <Text style={styles.startPathText}>Start Path</Text>
             </TouchableOpacity>
           </View>
@@ -446,114 +450,169 @@ const Paths = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#FAFAFA",
+    backgroundColor: "#F3E5F5", // Soft lavender for subtle warmth
   },
   header: {
-    // backgroundColor: "#EF798A",
-    backgroundColor: "#4DB6AC",
+    // Try a gradient header for extra premium feel:
+    // backgroundColor: "#4DB6AC",
     padding: 40,
-    borderRadius: 10,
-    marginBottom: 20,
-    shadowColor: "#000",
-    shadowOpacity: 0.2,
-    shadowRadius: 10,
-    shadowOffset: { width: 0, height: 4 },
+    borderRadius: 16,
+    marginBottom: 24,
+    shadowColor: "#4DB6AC",
+    shadowOpacity: 0.18,
+    shadowRadius: 18,
+    shadowOffset: { width: 0, height: 8 },
+    backgroundColor: "#4DB6AC",
   },
   headerContent: {
     alignItems: "center",
   },
   title: {
-    fontSize: 28,
+    fontSize: 32,
     fontWeight: "bold",
     color: "#FFF",
     fontFamily: "RobotoSlabSemiBold",
+    letterSpacing: 1,
   },
   subtitle: {
     fontSize: 16,
-    // color: "#E2E8F0",
-    color: "#fff",
-    marginTop: 5,
+    color: "#FFF",
+    marginTop: 7,
     textAlign: "center",
     fontFamily: "PoppinsRegular",
   },
   quickActions: {
     flexDirection: "row",
-    marginTop: 15,
+    marginTop: 18,
+
+    // flexDirection: "row",
+    // marginTop: 18,
+    // paddingHorizontal: 16,
+    // justifyContent: "center",
   },
   ctaButton: {
     backgroundColor: "#FFF",
-    padding: 12,
-    borderRadius: 8,
-    marginRight: 10,
-    shadowColor: "#000",
-    shadowOpacity: 0.1,
-    shadowRadius: 5,
-    shadowOffset: { width: 0, height: 2 },
+    padding: 14,
+    borderRadius: 10,
+    marginRight: 12,
+    borderWidth: 1.5,
+    borderColor: "#4DB6AC",
+    elevation: 3,
   },
   ctaButtonText: {
-    // color: "#3182CE",
     color: "#4DB6AC",
     fontWeight: "bold",
     fontFamily: "PoppinsMedium",
+    fontSize: 14,
   },
   secondaryButton: {
-    backgroundColor: "#E2E8F0",
-    padding: 12,
-    borderRadius: 8,
-    shadowColor: "#000",
-    shadowOpacity: 0.1,
-    shadowRadius: 5,
-    shadowOffset: { width: 0, height: 2 },
-    fontFamily: "PoppinsRegular",
+    backgroundColor: "#F48FB1",
+    padding: 14,
+    borderRadius: 10,
+    borderWidth: 1.5,
+    borderColor: "#F48FB1",
+    elevation: 3,
   },
   secondaryButtonText: {
-    // color: "#3182CE",
-    color: "#78909C",
+    color: "#FFF",
     fontWeight: "bold",
-    fontFamily: "PoppinsRegular",
+    fontFamily: "PoppinsMedium",
+    fontSize: 14,
   },
   section: {
-    paddingHorizontal: 12,
-    paddingVertical: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 16,
   },
   sectionHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 10,
+    marginBottom: 4,
   },
   sectionTitle: {
     fontSize: 22,
     fontWeight: "bold",
-    color: "#2D3748",
-    flex: 1,
-    fontFamily: "PoppinsRegular",
+    color: "#263238",
+    fontFamily: "PoppinsSemiBold",
+  },
+  sectionDivider: {
+    width: 40,
+    height: 4,
+    backgroundColor: "#F48FB1", // Pink accent bar under section
+    borderRadius: 2,
+    alignSelf: "flex-start",
+    marginTop: 4,
+    marginBottom: 12,
   },
   seeMore: {
-    paddingHorizontal: 10,
+    paddingHorizontal: 12,
     alignItems: "flex-end",
   },
   seeMoreText: {
     fontSize: 15,
-    // color: "#3182CE",
     color: "#F48FB1",
     fontWeight: "bold",
-    fontFamily: "PoppinsRegular",
+    fontFamily: "PoppinsMedium",
   },
   horizontalScroll: {
-    paddingVertical: 10,
+    paddingVertical: 12,
+  },
+  // Cards alternate teal and pink accents for variety
+  goalCard: {
+    backgroundColor: "rgba(255,255,255,0.97)",
+    padding: 17,
+    borderRadius: 14,
+    marginRight: 18,
+    elevation: 7,
+    shadowColor: "#4DB6AC",
+    shadowOpacity: 0.16,
+    shadowRadius: 12,
+    shadowOffset: { width: 0, height: 8 },
+    width: 270,
+    borderWidth: 1.5,
+    borderColor: "#4DB6AC", // Teal border for goals
   },
   activePathCard: {
-    backgroundColor: "#FFF",
-    padding: 15,
-    borderRadius: 10,
-    marginRight: 15,
-    elevation: 3,
-    shadowColor: "#000",
-    shadowOpacity: 0.1,
-    shadowRadius: 10,
-    shadowOffset: { width: 0, height: 4 },
+    backgroundColor: "rgba(255,255,255,0.97)",
+    padding: 17,
+    borderRadius: 14,
+    marginRight: 18,
+    elevation: 7,
+    shadowColor: "#F48FB1",
+    shadowOpacity: 0.16,
+    shadowRadius: 12,
+    shadowOffset: { width: 0, height: 8 },
     width: 270,
+    borderWidth: 1.5,
+    borderColor: "#F48FB1", // Pink border for active path
+  },
+  completedPathCard: {
+    backgroundColor: "rgba(255,255,255,0.97)",
+    padding: 17,
+    borderRadius: 14,
+    marginRight: 18,
+    elevation: 7,
+    shadowColor: "#4DB6AC",
+    shadowOpacity: 0.16,
+    shadowRadius: 12,
+    shadowOffset: { width: 0, height: 8 },
+    width: 270,
+    borderWidth: 1.5,
+    borderColor: "#4DB6AC", // Teal border for completed path
+  },
+  suggestedCard: {
+    backgroundColor: "rgba(255,255,255,0.97)",
+    padding: 17,
+    borderRadius: 14,
+    marginRight: 18,
+    width: 220,
+    elevation: 4,
+    shadowColor: "#F48FB1",
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 4 },
+    borderWidth: 1.2,
+    borderColor: "#F48FB1", // Pink border for suggested card
   },
   cardHeader: {
     flexDirection: "row",
@@ -562,197 +621,148 @@ const styles = StyleSheet.create({
   activePathName: {
     fontSize: 18,
     fontWeight: "bold",
-    color: "#2D3748",
-    fontFamily: "PoppinsRegular",
+    color: "#263238",
+    fontFamily: "PoppinsSemiBold",
   },
   activePathProgress: {
     fontSize: 16,
-    color: "#38A169",
+    color: "#F48FB1", // Pink progress for active path
+    fontFamily: "PoppinsMedium",
   },
   nextStep: {
     fontSize: 14,
-    color: "#718096",
+    color: "#78909C",
     marginTop: 10,
     fontFamily: "PoppinsRegular",
   },
   nextStepDetail: {
     fontSize: 16,
-    color: "#2D3748",
+    color: "#263238",
     marginBottom: 10,
     fontFamily: "PoppinsRegular",
   },
   progressBar: {
     height: 8,
     width: "100%",
-    // backgroundColor: "#E2E8F0",
-    backgroundColor: "#D7CCC8",
+    backgroundColor: "#E0F2F1",
     borderRadius: 4,
     overflow: "hidden",
     marginTop: 10,
   },
   progress: {
     height: "100%",
-    // backgroundColor: "#3182CE",
-    backgroundColor: "#F48FB1",
+    backgroundColor: "#F48FB1", // Pink fill for progress bar
   },
   progressText: {
     fontSize: 14,
-    color: "#718096",
+    color: "#4DB6AC", // Teal for completed progress text
     marginTop: 5,
-    fontFamily: "PoppinsRegular",
+    fontFamily: "PoppinsMedium",
   },
   cardActions: {
-    marginTop: 10,
+    marginTop: 14,
   },
   cardActionButton: {
-    // backgroundColor: "#E2E8F0",
-    backgroundColor: "#F48FB1",
+    backgroundColor: "#4DB6AC", // Teal for main action
     padding: 10,
-    borderRadius: 8,
+    borderRadius: 9,
     flexDirection: "row",
     alignItems: "center",
     marginBottom: 8,
-    shadowColor: "#000",
-    shadowOpacity: 0.1,
-    shadowRadius: 5,
-    shadowOffset: { width: 0, height: 2 },
+    elevation: 2,
   },
   cardActionIcon: {
     marginRight: 10,
   },
   cardActionText: {
-    // color: "#2D3748",
     color: "#fff",
     fontWeight: "bold",
-    fontFamily: "PoppinsRegular",
+    fontFamily: "PoppinsMedium",
+    fontSize: 15,
   },
   cardActionButtonComplete: {
-    // backgroundColor: "#38A169",
-    backgroundColor: "#A5D6A7",
+    backgroundColor: "#F48FB1", // Pink for complete action
     padding: 10,
-    borderRadius: 8,
+    borderRadius: 9,
     flexDirection: "row",
     alignItems: "center",
     marginBottom: 8,
-    shadowColor: "#000",
-    shadowOpacity: 0.1,
-    shadowRadius: 5,
-    shadowOffset: { width: 0, height: 2 },
-  },
-  goalCard: {
-    backgroundColor: "#FFF",
-    padding: 15,
-    borderRadius: 10,
-    marginRight: 15,
-    elevation: 3,
-    shadowColor: "#000",
-    shadowOpacity: 0.1,
-    shadowRadius: 10,
-    shadowOffset: { width: 0, height: 4 },
-    width: 270,
-    borderWidth: 1,
-    borderColor: "#D7CCC8",
+    elevation: 2,
   },
   goalTitle: {
     fontSize: 18,
     fontWeight: "bold",
     color: "#263238",
-    fontFamily: "PoppinsRegular",
+    fontFamily: "PoppinsSemiBold",
   },
   goalDescription: {
     fontSize: 14,
-    color: "#718096",
+    color: "#78909C",
     marginTop: 10,
     fontFamily: "PoppinsRegular",
   },
   completedText: {
     fontSize: 14,
-    color: "#38A169",
+    color: "#4DB6AC",
     marginTop: 10,
-    fontFamily: "PoppinsRegular",
-  },
-  completedPathCard: {
-    backgroundColor: "#FFF",
-    padding: 15,
-    borderRadius: 10,
-    marginRight: 15,
-    elevation: 3,
-    shadowColor: "#000",
-    shadowOpacity: 0.1,
-    shadowRadius: 10,
-    shadowOffset: { width: 0, height: 4 },
-    width: 270,
+    fontFamily: "PoppinsMedium",
   },
   completedPathName: {
     fontSize: 18,
     fontWeight: "bold",
-    color: "#2D3748",
-    fontFamily: "PoppinsRegular",
+    color: "#263238",
+    fontFamily: "PoppinsSemiBold",
   },
   completedDate: {
     fontSize: 14,
-    color: "#718096",
+    color: "#78909C",
     marginTop: 10,
     fontFamily: "PoppinsRegular",
-  },
-  suggestedPathsContainer: {
-    flexDirection: "row",
-    marginBottom: 20,
-  },
-  suggestedCard: {
-    backgroundColor: "#FFF",
-    padding: 15,
-    borderRadius: 10,
-    marginRight: 15,
-    width: 220,
-    elevation: 3,
-    shadowColor: "#000",
-    shadowOpacity: 0.1,
-    shadowRadius: 10,
-    shadowOffset: { width: 0, height: 4 },
   },
   suggestedTitle: {
     fontSize: 17,
     fontWeight: "bold",
-    color: "#2D3748",
-    fontFamily: "PoppinsRegular",
+    color: "#263238",
+    fontFamily: "PoppinsSemiBold",
   },
   suggestedDescription: {
     fontSize: 13,
-    color: "#718096",
+    color: "#78909C",
     marginTop: 10,
     fontFamily: "PoppinsRegular",
   },
   suggestedDetails: {
     fontSize: 13,
-    color: "#4A5568",
+    color: "#F48FB1", // Pink for path details
     marginTop: 5,
-    fontFamily: "PoppinsRegular",
+    fontFamily: "PoppinsMedium",
   },
   startPathButton: {
-    // backgroundColor: "#3182CE",
     backgroundColor: "#F48FB1",
     padding: 10,
-    borderRadius: 5,
+    borderRadius: 7,
     marginTop: 15,
     alignItems: "center",
+    elevation: 2,
   },
   startPathText: {
     color: "#FFF",
     fontWeight: "bold",
-    fontFamily: "PoppinsRegular",
+    fontFamily: "PoppinsSemiBold",
+    fontSize: 15,
   },
   analyticsContainer: {
     marginTop: 15,
-    backgroundColor: "#F7FAFC",
+    backgroundColor: "#E0F2F1",
     padding: 10,
-    borderRadius: 8,
+    borderRadius: 10,
     marginBottom: 10,
   },
   analyticsTitle: {
     fontSize: 16,
     fontWeight: "bold",
-    color: "#2D3748",
+    color: "#4DB6AC", // Teal for analytics
+    fontFamily: "PoppinsSemiBold",
   },
   analyticsRow: {
     flexDirection: "row",
@@ -761,11 +771,13 @@ const styles = StyleSheet.create({
   },
   analyticsLabel: {
     fontSize: 14,
-    color: "#718096",
+    color: "#F48FB1", // Pink for analytics labels
+    fontFamily: "PoppinsMedium",
   },
   analyticsValue: {
     fontSize: 14,
-    color: "#2D3748",
+    color: "#263238",
+    fontFamily: "PoppinsSemiBold",
   },
 });
 
